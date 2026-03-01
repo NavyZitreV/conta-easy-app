@@ -165,9 +165,14 @@ def generar_pdf(markdown_content):
             except Exception:
                 pass 
             
+            # --- LEER NOMBRE DINÁMICO ---
+            nombre_uni = st.secrets["general"].get("NOMBRE_INSTITUCION", "Institución Educativa")
+            
             self.set_font('helvetica', 'B', 15)
             self.cell(25) # Espacio para que el texto no pise el logo
-            self.cell(0, 8, 'UNIVERSIDAD CENTRAL - UNICEN', border=0, ln=1, align='C')
+            
+            # Imprimir el nombre de forma automática
+            self.cell(0, 8, nombre_uni, border=0, ln=1, align='C')
             
             self.set_font('helvetica', 'I', 10)
             self.cell(25)
@@ -1138,6 +1143,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
