@@ -8,6 +8,23 @@ import unicodedata
 import random
 import base64
 import streamlit.components.v1 as components
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+# --- Configurar Firebase ---
+@st.cache_resource
+def get_db():
+    if not firebase_admin._apps:
+        try:
+            cred_dict = dict(st.secrets["firebase"]["info"])
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
+        except Exception as e:
+            st.error(f"Error al inicializar Firebase: {e}")
+            return None
+    return firestore.client()
+
+db = get_db()
 
 def reproducir_sonido(file_path):
     try:
@@ -52,6 +69,8 @@ st.markdown("""
     }
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
+    header {visibility: hidden;}
+
     /* Estilos para los mensajes del chat */
     .stChatMessage {
         background-color: #ffffff;
@@ -383,16 +402,79 @@ def search_web(query):
     except Exception as e:
         return f"Error en búsqueda web: {e}"
 
+def mostrar_login():
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown(
+            "<div style='text-align: center; padding: 1rem;'><h2 style='color: #003366;'>Bienvenido a CONTA-EASY 🚀</h2><p style='color: #6c757d;'>Inicia sesión o regístrate para continuar.</p></div>",
+            unsafe_allow_html=True
+        )
+        
+        tab_login, tab_register = st.tabs(["🔑 Iniciar Sesión", "📝 Registrarse"])
+        
+        with tab_login:
+            correo = st.text_input("Correo Electrónico", key="login_correo")
+            password = st.text_input("Contraseña", type="password", key="login_pass")
+            if st.button("Ingresar", type="primary", use_container_width=True):
+                if not correo or not password:
+                    st.error("Por favor llena todos los campos.")
+                elif db is None:
+                    st.error("Base de datos no disponible.")
+                else:
+                    usuarios_ref = db.collection('usuarios')
+                    query = usuarios_ref.where('correo', '==', correo).limit(1).get()
+                    if len(query) == 0:
+                        st.error("Usuario no encontrado.")
+                    else:
+                        user_doc = query[0]
+                        user_data = user_doc.to_dict()
+                        if user_data.get("password") == password:
+                            st.session_state.user_id = user_doc.id
+                            st.session_state.user_xp = user_data.get("xp", 0)
+                            st.session_state.user_streak = user_data.get("racha", 0)
+                            st.success("¡Sesión iniciada exitosamente!")
+                            st.rerun()
+                        else:
+                            st.error("Contraseña incorrecta.")
+                            
+        with tab_register:
+            nuevo_correo = st.text_input("Correo Electrónico", key="reg_correo")
+            nuevo_password = st.text_input("Contraseña", type="password", key="reg_pass")
+            if st.button("Crear Cuenta", type="primary", use_container_width=True):
+                if not nuevo_correo or not nuevo_password:
+                    st.error("Por favor llena todos los campos.")
+                elif db is None:
+                    st.error("Base de datos no disponible.")
+                else:
+                    usuarios_ref = db.collection('usuarios')
+                    query = usuarios_ref.where('correo', '==', nuevo_correo).limit(1).get()
+                    if len(query) > 0:
+                        st.error("Ese correo ya está registrado.")
+                    else:
+                        nuevo_usuario = {
+                            "correo": nuevo_correo,
+                            "password": nuevo_password,
+                            "xp": 0,
+                            "racha": 0,
+                            "rol": "estudiante"
+                        }
+                        _, doc_ref = usuarios_ref.add(nuevo_usuario)
+                        st.session_state.user_id = doc_ref.id
+                        st.session_state.user_xp = 0
+                        st.session_state.user_streak = 0
+                        st.success("Cuenta creada exitosamente. ¡Bienvenido!")
+                        st.rerun()
+
+
 # --- Main App Logic ---
 def main():
+    if "user_id" not in st.session_state:
+        mostrar_login()
+        return
+
     st.title("📚 Laboratorio de Contabilidad (IA)")
     st.markdown("Asistente inteligente con Búsqueda en Cascada (Local -> NotebookLM -> Web)")
-
-    # --- Gamification State ---
-    if "user_xp" not in st.session_state:
-        st.session_state.user_xp = 0
-    if "user_streak" not in st.session_state:
-        st.session_state.user_streak = 0
 
     # --- Gestor de Sonidos ---
     if "pending_sound" in st.session_state:
@@ -429,6 +511,13 @@ def main():
             st.session_state.messages = []
             if "auditor_mode" in st.session_state: del st.session_state.auditor_mode
             if "auditor_case" in st.session_state: del st.session_state.auditor_case
+            st.rerun()
+            
+        st.divider()
+        if st.button("🚪 Cerrar Sesión", use_container_width=True):
+            for key in ["user_id", "user_xp", "user_streak", "messages", "project_mode", "auditor_mode"]:
+                if key in st.session_state:
+                    del st.session_state[key]
             st.rerun()
 
 
@@ -718,6 +807,16 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                 st.session_state.user_streak = 0
                                 reproducir_sonido("audio/error.mp3") # NUEVO: Efecto de sonido de fallo
                                 st.toast(f"Obtuviste {score} XP. La racha ha vuelto a cero. ¡Revisa la norma y recupera tu fuego!", icon="🧊")
+                            
+                            # Update gamification to Firebase
+                            if db is not None:
+                                try:
+                                    db.collection('usuarios').document(st.session_state.user_id).update({
+                                        "xp": st.session_state.user_xp,
+                                        "racha": st.session_state.user_streak
+                                    })
+                                except Exception as e:
+                                    st.warning(f"No se pudo guardar la métrica en la nube: {e}")
                         
                         st.session_state.auditor_mode = False # End challenge after advice
                         st.session_state.last_auditor_response = full_response
