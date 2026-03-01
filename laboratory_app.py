@@ -496,7 +496,14 @@ def main():
         with col_streak:
             st.metric(label="Racha 🔥", value=f"{st.session_state.user_streak}")
         st.divider()
-        
+
+        # --- PANEL DE CONTROL (SOLO PARA ADMIN) ---
+        user_ref = db.collection('usuarios').document(st.session_state.user_id).get()
+        if user_ref.exists and user_ref.to_dict().get("rol") == "admin":
+            st.markdown("### 🛠️ Administración")
+            if st.button("📊 Panel de Control Estudiantes", type="secondary"):
+                st.session_state.show_admin_panel = True
+            st.divider()
         # --- Carga Segura de API Key (Invisible para el usuario) ---
         try:
             api_key = st.secrets["general"]["GEMINI_API_KEY"]
@@ -1085,5 +1092,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
