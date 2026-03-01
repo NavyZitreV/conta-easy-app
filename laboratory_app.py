@@ -619,7 +619,7 @@ PROHIBIDO usar formato LaTeX, signos de dólar ($) o etiquetas como \\mathbf par
 DEBES dejar obligatoriamente una línea en blanco (un Enter) justo ANTES de empezar la tabla del asiento contable.
 
 {reglas_actuales}
-
+REGLA DE ORO TRIBUTARIA: Aplica las normativas de impuestos SOLO si la transacción lo requiere explícitamente. ESTÁ ESTRICTAMENTE PROHIBIDO añadir "Notas", consejos o recordatorios al final de tu respuesta sobre retenciones (como el D.S. 4850) si el ejercicio no trata sobre pagos de servicios sin factura. Limítate a resolver el caso.
 TAREA: 
 1. Crea el asiento contable usando ESTRICTAMENTE esta estructura Markdown. NO fusiones columnas. Usa este modelo exacto para garantizar la alineación:
 | Código | Detalle / Cuenta | Debe (Bs.) | Haber (Bs.) |
@@ -1075,7 +1075,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     
                     prompt_proyecto = f"""Eres un Tutor Senior de Contabilidad en Bolivia.
                     {reglas_actuales}
-                    
+                    REGLA DE ORO TRIBUTARIA: Aplica las normativas de impuestos SOLO si la transacción lo requiere explícitamente. ESTÁ ESTRICTAMENTE PROHIBIDO añadir "Notas", consejos o recordatorios al final de tu respuesta sobre retenciones (como el D.S. 4850) si el ejercicio no trata sobre pagos de servicios sin factura. Limítate a resolver el caso.
                     El estudiante ha registrado este ciclo de transacciones:
                     {transacciones_texto}
                     
@@ -1143,6 +1143,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
