@@ -1,0 +1,2107 @@
+[
+  {
+    "title": "TEMA 1",
+    "content": {
+      "title": "TEMA 1: Historia de la Contabilidad",
+      "summary": "La evolución de la contabilidad se traza desde sus orígenes legales y matemáticos hasta la estrategia global moderna. Inicia con Hammurabi (Ley) y Fibonacci (Matemática), pasando por la técnica de Pacioli y la teoría económica de Besta y Schmalenbach. En la actualidad, destaca la figura de Mervyn King, quien transformó la profesión hacia el Reporte Integrado y las normas ESG, impulsando la contabilidad no solo del capital financiero, sino también del impacto social y ambiental [1].",
+      "mermaid_diagram": "graph TD; A[Hammurabi: La Ley] --> B[Fibonacci: La Matemática]; B --> C[Pacioli: La Técnica]; C --> D[Besta/Schmalenbach: Teoría Económica]; D --> E[Kaplan/King: Estrategia Global]; E --> F[Reporte Integrado y ESG];",
+      "key_concepts": [
+        {
+          "term": "Reporte Integrado",
+          "def": "Enfoque impulsado por Mervyn King donde las empresas reportan no solo sus finanzas, sino también su impacto en el capital social y natural [1]."
+        },
+        {
+          "term": "ESG",
+          "def": "Siglas en inglés para Environmental, Social, and Governance (Ambiental, Social y Gobernanza), bases modernas para la sostenibilidad corporativa sentadas por los reportes King [1]."
+        }
+      ],
+      "detailed_sections": [
+        {
+          "heading": "Evolución Lógica de la Profesión",
+          "content": "La historia de la contabilidad se conecta a través de una evolución lógica representada por figuras clave:\n\n*   **La Ley:** Representada por **Hammurabi**, estableciendo las primeras reglas.\n*   **La Matemática:** Introducida por **Fibonacci**, aportando la lógica numérica.\n*   **La Técnica:** Consolidada por **Pacioli** (padre de la partida doble).\n*   **La Teoría Económica:** Desarrollada por **Besta y Schmalenbach**.\n*   **Estrategia Global:** Liderada modernamente por **Kaplan y King** [1]."
+        },
+        {
+          "heading": "La Era Moderna: Mervyn King y los Reportes Corporativos",
+          "content": "**Mervyn King**, exjuez y figura central mundial, revolucionó la contabilidad moderna con los **King Reports on Corporate Governance** (I, II, III, IV) desde 1994. Su aporte principal es el **Reporte Integrado**, que exige a las empresas ir más allá del *Capital Financiero* y considerar el *Capital Natural y Social*. Esto sentó las bases para las actuales normas **ESG**, integrando la sostenibilidad en la estrategia corporativa [1]."
+        }
+      ],
+      "comparison_table": "| Figura Histórica | Área de Aporte | Enfoque Principal |\n| :--- | :--- | :--- |\n| **Hammurabi** | Ley | Regulación primigenia |\n| **Fibonacci** | Matemática | Lógica numérica |\n| **Luca Pacioli** | Técnica | Estructura contable |\n| **Besta / Schmalenbach** | Teoría Económica | Valoración y economía |\n| **Mervyn King** | Estrategia Global | Reporte Integrado y ESG [1] |"
+    },
+    "quiz": [
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con el material proporcionado, ¿cuál es la ecuación fundamental de balance que debe respetarse en la contabilidad?",
+        "options": [
+          "$Activo = Pasivo + Patrimonio$",
+          "$Patrimonio = Activo + Pasivo$",
+          "$Pasivo = Activo + Patrimonio$",
+          "$Activo = Pasivo - Patrimonio$"
+        ],
+        "correctIndex": 0,
+        "explanation": "Esta es la igualdad fundamental que establece que los recursos de la entidad son financiados ya sea por terceros o por los propietarios."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En la codificación de cuentas mencionada en la sesión práctica, ¿qué nivel representan los primeros tres dígitos?",
+        "options": [
+          "Subgrupo",
+          "Clase",
+          "Cuenta de orden",
+          "Subcuenta"
+        ],
+        "correctIndex": 0,
+        "explanation": "Según la estructura jerárquica presentada, el primer dígito es la clase, los dos primeros el grupo y los tres primeros el subgrupo."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Según el análisis comparativo, ¿cuál es la principal diferencia en la aplicación de las NIIF entre Perú y Bolivia?",
+        "options": [
+          "En Perú son obligatorias para empresas bajo la Ley de Sociedades, mientras que en Bolivia su aplicación es supletoria si no existen normas locales.",
+          "Bolivia prohíbe el uso de NIIF por razones tributarias, mientras que Perú las usa solo para bancos.",
+          "No existe diferencia alguna, ambos países utilizan el marco conceptual del IASB de forma idéntica.",
+          "Perú utiliza principios históricos y Bolivia utiliza exclusivamente las NIIF completas desde 2012."
+        ],
+        "correctIndex": 0,
+        "explanation": "Perú ha adoptado plenamente las NIIF/IFRS, mientras que Bolivia mantiene sus 14 normas locales y usa las NIIF solo cuando las locales no cubren el evento."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Qué acción se debe realizar en el asiento de ajuste mensual cuando el $Débito \\, Fiscal$ es mayor al $Crédito \\, Fiscal$?",
+        "options": [
+          "Cerrar la cuenta de menor valor (Crédito Fiscal) contra el Débito Fiscal para determinar el saldo a pagar al fisco.",
+          "Cerrar la cuenta de Débito Fiscal y registrar una pérdida operativa en el estado de resultados.",
+          "Duplicar el valor del Crédito Fiscal para evitar el pago de impuestos en el formulario 200.",
+          "No se realiza ningún asiento, ya que los impuestos solo se registran cuando se paga en efectivo en el banco."
+        ],
+        "correctIndex": 0,
+        "explanation": "La compensación consiste en restar el crédito disponible del débito generado; al ser el crédito menor, este se agota y se cierra su saldo."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Dentro del Sistema de Contabilidad Integrada (SCI) de la UAGRM, ¿cómo se define el momento del 'Devengado' de gastos?",
+        "options": [
+          "Cuando se crea una obligación jurídica de pago con terceros por la recepción de bienes o servicios.",
+          "Cuando se realiza el desembolso efectivo de dinero a favor del beneficiario.",
+          "Es la etapa de formulación donde se asigna un presupuesto inicial a cada partida.",
+          "Cuando el rector firma el contrato antes de que se entregue cualquier mercancía."
+        ],
+        "correctIndex": 0,
+        "explanation": "El devengado representa el reconocimiento de la obligación independientemente de si el desembolso de efectivo ya ocurrió."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el análisis de transacciones, ¿cuál es el primer paso que debe seguir el profesional contable?",
+        "options": [
+          "Determinar qué cuentas intervienen y a qué clase pertenecen.",
+          "Aplicar directamente la ley del movimiento de cuentas en el libro mayor.",
+          "Registrar el monto en la columna del haber para balancear el presupuesto.",
+          "Firmar el comprobante de diario para autorizar el egreso de caja."
+        ],
+        "correctIndex": 0,
+        "explanation": "Antes de aplicar cualquier movimiento, es fundamental identificar los elementos afectados (activos, pasivos, etc.) por el hecho económico."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la ecuación de resultados correcta cuando los egresos de una empresa superan a sus ingresos?",
+        "options": [
+          "$P = G - I$",
+          "$U = I - G$",
+          "$P = I + G$",
+          "$G = I - P$"
+        ],
+        "correctIndex": 0,
+        "explanation": "Cuando los gastos ($G$) son mayores que los ingresos ($I$), la diferencia resultante representa una pérdida ($P$)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Qué establece la Resolución CTNAC Nº 03/2020 emitida por el Colegio de Auditores de Bolivia?",
+        "options": [
+          "La suspensión del ajuste por inflación.",
+          "La adopción obligatoria e inmediata de todas las NIIF/IFRS.",
+          "El incremento del Impuesto a las Transacciones al $5\\%$.",
+          "La creación de un nuevo plan de cuentas para microempresas."
+        ],
+        "correctIndex": 0,
+        "explanation": "Dicha resolución detuvo la aplicación del ajuste integral por inflación que se realizaba anteriormente en los estados financieros bolivianos."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cómo se clasifican los activos que no tienen forma física, como la marca de una empresa o una licencia de software?",
+        "options": [
+          "Activos intangibles",
+          "Activos tangibles",
+          "Pasivos corrientes",
+          "Gastos financieros"
+        ],
+        "correctIndex": 0,
+        "explanation": "Los bienes inmateriales o incorpóreos que aportan valor a la empresa se clasifican bajo este rubro."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el balance general clasificado por 'tiempo de realización', ¿en qué grupo se ubican las cuentas que se convertirán en efectivo en un plazo mayor a un año?",
+        "options": [
+          "Activo No Corriente",
+          "Activo Corriente",
+          "Pasivo Corriente",
+          "Patrimonio Neto"
+        ],
+        "correctIndex": 0,
+        "explanation": "Este grupo abarca todos los bienes y derechos cuya realización o disponibilidad excede el ciclo operativo de un año."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Según el material de 'Auditores MJ', ¿cuál es una de las razones por las que el Estado boliviano no ha aprobado oficialmente las NIIF?",
+        "options": [
+          "Porque determinan cambios sustanciales en la parte impositiva y el valor de los bienes respecto a las normas actuales.",
+          "Porque el Colegio de Auditores se niega a traducirlas al español.",
+          "Debido a que Bolivia utiliza el dólar como moneda contable oficial y las NIIF solo permiten el uso del Euro.",
+          "Porque las NIIF prohíben el registro de inventarios de mercadería."
+        ],
+        "correctIndex": 0,
+        "explanation": "La implementación de las NIIF afectaría la base imponible del Impuesto a las Utilidades (IUE), lo que genera resistencia en las autoridades fiscales."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con la Ley del Movimiento de Cuentas, ¿qué sucede cuando un Pasivo o el Patrimonio disminuyen?",
+        "options": [
+          "Se registran en el lado del Debe.",
+          "Se registran en el lado del Haber.",
+          "Se eliminan automáticamente del balance general sin dejar registro.",
+          "Se suman al Activo para mantener la partida doble."
+        ],
+        "correctIndex": 0,
+        "explanation": "Contrario a los activos, las cuentas de pasivo y patrimonio tienen saldo acreedor, por lo que sus disminuciones se anotan en el debe."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la función de la 'Glosa' en un comprobante de diario según lo explicado en el video práctico?",
+        "options": [
+          "Es la narración detallada de la transacción realizada para que personas no contables puedan entenderla.",
+          "Es el código numérico asignado a la cuenta según el plan de cuentas.",
+          "Es el monto total que debe igualar en las columnas del debe y el haber.",
+          "Es la firma obligatoria del cajero que entrega el efectivo."
+        ],
+        "correctIndex": 0,
+        "explanation": "La glosa proporciona el contexto y los detalles específicos del hecho económico que originó el registro contable."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el caso de una venta con factura en Bolivia, ¿qué impuesto se debe registrar como un egreso y un pasivo simultáneamente por el $3\\%$ del valor total?",
+        "options": [
+          "Impuesto a las Transacciones (IT)",
+          "IVA Débito Fiscal",
+          "Impuesto a las Utilidades de las Empresas (IUE)",
+          "IVA Crédito Fiscal"
+        ],
+        "correctIndex": 0,
+        "explanation": "El IT es un impuesto directo que genera un gasto (egreso) para la empresa y una obligación (pasivo) por pagar al fisco."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Para que una transacción sea registrada en el sistema de una universidad pública (como la UAGRM), ¿cuál de estos es un requisito indispensable según su reglamento?",
+        "options": [
+          "Contar con crédito presupuestario suficiente en el caso de gastos.",
+          "Que la transacción haya sido publicada en la prensa local.",
+          "Que el pago se realice exclusivamente en moneda extranjera.",
+          "Que el proveedor sea socio de la universidad."
+        ],
+        "correctIndex": 0,
+        "explanation": "En la contabilidad gubernamental, no se puede devengar un gasto si no existe la partida presupuestaria con saldo disponible."
+      }
+    ]
+  },
+  {
+    "title": "TEMA 2",
+    "content": {
+      "title": "Comercio y Actos de Comercio (Tema 2)",
+      "summary": "El Tema 2, fundamentado en el Código de Comercio de Bolivia, define y regula los actos de comercio como actividades empresariales sujetas a la legislación mercantil. Estos actos se caracterizan por la intermediación en el cambio de bienes y servicios con fines de lucro. El tema distingue taxativamente qué actividades se consideran comerciales (industria, banca, seguros, transporte, hotelería, etc.) y cuáles están excluidas (trabajos artesanales de subsistencia, servicios profesionales directos y pensiones familiares). Esta clasificación determina la aplicación de obligaciones contables y legales específicas para los comerciantes.",
+      "mermaid_diagram": "graph TD; A[Comercio y Actos de Comercio] --> B(Actividades Comerciales); A --> C(Actividades No Comerciales); B --> D[Intermediación Financiera y Seguros]; B --> E[Industria y Fabricación]; B --> F[Servicios: Transporte, Hoteles, Salud]; B --> G[Industria Extractiva]; C --> H[Servicios Profesionales Directos]; C --> I[Artesanos y Subsistencia]; C --> J[Consumo Familiar]; style A fill:#f9f,stroke:#333,stroke-width:2px",
+      "key_concepts": [
+        {
+          "term": "Acto de Comercio",
+          "def": "Actividad económica realizada con fines de lucro y organización empresarial, regulada por el Código de Comercio, como la intermediación, producción industrial o prestación de servicios masivos."
+        },
+        {
+          "term": "Actividad No Comercial",
+          "def": "Actividades excluidas de la regulación mercantil, generalmente realizadas para la subsistencia, consumo propio o mediante la prestación directa de servicios profesionales sin estructura empresarial."
+        }
+      ],
+      "detailed_sections": [
+        {
+          "heading": "Actividades Consideradas Actos de Comercio",
+          "content": "Según el Código de Comercio Boliviano y los apuntes del Tema 2, se reconocen como actos de comercio las actividades empresariales organizadas. Estas incluyen:\n\n*   **Intermediación Financiera y Bursátil:** La actividad de entidades que median entre la oferta y demanda de recursos financieros, operaciones bancarias, cambio de monedas y la compra/venta de títulos-valores con ánimo de reventa [1, 2].\n*   **Seguros:** La actividad de entidades de seguros a prima o mutuos sobre daños patrimoniales y personas [1, 2].\n*   **Industria y Transformación:** La actividad industrial dedicada a fabricar bienes mediante la transformación de materias primas (propias o adquiridas) [1, 2].\n*   **Servicios y Logística:**\n    *   **Transporte:** De personas o cosas a título oneroso por cualquier vía, y el ramo de comunicaciones [1, 2].\n    *   **Almacenamiento:** Depósito de mercaderías, bienes y suministros [3, 4].\n    *   **Hospedaje y Alimentación:** Hoteles, pensiones, residenciales, restaurantes, bares y establecimientos similares [3, 5].\n    *   **Publicaciones:** Empresas editoriales, tipografías, fotografías y publicidad [3, 5].\n    *   **Salud:** Sanatorios, clínicas, farmacias y funerarias [3, 5].\n*   **Extractivas:** La industria extractiva y explotación de recursos naturales renovables y no renovables [5, 6]."
+        },
+        {
+          "heading": "Actividades Excluidas del Comercio",
+          "content": "La normativa establece excepciones claras que **no** se consideran actos de comercio, enfocándose en la naturaleza de subsistencia o servicio personal:\n\n*   **Producción primaria simple:** La producción y negociación directa por agricultores o ganaderos de sus propios frutos, a menos que constituya una actividad empresarial organizada [7].\n*   **Servicios Profesionales:** La prestación directa de servicios por profesionales, así como la creación científica o artística y su venta por el autor [7, 8].\n*   **Artesanía y Subsistencia:** Trabajos manuales de artesanos u obreros establecidos sin condición de empresarios, cuya subsistencia depende de su producto, y pensiones familiares atendidas personalmente por su propietario [7, 8].\n*   **Consumo:** La adquisición de frutos y mercaderías destinados al consumo o uso del adquirente [8]."
+        }
+      ],
+      "comparison_table": "| Característica | Actos de Comercio | Actos No Comerciales |\n| :--- | :--- | :--- |\n| **Objetivo Principal** | Lucro, intermediación y producción en masa. | Subsistencia, servicio personal o consumo final. |\n| **Estructura** | Empresarial, organizada (Hoteles, Industrias, Bancos). | Individual, familiar o artesanal (Pensiones familiares, Artesanos). |\n| **Ejemplos** | Fábricas, aerolíneas, aseguradoras, clínicas [1-3]. | Profesionales independientes, agricultores directos, artesanos [7, 8]. |\n| **Regulación** | Código de Comercio. | Código Civil u otras normas específicas. |"
+    },
+    "quiz": [
+      {
+        "type": "multiple_choice",
+        "question": "Según la definición de Juan Funes Orellana citada en el material, ¿cuñl es el objetivo final de registrar de forma ordenada y detallada los hechos económicos de una empresa?",
+        "options": [
+          "Emitir estados financieros para analizar la situación económica y tomar decisiones oportunas.",
+          "Cumplir exclusivamente con el pago de impuestos ante el Servicio de Impuestos Nacionales.",
+          "Determinar únicamente el valor de los activos tangibles de la organización al finalizar la gestión.",
+          "Sistematizar el listado de proveedores para optimizar las compras al crédito."
+        ],
+        "correctIndex": 0,
+        "explanation": "La contabilidad busca transformar los registros técnicos en información útil para que los usuarios internos y externos decidan sobre el futuro de la entidad."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la ecuación de balance fundamental que debe respetarse en la contabilidad según el material de estudio?",
+        "options": [
+          "$Activo = Pasivo + Patrimonio$",
+          "$Activo + Pasivo = Patrimonio$",
+          "$Patrimonio = Activo + Pasivo$",
+          "$Pasivo = Activo + Patrimonio$"
+        ],
+        "correctIndex": 0,
+        "explanation": "Esta igualdad representa la estructura financiera básica, donde los recursos de la empresa (activos) son financiados por terceros (pasivos) o por recursos propios (patrimonio)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el contexto de la divergencia normativa entre Perú y Bolivia, ¿cuñl es una de las principales dificultades prácticas al consolidar estados financieros?",
+        "options": [
+          "Los altos costos de conversión y el riesgo de errores contables debido a los diferentes marcos aplicados.",
+          "La obligatoriedad de utilizar la misma moneda nacional en ambos países para todos los registros.",
+          "La prohibición total de utilizar las Normas Internacionales de Información Financiera en territorio boliviano.",
+          "La diferencia en los horarios laborales de los contadores en ambas jurisdicciones."
+        ],
+        "correctIndex": 0,
+        "explanation": "Mientras Perú aplica NIIF completas, Bolivia utiliza NCGA locales con aplicación supletoria de NIIF, lo que exige ajustes significativos y complejos para la matriz peruana."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Según la ley del movimiento de cuentas, ¿qué sucede cuando una cuenta de pasivo o de patrimonio aumenta?",
+        "options": [
+          "Se debe registrar el importe en la columna del Haber.",
+          "Se debe registrar el importe en la columna del Debe.",
+          "Se genera un incremento automático en las cuentas de egreso.",
+          "La cuenta se cierra automáticamente al finalizar el día."
+        ],
+        "correctIndex": 0,
+        "explanation": "Las cuentas de naturaleza acreedora, como el pasivo y el patrimonio, incrementan su saldo mediante abonos o registros en el lado derecho (Haber)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el Subsistema de Registro Presupuestario de la UAGRM, ¿qué representa el momento del 'Devengado' en los gastos?",
+        "options": [
+          "La creación de una obligación jurídica de pago con terceros tras recibir bienes o servicios.",
+          "La reserva anticipada de crédito presupuestario para una compra futura.",
+          "El momento exacto en el que se entrega el cheque o efectivo al beneficiario.",
+          "La estimación inicial de los recursos que financiarán la gestión universitaria."
+        ],
+        "correctIndex": 0,
+        "explanation": "El devengado es el punto de integración donde se reconoce formalmente la obligación de pago, independientemente de si el desembolso de efectivo ya ocurrió."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Por qué no se han implementado oficialmente las NIIF en Bolivia según el artículo de 'Auditores MJ'?",
+        "options": [
+          "Debido a que implican cambios sustanciales en la normativa impositiva y en la valoración económica de los bienes.",
+          "Porque el Colegio de Auditores de Bolivia se opone rotundamente a su aplicación.",
+          "Porque las NIIF solo son aplicables en países que pertenecen a la Unión Europea.",
+          "Debido a que Bolivia no participa en el mercado global de capitales."
+        ],
+        "correctIndex": 0,
+        "explanation": "La adopción de NIIF afectaría la determinación de la utilidad imponible y los valores patrimoniales, lo que ha generado reticencia en las autoridades gubernamentales."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En una transacción de venta con factura en Bolivia, ¿cuál de los siguientes impuestos representa una cuenta de egreso para la empresa?",
+        "options": [
+          "Impuesto a las Transacciones (IT) - $3\\%$.",
+          "IVA Débito Fiscal - $13\\%$.",
+          "IVA Crédito Fiscal.",
+          "Impuesto sobre las Utilidades de las Empresas (IUE)."
+        ],
+        "correctIndex": 0,
+        "explanation": "El IT es un gasto directo para la empresa que se genera por la operación de venta, a diferencia del IVA que es un impuesto indirecto recaudado."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Al realizar el ajuste mensual de compensación de IVA, si el IVA Débito Fiscal es mayor que el IVA Crédito Fiscal, ¿qué situación se presenta para la empresa?",
+        "options": [
+          "Se genera un saldo a favor del fisco (impuesto a pagar).",
+          "Se obtiene un saldo a favor del contribuyente para el mes siguiente.",
+          "El Crédito Fiscal se convierte automáticamente en una cuenta de ingresos.",
+          "La transacción se anula por falta de equilibrio en la partida doble."
+        ],
+        "correctIndex": 0,
+        "explanation": "Cuando el impuesto generado por las ventas supera al crédito acumulado por las compras, la diferencia constituye una obligación tributaria pendiente de pago."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Según el plan de cuentas ejemplificado en el video de aspectos generales, ¿qué nivel de codificación está representado por los cinco primeros dígitos?",
+        "options": [
+          "La cuenta.",
+          "La clase.",
+          "El grupo.",
+          "La subcuenta."
+        ],
+        "correctIndex": 0,
+        "explanation": "En la estructura jerárquica del catálogo, los cinco primeros dígitos identifican la cuenta específica utilizada para el registro contable (ej. Banco Moneda Nacional)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la diferencia fundamental entre los bienes tangibles e intangibles dentro de los activos de una empresa?",
+        "options": [
+          "Los tangibles son bienes materiales (vehículos, edificios), mientras que los intangibles son inmateriales (marcas, patentes).",
+          "Los tangibles siempre aumentan de valor, mientras que los intangibles siempre se deprecian.",
+          "Los intangibles no pueden ser valorados en términos monetarios según los PCGA.",
+          "Solo los bienes tangibles pertenecen a la categoría de activos no corrientes."
+        ],
+        "correctIndex": 0,
+        "explanation": "La distinción radica en la presencia física o corporal del bien, aunque ambos deben tener un valor cuantificable para la entidad."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Según el material sobre ecuaciones contables, ¿cuál es el objetivo de presentar el Balance General o Estado de Situación Financiera?",
+        "options": [
+          "Proporcionar información sobre la situación patrimonial y financiera a una fecha determinada para la toma de decisiones.",
+          "Listar todos los movimientos de caja que ocurrieron durante un día de trabajo.",
+          "Calcular la utilidad neta mediante la diferencia entre ingresos y gastos operativos.",
+          "Garantizar que la empresa nunca adquiera deudas con terceras personas naturales."
+        ],
+        "correctIndex": 0,
+        "explanation": "El Balance General es una 'fotografía' de la empresa en un momento dado que permite evaluar su liquidez, solvencia y estructura de capital."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En la clasificación de cuentas por el tiempo de realización, ¿qué criterio define a un 'Activo Corriente'?",
+        "options": [
+          "Bienes y derechos que tienen una realización o disponibilidad no mayor a un año.",
+          "Activos que la empresa planea mantener por más de cinco gestiones consecutivas.",
+          "Cuentas que solo pueden ser utilizadas para pagar sueldos y salarios del personal.",
+          "Deudas que la empresa debe cobrar a sus socios en un plazo indefinido."
+        ],
+        "correctIndex": 0,
+        "explanation": "La corriente de liquidez se define por la capacidad del activo de convertirse en efectivo dentro del ciclo operativo normal, típicamente doce meses."
+      }
+    ]
+  },
+  {
+    "title": "TEMA 3",
+    "content": {
+      "title": "TEMA 3: Impuestos y Estructura Tributaria",
+      "summary": "El Tema 3 se centra en el sistema impositivo de Bolivia, fundamentado en la Constitución Política del Estado y la Ley 843. Establece el régimen de competencias y la estructura tributaria del nivel central del Estado. Su eje principal es el Impuesto al Valor Agregado (IVA), que grava la venta de bienes muebles, contratos de obras, servicios e importaciones [1]. Asimismo, se complementa con otros tributos pilares como el Impuesto a las Transacciones (IT) y el Impuesto sobre las Utilidades de las Empresas (IUE) [2], definiendo conceptos clave como el 'valor agregado' en la cadena productiva [1].",
+      "mermaid_diagram": "graph TD; A[Sistema Tributario Nacional] --> B[Marco Legal]; B --> B1[CPE - Régimen de Competencias]; B --> B2[Ley 843]; A --> C[Impuestos del Nivel Central]; C --> D[IVA - Impuesto al Valor Agregado]; C --> E[IT - Impuesto a las Transacciones]; C --> F[IUE - Impuesto a las Utilidades]; D --> D1[Venta de Bienes Muebles]; D --> D2[Prestación de Servicios]; D --> D3[Importaciones]; D --> D4[Contratos de Obra];",
+      "key_concepts": [
+        {
+          "term": "Impuesto al Valor Agregado (IVA)",
+          "def": "Impuesto que se paga por todas las ventas de bienes, contratos de obras, prestación de servicios e importaciones realizadas, con una alícuota general del 13% [1, 2]."
+        },
+        {
+          "term": "Valor Agregado",
+          "def": "Valor económico adicional que adquieren los bienes o servicios al ser transformados durante el proceso productivo, añadiendo valor a las materias primas utilizadas [1]."
+        },
+        {
+          "term": "Régimen de Competencias",
+          "def": "Marco constitucional que define las atribuciones del nivel central del Estado para la creación y administración de la estructura tributaria [1]."
+        },
+        {
+          "term": "Crédito y Débito Fiscal",
+          "def": "Mecanismo del IVA donde el Débito (impuesto cobrado en ventas) se compensa con el Crédito (impuesto pagado en compras vinculadas a la actividad) [2]."
+        }
+      ],
+      "detailed_sections": [
+        {
+          "heading": "Estructura y Competencias Tributarias",
+          "content": "El sistema se organiza bajo un **Régimen de Competencias** dictado por la Constitución Política del Estado, que otorga al nivel central la facultad sobre los principales tributos [1]. La **Ley 843** actúa como la normativa fundamental que regula estos impuestos, estableciendo los pilares del sistema tributario boliviano, que incluyen el IVA, el IT y el IUE como los más relevantes por su impacto general en la recaudación y la actividad económica [2]."
+        },
+        {
+          "heading": "El Impuesto al Valor Agregado (IVA)",
+          "content": "El IVA es el componente central del Tema 3. Se aplica a las **ventas de bienes muebles**, **contratos de obras**, **prestación de servicios** y las **importaciones** [1]. Su funcionamiento se basa en gravar el valor añadido en cada etapa de la cadena productiva y de comercialización. La alícuota nominal es del **13%**, y opera mediante la compensación entre el débito fiscal generado por las ventas y el crédito fiscal obtenido de las compras [2]. Existen regímenes específicos y exenciones, como la tasa cero para libros o transporte internacional de carga [2]."
+        }
+      ],
+      "comparison_table": "| Impuesto | Objeto del Impuesto | Alícuota | Periodo |\n| :--- | :--- | :--- | :--- |\n| **IVA** | Venta de bienes muebles, servicios, importaciones y obras [1] | 13% [2] | Mensual |\n| **IT** | Ingresos brutos devengados por el ejercicio de la actividad [2] | 3% [3] | Mensual |\n| **IUE** | Utilidades netas resultantes de los estados financieros al cierre de gestión [4] | 25% [5] | Anual |"
+    },
+    "quiz": [
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la ecuación fundamental del balance que rige la contabilidad según el material proporcionado?",
+        "options": [
+          "$Activo = Pasivo + Patrimonio$",
+          "$Activo + Pasivo = Patrimonio$",
+          "$Pasivo = Activo + Patrimonio$",
+          "$Patrimonio = Pasivo - Activo$"
+        ],
+        "correctIndex": 0,
+        "explanation": "Esta igualdad representa el equilibrio financiero donde los recursos de la empresa son financiados por terceros o por recursos propios."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el contexto de la normativa contable boliviana, ¿cuál es la relación actual con respecto a las Normas Internacionales de Información Financiera (NIIF)?",
+        "options": [
+          "Las NIIF se aplican de forma supletoria únicamente cuando no existe una norma local específica (NCGA).",
+          "Bolivia ha adoptado plenamente las NIIF completas para todas las empresas desde 2012.",
+          "Las NIIF son de uso prohibido por el Servicio de Impuestos Nacionales.",
+          "Bolivia y Perú comparten exactamente el mismo marco normativo basado en NIIF completas."
+        ],
+        "correctIndex": 0,
+        "explanation": "Bolivia mantiene sus 14 Normas de Contabilidad Generalmente Aceptadas y solo recurre a las internacionales en ausencia de guías locales."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Qué representa un 'activo intangible' para una empresa según la definición técnica revisada?",
+        "options": [
+          "Bienes materiales como maquinaria y edificios.",
+          "Derechos de cobro a clientes por ventas al crédito.",
+          "Bienes inmateriales como la marca o el prestigio que aportan valor extra.",
+          "Obligaciones presentes con el personal de la empresa."
+        ],
+        "correctIndex": 2,
+        "explanation": "Los activos intangibles carecen de sustancia física pero generan beneficios económicos futuros identificables."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el proceso de codificación de cuentas, ¿qué representa comúnmente el primer dígito del código?",
+        "options": [
+          "La clase de la cuenta (activo, pasivo, etc.).",
+          "El banco específico con el que trabaja la empresa.",
+          "El número de la transacción en el libro diario.",
+          "El porcentaje de impuestos que se debe aplicar."
+        ],
+        "correctIndex": 0,
+        "explanation": "El primer nivel jerárquico identifica la naturaleza global de la cuenta dentro de los estados financieros."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Al realizar la compensación mensual de IVA, si el Débito Fiscal es mayor al Crédito Fiscal, ¿qué resultado se obtiene para la empresa?",
+        "options": [
+          "Un saldo a favor del fisco (impuesto por pagar).",
+          "Un saldo a favor del contribuyente para el siguiente mes.",
+          "La anulación automática de ambos saldos sin registro contable.",
+          "Un incremento en el patrimonio neto de la gestión."
+        ],
+        "correctIndex": 0,
+        "explanation": "Cuando el impuesto generado por las ventas supera al crédito por las compras, la diferencia debe cancelarse al Estado."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es el objetivo de la 'Glosa' en un comprobante de diario?",
+        "options": [
+          "Asignar un código numérico a cada cuenta interviniente.",
+          "Garantizar que se cumpla el principio de la partida doble.",
+          "Narrar y explicar brevemente la naturaleza del hecho económico registrado.",
+          "Determinar si la cuenta es de activo corriente o no corriente."
+        ],
+        "correctIndex": 2,
+        "explanation": "Permite que cualquier usuario entienda el motivo de la transacción sin necesidad de ser un experto contable."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con las ecuaciones de resultados, ¿cómo se define técnicamente la 'Utilidad'?",
+        "options": [
+          "Es el exceso de los ingresos respecto de los gastos.",
+          "Es la suma total de los activos de la empresa.",
+          "Es la resta del pasivo menos el patrimonio.",
+          "Es el monto total de ventas brutas sin descontar costos."
+        ],
+        "correctIndex": 0,
+        "explanation": "Financieramente, la utilidad surge cuando los beneficios obtenidos superan a los egresos irrecuperables del periodo."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el Sistema de Contabilidad Integrada (SCI) de instituciones como la UAGRM, ¿qué se registra en el 'Subsistema de Registro de Tesorería'?",
+        "options": [
+          "La depreciación anual de los activos fijos.",
+          "Las transacciones de efectivo o equivalentes a través de caja o bancos.",
+          "La estimación inicial del presupuesto de recursos.",
+          "La emisión de normas de auditoría interna."
+        ],
+        "correctIndex": 1,
+        "explanation": "Tesorería se enfoca en administrar los flujos de fondos y la disponibilidad inmediata de dinero."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Qué momento del registro de gastos se define como la creación de una 'obligación jurídica de pago' con terceros?",
+        "options": [
+          "Apropiación.",
+          "Compromiso.",
+          "Devengado.",
+          "Pagado."
+        ],
+        "correctIndex": 2,
+        "explanation": "En este momento se reconoce formalmente la deuda tras recibir el bien o servicio, integrando el presupuesto con el patrimonio."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Según la Ley del Movimiento de Cuentas, ¿qué sucede cuando un Pasivo disminuye?",
+        "options": [
+          "Se debe registrar en la columna del Haber.",
+          "Se debe registrar en la columna del Debe.",
+          "La cuenta se clasifica automáticamente como un ingreso.",
+          "No se realiza ningún registro hasta el cierre de gestión."
+        ],
+        "correctIndex": 1,
+        "explanation": "Contablemente, la reducción de una deuda se anota en el debe para disminuir el saldo acreedor de la cuenta."
+      }
+    ]
+  },
+  {
+    "title": "TEMA 4",
+    "content": {
+      "title": "TEMA 4: Documentos Mercantiles",
+      "summary": "El Tema 4 aborda los documentos mercantiles, definidos como constancias escritas de actividades comerciales, transacciones y compromisos entre partes (naturales o jurídicas). Estos documentos son fundamentales para legitimar el ejercicio de las transacciones y sirven como respaldo probatorio para los registros en los libros de contabilidad. Incluyen una variedad de instrumentos como títulos-valores (letras de cambio, pagarés, cheques), facturas, recibos y notas de contabilidad, regulados por el Código de Comercio y normativas tributarias para garantizar la transparencia y validez legal de las operaciones económicas.",
+      "mermaid_diagram": "graph TD; A[Documentos Mercantiles] --> B[Títulos Valores]; A --> C[Documentos de Soporte y Fiscales]; B --> D[Cheque]; B --> E[Letra de Cambio]; B --> F[Pagaré]; B --> G[Acciones y Bonos]; C --> H[Factura]; C --> I[Recibo]; C --> J[Notas de Débito/Crédito]; C --> K[Planillas de Sueldos]; style A fill:#f9f,stroke:#333,stroke-width:2px; style B fill:#ccf,stroke:#333; style C fill:#ccf,stroke:#333;",
+      "key_concepts": [
+        {
+          "term": "Documento Mercantil",
+          "def": "Constancia escrita de actividades comerciales y compromisos que legitima transacciones y documenta los registros contables [1]."
+        },
+        {
+          "term": "Título-Valor",
+          "def": "Documento necesario para legitimar el ejercicio del derecho literal y autónomo consignado en él, como cheques o letras de cambio [2]."
+        },
+        {
+          "term": "Factura",
+          "def": "Documento obligatorio otorgado por el vendedor que detalla las mercancías vendidas o servicios prestados y su precio [3]."
+        },
+        {
+          "term": "Bancarización",
+          "def": "Obligación de respaldar transacciones mayores a ciertos montos (ej. 50.000 Bs) con documentos de pago emitidos por el sistema financiero [4]."
+        }
+      ],
+      "detailed_sections": [
+        {
+          "heading": "Generalidades y Definición",
+          "content": "Los documentos mercantiles se definen como toda **constancia escrita** sobre actividades comerciales o compromisos contraídos entre partes. Su función principal es **legitimar** el ejercicio de las transacciones y servir de **documentación de respaldo** para los comprobantes de contabilidad [1]. Estos documentos son esenciales para probar la veracidad de los asientos contables y la situación patrimonial de una empresa [5], [6]."
+        },
+        {
+          "heading": "Títulos Valores",
+          "content": "El Código de Comercio regula los títulos-valores como documentos necesarios para ejercer el derecho literal y autónomo en ellos consignado [2]. Entre los requisitos comunes figuran el nombre del título, lugar y fecha de emisión, derechos incorporados, y firma del creador [2]. Ejemplos clave incluyen:\n*   **Cheque**: Orden de pago a la vista que debe contener número, serie, cantidad, fecha y firma [7].\n*   **Bonos**: Títulos que representan la participación en un crédito colectivo [8], [9].\n*   **Acciones**: Representan una fracción del capital social en sociedades anónimas [10], [11]."
+        },
+        {
+          "heading": "La Factura Comercial",
+          "content": "Todo vendedor está obligado a otorgar factura, incluso en ventas al contado [3]. La factura debe detallar las mercancías o servicios, precios y otros datos exigidos por ley. En caso de no emitirse, existen mecanismos como las **retenciones** (el 'grose-up') donde la empresa asume los impuestos correspondientes para respaldar el gasto [12], [13]. La omisión de la factura no exime de la obligación de tributar, aunque la bancarización de pagos puede requerir la factura vinculada [14]."
+        },
+        {
+          "heading": "Respaldo de Transacciones (Bancarización)",
+          "content": "Para efectos tributarios y de control, las transacciones (compras o ventas) por montos iguales o superiores a **Bs 50.000** deben respaldarse con documentos de pago emitidos por entidades financieras reguladas (cheques, transferencias, depósitos, QR) [4], [15]. Estos documentos deben registrarse en los **Registros Auxiliares de Bancarización** (Compras y Ventas) y enviarse a la Administración Tributaria [16], [17]. La falta de este respaldo puede implicar que la transacción no sea deducible o válida para crédito fiscal."
+        }
+      ],
+      "comparison_table": "| Documento | Naturaleza Jurídica | Función Principal | Normativa Base |\n| :--- | :--- | :--- | :--- |\n| **Título-Valor** | Documento constitutivo del derecho | Legitimar el ejercicio de un derecho autónomo (cobro, propiedad) | Art. 491 C.Com [2] |\n| **Factura** | Documento probatorio y fiscal | Acreditar la transferencia de dominio y el precio; genera débito/crédito fiscal | Art. 832 C.Com [3]; Ley 843 |\n| **Cheque** | Orden de pago | Medio de pago a la vista sobre fondos disponibles en banco | Art. 600 C.Com [7] |\n| **Recibo** | Documento probatorio | Constancia de haber recibido dinero o bienes (generalmente no negociable) | Usos y costumbres; [1] |\n| **Documento de Pago (Bancarización)** | Respaldo financiero | Acreditar el flujo financiero real de una transacción > Bs 50k | RND 102400000021 [4] |"
+    },
+    "quiz": [
+      {
+        "type": "multiple_choice",
+        "question": "Según la definición de Juan Funes Orellana citada en el material, ¿cuál es el propósito final de la contabilidad como sistema de información?",
+        "options": [
+          "Emitir estados financieros para analizar la situación económica y financiera para la toma de decisiones.",
+          "Registrar únicamente las transacciones bancarias para evitar el sobregiro de las cuentas de la empresa.",
+          "Cumplir exclusivamente con las normativas impositivas dictadas por el Servicio de Impuestos Nacionales.",
+          "Determinar el valor de mercado de las acciones de los socios en un tiempo determinado."
+        ],
+        "correctIndex": 0,
+        "explanation": "La definición destaca que el fin de registrar hechos económicos es emitir estados financieros que permitan a los usuarios internos y externos tomar decisiones oportunas."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la ecuación de balance fundamental que rige la contabilidad según los principios generales?",
+        "options": [
+          "$Activo = Pasivo + Patrimonio$",
+          "$Patrimonio = Activo + Pasivo$",
+          "$Pasivo = Activo + Patrimonio$",
+          "$Activo + Pasivo = Patrimonio$"
+        ],
+        "correctIndex": 0,
+        "explanation": "Esta ecuación representa el equilibrio financiero donde los recursos controlados ($Activo$) se financian mediante deudas externas ($Pasivo$) o recursos propios ($Patrimonio$)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En la clasificación de activos, ¿qué diferencia fundamental existe entre los activos tangibles y los intangibles?",
+        "options": [
+          "Los tangibles son bienes materiales como edificios y vehículos, mientras que los intangibles son inmateriales como las marcas.",
+          "Los tangibles tienen un valor monetario fijo y los intangibles tienen un valor que cambia cada mes.",
+          "Los tangibles se pueden vender y los intangibles son de propiedad permanente de la empresa sin posibilidad de transferencia.",
+          "Los tangibles son recursos a corto plazo y los intangibles son siempre recursos a largo plazo."
+        ],
+        "correctIndex": 0,
+        "explanation": "La tangibilidad se refiere a la existencia física o material del bien, mientras que la intangibilidad se refiere a valores o derechos sin cuerpo físico pero con valor económico."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con la Ley del Movimiento de Cuentas, ¿qué sucede cuando se registra un aumento en una cuenta de activo?",
+        "options": [
+          "El monto debe registrarse en la columna del Debe.",
+          "El monto debe registrarse en la columna del Haber.",
+          "Se genera automáticamente una disminución en el Patrimonio.",
+          "La cuenta se clasifica inmediatamente como una cuenta de resultados."
+        ],
+        "correctIndex": 0,
+        "explanation": "La convención contable establece que los activos aumentan por el Debe (débito) y disminuyen por el Haber (crédito)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el sistema de codificación de cuentas mencionado, ¿qué nivel representa el subgrupo?",
+        "options": [
+          "El nivel representado por los tres primeros dígitos.",
+          "El nivel representado por el primer dígito únicamente.",
+          "El nivel representado por los cinco primeros dígitos.",
+          "El nivel representado por los siete primeros dígitos."
+        ],
+        "correctIndex": 0,
+        "explanation": "La estructura jerárquica asigna el primer dígito a la clase, los dos primeros al grupo y los tres primeros al subgrupo (ej. Disponibilidades dentro del Activo Corriente)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la situación actual de la aplicación de las Normas Internacionales de Información Financiera ($NIIF$) en Bolivia según las fuentes?",
+        "options": [
+          "No han sido aprobadas oficialmente por las autoridades gubernamentales debido a cambios sustanciales en la parte impositiva.",
+          "Son de aplicación obligatoria para todas las empresas desde el año 2012 por resolución del Ministerio de Economía.",
+          "Bolivia fue el primer país de la región en adoptar las $NIIF$ completas para armonizar su mercado de valores.",
+          "Solo se aplican para las empresas unipersonales, mientras que las sociedades usan principios históricos."
+        ],
+        "correctIndex": 0,
+        "explanation": "Las fuentes indican que, aunque el Colegio de Auditores las presentó, el Estado no las ha aprobado por el impacto que tendrían en la recaudación del Impuesto a las Utilidades ($IUE$)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Al realizar el análisis de una transacción de venta con factura, ¿por qué se dice que el Débito Fiscal $IVA$ es una cuenta de Pasivo que aumenta?",
+        "options": [
+          "Porque representa una obligación generada con el fisco al momento de realizar la venta.",
+          "Porque es un derecho que la empresa tiene para reclamar la devolución de impuestos.",
+          "Porque disminuye el efectivo disponible en caja de forma inmediata.",
+          "Porque es un gasto operativo que reduce la utilidad bruta del periodo."
+        ],
+        "correctIndex": 0,
+        "explanation": "Al vender con factura, la empresa actúa como agente de retención del impuesto, creando una deuda (pasivo) que debe pagar al Estado."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el proceso de compensación de $IVA$, si una empresa tiene un Débito Fiscal de $Bs18,850$ y un Crédito Fiscal de $Bs7,889.30$, ¿cuál es el resultado del ajuste?",
+        "options": [
+          "Se genera un saldo a favor del fisco (impuesto a pagar) por la diferencia.",
+          "Se genera un saldo a favor de la empresa para ser compensado el próximo mes.",
+          "Las cuentas se eliminan mutuamente y el saldo final es cero para ambos registros sin necesidad de pago.",
+          "El monto del Crédito Fiscal se suma al Débito Fiscal para determinar el total de activos corrientes."
+        ],
+        "correctIndex": 0,
+        "explanation": "Cuando el Débito (ventas) supera al Crédito (compras), la empresa debe cancelar el excedente al Servicio de Impuestos Nacionales."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el Sistema de Contabilidad Integrada ($SCI$) utilizado por entidades públicas como la Universidad, ¿cuál es la función del Subsistema de Registro de Tesorería?",
+        "options": [
+          "Programar y administrar los flujos de fondos y registrar las transacciones de efectivo o equivalentes.",
+          "Controlar únicamente la valoración de los activos fijos e inmuebles de la institución.",
+          "Aprobar las partidas presupuestarias de gastos antes del inicio de la gestión fiscal.",
+          "Realizar la auditoría externa de los estados financieros al finalizar el ejercicio."
+        ],
+        "correctIndex": 0,
+        "explanation": "La Tesorería se enfoca específicamente en el movimiento de dinero en caja y bancos, permitiendo el control de la liquidez y el flujo de caja."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Dentro del ciclo de gastos en el sector público, ¿qué representa el momento del 'Devengado'?",
+        "options": [
+          "La creación de una obligación jurídica de pago con terceros tras recibir bienes o servicios.",
+          "La reserva anticipada de crédito presupuestario para una compra futura.",
+          "El desembolso efectivo de dinero desde la cuenta bancaria de la entidad.",
+          "La estimación inicial de gastos que se presenta ante el Ministerio de Economía."
+        ],
+        "correctIndex": 0,
+        "explanation": "El devengado ocurre cuando la entidad ya recibió el beneficio y nace la deuda legal, permitiendo integrar el presupuesto con la contabilidad patrimonial."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Si una empresa tiene activos totales por $Bs155,380$ y un patrimonio neto de $Bs62,500$, ¿a cuánto ascienden sus pasivos totales según la ecuación contable?",
+        "options": [
+          "$Bs92,880$",
+          "$Bs217,880$",
+          "$Bs155,380$",
+          "$Bs62,500$"
+        ],
+        "correctIndex": 0,
+        "explanation": "Se obtiene restando el patrimonio del activo ($155,380 - 62,500 = 92,880$), cumpliendo con la igualdad $A = P + PT$."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cómo se clasifican las cuentas de 'Depreciaciones Acumuladas' en el balance general?",
+        "options": [
+          "Como cuentas reguladoras de activo con saldo acreedor que se exponen restando.",
+          "Como cuentas de pasivo corriente porque representan una deuda con los proveedores de equipos.",
+          "Como gastos de administración que se cierran al final de cada mes contra el patrimonio.",
+          "Como activos intangibles ya que el desgaste no se puede ver físicamente en el documento."
+        ],
+        "correctIndex": 0,
+        "explanation": "Su función es ajustar el valor en libros de los bienes de uso (como vehículos o edificios) para reflejar su desgaste acumulado."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la principal divergencia normativa entre Perú y Bolivia en cuanto a la preparación de estados financieros mencionada en el estudio de ResearchGate?",
+        "options": [
+          "Perú aplica $NIIF$ completas ($IFRS$), mientras Bolivia utiliza principalmente normas locales basadas en principios históricos.",
+          "Bolivia utiliza moneda extranjera para su contabilidad legal y Perú solo moneda nacional.",
+          "En Bolivia el balance general se presenta cada mes y en Perú solo una vez cada dos años.",
+          "Perú no permite el registro de activos intangibles y Bolivia sí los reconoce como bienes de uso."
+        ],
+        "correctIndex": 0,
+        "explanation": "El estudio indica que la falta de adopción integral de las $NIIF$ en Bolivia genera costos de conversión y dificultades para consolidar estados financieros con matrices extranjeras."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con el material sobre ecuaciones de resultados, ¿cómo se define técnicamente la 'Utilidad'?",
+        "options": [
+          "Es el exceso de los ingresos respecto de los gastos en un periodo determinado.",
+          "Es la suma total de dinero que hay en la cuenta bancaria al finalizar el año.",
+          "Es el capital inicial que los socios aportaron al momento de fundar la empresa.",
+          "Es la diferencia positiva entre los activos corrientes y los pasivos no corrientes."
+        ],
+        "correctIndex": 0,
+        "explanation": "La ecuación $U = I - G$ establece que hay utilidad cuando los beneficios obtenidos superan a las erogaciones irrecuperables."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el registro de una planilla de sueldos, ¿qué representan los 'Aportes Laborales por Pagar'?",
+        "options": [
+          "Retenciones realizadas al trabajador para su posterior pago a entidades de seguridad social.",
+          "Un gasto adicional que la empresa debe pagar de su propio bolsillo sobre el sueldo bruto.",
+          "Un activo exigible que la empresa cobrará al Estado al finalizar el año.",
+          "Un beneficio social que el trabajador recibe directamente en su cuenta junto con su salario neto."
+        ],
+        "correctIndex": 0,
+        "explanation": "Son deudas de la empresa (pasivo) porque el dinero se le descuenta al empleado pero debe entregarse a las gestoras de pensiones."
+      }
+    ]
+  },
+  {
+    "title": "TEMA 5",
+    "content": {
+      "title": "Ecuaciones Fundamentales de la Contabilidad (TEMA 5)",
+      "summary": "El Tema 5 establece la base de la contabilidad a través de la ecuación fundamental: Activo = Pasivo + Patrimonio. Define los elementos esenciales de una empresa: los Activos como bienes y derechos (ej. Caja, Inventarios), los Pasivos como obligaciones ante terceros, y el Patrimonio como el capital líquido o derecho de los propietarios [1][2]. Además, detalla la clasificación de estas cuentas en el Balance General (Corriente y No Corriente) e introduce las Ecuaciones de Resultado, que confrontan Ingresos y Gastos para determinar la utilidad o pérdida del ejercicio [3][4].",
+      "mermaid_diagram": "graph TD; Ecuacion_Fundamental[Ecuación Fundamental] --> Activo[Activo: Bienes y Derechos]; Ecuacion_Fundamental --> Pasivo[Pasivo: Obligaciones]; Ecuacion_Fundamental --> Patrimonio[Patrimonio: Capital Líquido]; Activo --> A_Corriente[Activo Corriente < 1 año]; Activo --> A_NoCorriente[Activo No Corriente > 1 año]; Pasivo --> P_Corriente[Pasivo Corriente < 1 año]; Pasivo --> P_NoCorriente[Pasivo No Corriente > 1 año]; Cuentas_Resultados[Cuentas de Resultados] --> Ingresos; Cuentas_Resultados --> Gastos; Ingresos --> Utilidad_Perdida[Utilidad o Pérdida]; Gastos --> Utilidad_Perdida;",
+      "key_concepts": [
+        {
+          "term": "Ecuación Contable",
+          "def": "Igualdad financiera donde los Activos son iguales a la suma del Pasivo más el Patrimonio, reflejando que el negocio es una entidad distinta a sus dueños [1]."
+        },
+        {
+          "term": "Activo",
+          "def": "Conjunto de bienes y derechos que dispone la empresa, como dinero en caja, cuentas bancarias, mercaderías, inmuebles y vehículos [1][2]."
+        },
+        {
+          "term": "Pasivo",
+          "def": "Totalidad de las obligaciones o deudas que asume la empresa hacia terceras personas [1]."
+        },
+        {
+          "term": "Patrimonio",
+          "def": "Representa el capital líquido y responde a los propietarios por la diferencia entre los bienes (Activos) y las deudas (Pasivos) [1]."
+        },
+        {
+          "term": "Ecuaciones de Resultado",
+          "def": "Igualdades que expresan la relación financiera de la utilidad o pérdida en función de los ingresos y gastos por un tiempo determinado [4]."
+        }
+      ],
+      "detailed_sections": [
+        {
+          "heading": "Elementos Básicos y Cuentas Principales",
+          "content": "El tema desglosa los componentes de la ecuación en cuentas específicas. Dentro del **Activo**, destacan *Caja* (efectivo), *Bancos* (cuentas corrientes), *Cuentas por Cobrar* (deudas de clientes) e *Inventario de Mercadería* [2]. El **Patrimonio** incluye cuentas como *Capital*, *Reserva Legal* (previsiones de fin de gestión) y *Ajuste Global al Patrimonio* (actualización del capital) [5]. Estos elementos permiten determinar la situación financiera mediante ejercicios prácticos donde, dados dos valores, se despeja el tercero (ej. Activo - Pasivo = Patrimonio) [5][6]."
+        },
+        {
+          "heading": "Exposición en el Balance General",
+          "content": "De acuerdo al D.S. 24051, las cuentas se exponen en el **Balance General** clasificadas por su tiempo de realización. El **Activo Corriente** y **Pasivo Corriente** agrupan cuentas con realización no mayor a un año, mientras que los **No Corrientes** superan este periodo [3][4]. Esta estructura permite evaluar la liquidez y solvencia de la empresa a una fecha determinada [3]."
+        }
+      ],
+      "comparison_table": "| Elemento | Definición | Ejemplo de Cuentas [2][5] |\n| :--- | :--- | :--- |\n| **Activo** | Bienes y derechos propiedad de la empresa. | Caja, Bancos, Terreno, Edificio, Inventarios. |\n| **Pasivo** | Deudas y obligaciones con terceros. | Cuentas por Pagar, Préstamos Bancarios. |\n| **Patrimonio** | Derecho de los propietarios sobre los activos netos. | Capital, Reserva Legal, Ajuste Global al Patrimonio. |\n| **Resultados** | Ingresos y gastos que determinan utilidad/pérdida. | Ingresos por Ventas, Gastos de Operación [4]. |"
+    },
+    "quiz": [
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con el material proporcionado, ¿cuál es la definición de contabilidad según Juan Funes Orellana?",
+        "options": [
+          "Un sistema de información basado en principios, normas y procedimientos técnicos para registrar hechos económicos y emitir estados financieros.",
+          "Una técnica de archivo de documentos legales para cumplir con las obligaciones tributarias de una entidad.",
+          "Un método de cálculo aritmético exclusivo para determinar la utilidad neta de los socios al finalizar el año.",
+          "La ciencia exacta que predice el comportamiento del mercado financiero basándose en registros históricos."
+        ],
+        "correctIndex": 0,
+        "explanation": "Esta definición destaca que la contabilidad es un sistema técnico y normativo orientado a la toma de decisiones mediante el análisis de la situación económica."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la ecuación fundamental de balance que debe respetarse en todo registro contable?",
+        "options": [
+          "$Activo = Pasivo + Patrimonio$",
+          "$Pasivo = Activo + Patrimonio$",
+          "$Activo = Pasivo - Patrimonio$",
+          "$Patrimonio = Activo + Pasivo$"
+        ],
+        "correctIndex": 0,
+        "explanation": "Esta igualdad refleja que todos los recursos de la empresa han sido financiados ya sea por terceros o por los propietarios."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En la clasificación de cuentas por tiempo de realización, ¿qué caracteriza a un 'Activo Corriente'?",
+        "options": [
+          "Bienes y derechos que se espera que tengan una realización o disponibilidad no mayor a un año.",
+          "Inversiones inmobiliarias y maquinaria destinadas al uso permanente de la empresa por más de cinco años.",
+          "Deudas y obligaciones que la empresa debe cancelar en un plazo superior a un ejercicio contable.",
+          "Aportes de capital realizados por los socios que no pueden ser retirados legalmente de la empresa."
+        ],
+        "correctIndex": 0,
+        "explanation": "El término corriente se refiere al corto plazo, que en contabilidad se establece usualmente en un ciclo de doce meses."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cómo se define un 'Activo Intangible' según la teoría contable expuesta?",
+        "options": [
+          "Bienes de carácter inmaterial o incorpóreo que aportan valor extra a la empresa, como las marcas o patentes.",
+          "Efectivo depositado en cuentas bancarias de libre disponibilidad para el pago de salarios.",
+          "Obligaciones presentes de la entidad derivadas de eventos pasados que representan una disminución de beneficios.",
+          "Vehículos, edificios y maquinaria utilizados en el proceso productivo de la organización."
+        ],
+        "correctIndex": 0,
+        "explanation": "A diferencia de los materiales, estos activos representan derechos o valores económicos que no tienen presencia física."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Según la Ley del Movimiento de Cuentas, ¿qué sucede cuando se registra un aumento en una cuenta de Activo?",
+        "options": [
+          "El importe debe registrarse en la columna del Debe.",
+          "El importe debe registrarse en la columna del Haber.",
+          "Se genera automáticamente una cuenta de ingreso compensatoria.",
+          "La cuenta debe ser cerrada al finalizar la transacción diaria."
+        ],
+        "correctIndex": 0,
+        "explanation": "La convención contable establece que los recursos de la empresa aumentan por el lado izquierdo o Debe."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En Bolivia, ¿cuál es el marco normativo principal que rige la actividad profesional contable?",
+        "options": [
+          "Las Normas de Contabilidad Generalmente Aceptadas (NCGA) emitidas por el CTNAC.",
+          "La adopción integral y obligatoria de las NIIF Completas (IFRS) emitidas por el IASB.",
+          "Las leyes fiscales del Servicio de Impuestos Nacionales como única base de preparación.",
+          "Los estándares de auditoría de la Unión Europea debido a acuerdos de globalización."
+        ],
+        "correctIndex": 0,
+        "explanation": "Bolivia utiliza sus propias 14 normas locales, aplicando las NIIF solo de forma supletoria en ausencia de norma local específica."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿En qué consiste el asiento de ajuste por 'compensación de débito y crédito fiscal'?",
+        "options": [
+          "En comparar mensualmente el crédito fiscal de compras contra el débito fiscal de ventas para determinar el saldo a pagar o a favor.",
+          "En registrar el pago total de los impuestos mediante un cheque bancario al finalizar el año fiscal.",
+          "En actualizar el valor del activo fijo basándose en la tasa de inflación acumulada del periodo.",
+          "En anular las facturas de venta que no han sido cobradas en efectivo por la empresa."
+        ],
+        "correctIndex": 0,
+        "explanation": "Este ajuste permite cerrar la cuenta de menor valor y establecer la obligación neta con el fisco según los formularios de impuestos."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En la jerarquía de codificación de cuentas, ¿qué nivel representa típicamente el segundo dígito del código?",
+        "options": [
+          "El Grupo (ej. activo corriente o no corriente).",
+          "La Clase (ej. activos, pasivos o patrimonio).",
+          "La Subcuenta (ej. banco mercantil moneda nacional).",
+          "La Transacción (ej. compra de suministros de oficina)."
+        ],
+        "correctIndex": 0,
+        "explanation": "Los dos primeros dígitos identifican la subclasificación principal dentro de una clase de cuenta mayor."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es el propósito del 'Estado de Resultados' o 'Estado de Ganancias y Pérdidas'?",
+        "options": [
+          "Mostrar el resumen de los ingresos y gastos de una empresa para determinar la utilidad o pérdida de un periodo.",
+          "Presentar una lista detallada de todos los bienes físicos que posee la empresa a una fecha determinada.",
+          "Exponer exclusivamente los movimientos de efectivo que han entrado y salido de la caja chica.",
+          "Registrar las deudas a largo plazo que la empresa mantiene con entidades financieras extranjeras."
+        ],
+        "correctIndex": 0,
+        "explanation": "Este estado financiero dinámico mide el desempeño económico mediante la ecuación $U = I - G$."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Al realizar el análisis contable de una transacción de 'venta al crédito', ¿qué cuenta de activo se genera?",
+        "options": [
+          "Cuentas por Cobrar.",
+          "Caja Moneda Nacional.",
+          "Cuentas por Pagar.",
+          "Inventario de Mercaderías."
+        ],
+        "correctIndex": 0,
+        "explanation": "Cuando se vende sin recibir efectivo inmediato, nace un derecho exigible hacia el cliente que se clasifica como activo."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el contexto de la contabilidad integrada (Ley 1178), ¿cuáles son los tres subsistemas que la componen?",
+        "options": [
+          "Presupuestario, Patrimonial y de Tesorería.",
+          "Administrativo, Fiscal y de Auditoría.",
+          "Activo, Pasivo y Patrimonio.",
+          "Ingresos, Costos y Gastos."
+        ],
+        "correctIndex": 0,
+        "explanation": "Estos tres subsistemas integrados permiten registrar todas las operaciones con incidencia económica y financiera en las entidades públicas bolivianas."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con el estudio comparativo entre Perú y Bolivia, ¿cuál es una dificultad en la consolidación de estados financieros?",
+        "options": [
+          "La divergencia normativa, ya que la matriz peruana aplica NIIF y la filial boliviana aplica NCGA locales.",
+          "El uso del mismo sistema contable automatizado en ambos países que impide la personalización local.",
+          "La prohibición legal de que empresas peruanas tengan sucursales en territorio boliviano.",
+          "La ausencia de profesionales contables capacitados en el uso de la partida doble en Bolivia."
+        ],
+        "correctIndex": 0,
+        "explanation": "Esta diferencia obliga a realizar ajustes significativos y conversiones para presentar información uniforme al grupo económico."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Para determinar la utilidad o pérdida neta, si los Gastos ($G = Bs120,000$) superan a los Ingresos ($I = Bs100,000$), ¿cuál es el resultado?",
+        "options": [
+          "Una pérdida neta de $Bs20,000$.",
+          "Una utilidad bruta de $Bs220,000$.",
+          "Un incremento en el patrimonio neto por aportes de capital.",
+          "Un superávit de tesorería por gestión administrativa."
+        ],
+        "correctIndex": 0,
+        "explanation": "Cuando los egresos exceden a los ingresos, la diferencia se registra como una pérdida operativa para la entidad."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el registro de una 'compra de mercadería con factura pagada en efectivo', ¿cuál es el análisis correcto de las cuentas?",
+        "options": [
+          "Inventarios aumenta (Debe), Crédito Fiscal aumenta (Debe) y Caja disminuye (Haber).",
+          "Caja aumenta (Debe) y Ventas aumenta (Haber) por el valor total de la transacción.",
+          "Cuentas por Pagar aumenta (Haber) y Crédito Fiscal disminuye (Debe).",
+          "Gasto de Organización aumenta (Debe) y Banco disminuye (Haber)."
+        ],
+        "correctIndex": 0,
+        "explanation": "Se recibe mercadería y un derecho fiscal (activos que aumentan) a cambio de entregar dinero (activo que disminuye)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Qué representa la 'Glosa' en un comprobante de diario?",
+        "options": [
+          "Una narración o descripción breve del hecho económico realizado en la transacción.",
+          "El código numérico asignado a la cuenta principal del balance general.",
+          "La firma de responsabilidad del contador y del gerente administrativo.",
+          "El monto total que debe igualar en las columnas del debe y del haber."
+        ],
+        "correctIndex": 0,
+        "explanation": "La glosa permite que cualquier persona, sea financiera o no, entienda el origen y propósito del asiento contable."
+      }
+    ]
+  },
+  {
+    "title": "TEMA 6",
+    "content": {
+      "title": "Teoría de las Cuentas",
+      "summary": "El Tema 6 aborda el 'Manual de Contabilidad' y la 'Nomenclatura de Cuentas', estableciendo la estructura jerárquica y la codificación (Clase, Grupo, Cuenta) necesaria para organizar la información financiera. Clasifica las cuentas en reales (Activo, Pasivo, Patrimonio), nominales (Ingresos, Gastos, Costos) y de orden. Su núcleo es la **Ley del Movimiento de Cuentas** (Regla del Cargo y Abono), que dicta la mecánica para registrar aumentos y disminuciones en el Debe y el Haber según la naturaleza de cada cuenta, garantizando el equilibrio contable.",
+      "mermaid_diagram": "graph TD; A[Teoría de las Cuentas] --> B[Nomenclatura y Codificación]; B --> B1[Nivel 1: Clase/Grupo]; B --> B2[Nivel 2: Subgrupo]; B --> B3[Nivel 3: Cuenta Mayor]; B --> B4[Nivel 4: Subcuenta]; A --> C[Clasificación]; C --> C1[Balance: Activo, Pasivo, Patrimonio]; C --> C2[Resultados: Ingresos, Gastos, Costos]; C --> C3[De Orden]; A --> D[Ley de Movimiento]; D --> D1[Debe/Cargo: Aumenta Activos/Gastos]; D --> D2[Haber/Abono: Aumenta Pasivos/Ingresos];",
+      "key_concepts": [
+        {
+          "term": "Manual de Contabilidad",
+          "def": "Documento que describe la naturaleza, código, título, concepto, movimiento, saldo y exposición de las cuentas contables [1]."
+        },
+        {
+          "term": "Codificación",
+          "def": "Identificación numérica o alfanumérica asignada a una cuenta (ej. 100-10-01) para facilitar su procesamiento y sistematización [1, 2]."
+        },
+        {
+          "term": "Debe (Cargo)",
+          "def": "Columna izquierda de una cuenta que registra lo que recibe la empresa; se usa para aumentos de activos/gastos y disminuciones de pasivos/patrimonio [3, 4]."
+        },
+        {
+          "term": "Ley del Movimiento de Cuentas",
+          "def": "Reglas fundamentales que determinan si una cuenta se debita (carga) o acredita (abona) en función de si su saldo aumenta o disminuye [4]."
+        }
+      ],
+      "detailed_sections": [
+        {
+          "heading": "Estructura y Codificación del Plan de Cuentas",
+          "content": "La nomenclatura organiza las cuentas en niveles jerárquicos para su registro preciso, esencial en sistemas computarizados. La estructura sugerida incluye:\n*   **Clase (1er Nivel):** Ej. 100 (Activo), 200 (Pasivo), 300 (Patrimonio), 600 (Costo), 700 (Gasto), 800 (Ingreso) [5-10].\n*   **Grupo/Subgrupo (2do Nivel):** Ej. 10 Disponibilidades [5].\n*   **Cuenta (3er Nivel):** Ej. 01 Caja [5].\n*   **Subcuenta (4to Nivel):** Ej. 01 Moneda Nacional [5]."
+        },
+        {
+          "heading": "Mecánica del Registro (Debe y Haber)",
+          "content": "La esquematización de una cuenta divide el registro en dos partes:\n*   **Debe (Izquierda):** Registra todo lo que **recibe** una empresa. Aquí se anotan los cargos o débitos [3].\n*   **Haber (Derecha):** Registra todo lo que **entrega** una empresa. Aquí se anotan los abonos o créditos [3].\nLa **Ley del Movimiento de Cuentas** establece que:\n*   **Activos, Costos y Gastos:** Se cargan (Debe) cuando aumentan y se abonan (Haber) cuando disminuyen [4].\n*   **Pasivos, Patrimonio e Ingresos:** Se abonan (Haber) cuando aumentan y se cargan (Debe) cuando disminuyen [4]."
+        }
+      ],
+      "comparison_table": "| Tipo de Cuenta | Se CARGA (Debe) cuando... | Se ABONA (Haber) cuando... |\n| :--- | :--- | :--- |\n| **ACTIVO** | Aumenta (+) [4] | Disminuye (-) [4] |\n| **PASIVO** | Disminuye (-) [4] | Aumenta (+) [4] |\n| **PATRIMONIO** | Disminuye (-) [4] | Aumenta (+) [4] |\n| **COSTO / GASTO** | Aumenta (+) [4] | Disminuye (-) [4] |\n| **INGRESO** | Disminuye (-) [4] | Aumenta (+) [4] |"
+    },
+    "quiz": [
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es el valor del Activo Total si una empresa presenta un Patrimonio de $BS 86,500$ y un Pasivo Total de $BS 115,250$?",
+        "options": [
+          "$BS 201,750$",
+          "$BS 28,750$",
+          "$BS 115,250$",
+          "$BS 144,000$"
+        ],
+        "correctIndex": 0,
+        "explanation": "De acuerdo con la ecuación fundamental de la contabilidad ($A = P + Patrimonio$), el activo es la suma de las obligaciones con terceros y el capital propio."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Según el material sobre la divergencia normativa, ¿cuál es la principal diferencia en la base de preparación de estados financieros entre Perú y Bolivia?",
+        "options": [
+          "Perú aplica las NIIF completas del IASB, mientras que Bolivia utiliza normas locales y las NIIF solo de forma supletoria.",
+          "Bolivia ha adoptado plenamente las NIIF, mientras que Perú sigue utilizando principios contables históricos.",
+          "Ambos países utilizan exactamente el mismo marco normativo bajo un tratado de armonización regional.",
+          "Perú utiliza un sistema basado únicamente en el flujo de caja, mientras que Bolivia utiliza el devengado."
+        ],
+        "correctIndex": 0,
+        "explanation": "El estudio comparativo indica que Bolivia mantiene sus propias normas locales (NCGA) y solo permite NIIF cuando no hay orientación local específica."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el contexto de los impuestos en Bolivia, ¿qué sucede contablemente si al final de un periodo el Débito Fiscal es mayor al Crédito Fiscal?",
+        "options": [
+          "Se genera un saldo a favor del fisco que la empresa debe cancelar mediante el formulario 200.",
+          "Se genera un saldo a favor del contribuyente que se arrastra para el mes siguiente.",
+          "El Crédito Fiscal se convierte automáticamente en un gasto de administración.",
+          "La diferencia debe ser registrada en la cuenta de 'Ajuste Global al Patrimonio'."
+        ],
+        "correctIndex": 0,
+        "explanation": "Al ser el impuesto generado por las ventas mayor al crédito por las compras, la diferencia constituye una obligación tributaria por pagar."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con la 'Ley del Movimiento de Cuentas', ¿cómo se registra un incremento en una cuenta de Egreso o Gasto?",
+        "options": [
+          "Se registra en el lado del Debe.",
+          "Se registra en el lado del Haber.",
+          "Se registra como un activo corriente.",
+          "No se registra hasta que el pago se haga efectivo en caja."
+        ],
+        "correctIndex": 0,
+        "explanation": "La ley establece que los egresos y costos que aumentan o se generan deben apropiarse en la columna del debe."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál de los siguientes es un ejemplo de un Activo Intangible mencionado en las definiciones?",
+        "options": [
+          "La marca de la empresa o el derecho de llave.",
+          "Los vehículos automotores de la empresa.",
+          "Las cuentas por cobrar a clientes.",
+          "El dinero depositado en cuentas bancarias."
+        ],
+        "correctIndex": 0,
+        "explanation": "Los activos intangibles son bienes inmateriales que aportan valor económico a la empresa pero no tienen presencia física."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el Sistema de Contabilidad Integrada de la UAGRM, ¿qué representa el 'Momento del Devengado' en el registro de gastos?",
+        "options": [
+          "La creación de una obligación jurídica de pago con terceros tras la recepción de bienes o servicios.",
+          "La reserva anticipada de crédito presupuestario para una compra futura.",
+          "El desembolso físico de dinero a favor de un beneficiario.",
+          "La estimación inicial de gastos en la formulación del presupuesto."
+        ],
+        "correctIndex": 0,
+        "explanation": "El devengado es el punto de integración presupuestaria y patrimonial donde se reconoce formalmente la deuda."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la función principal de la 'Codificación de Cuentas' en un sistema contable?",
+        "options": [
+          "Permitir la identificación rápida y sistemática de las cuentas en los registros y sistemas informáticos.",
+          "Determinar el valor comercial de cada activo de la empresa.",
+          "Sustituir el uso de nombres en las cuentas para que solo los contadores entiendan la información.",
+          "Evitar el pago de impuestos mediante la ocultación de transacciones."
+        ],
+        "correctIndex": 0,
+        "explanation": "La asignación numérica o alfanumérica organiza los niveles de clase, grupo y cuenta para facilitar el procesamiento de datos."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Según el material de Yvan Vertiz, ¿cuáles son los tres pasos para realizar un análisis contable correcto de una transacción?",
+        "options": [
+          "Identificar cuentas intervinientes, determinar si aumentan/disminuyen y aplicar la ley del movimiento de cuentas.",
+          "Calcular el IVA, emitir la factura y archivar el documento.",
+          "Verificar el saldo bancario, pagar al proveedor y registrar la ganancia.",
+          "Identificar el nit, poner la fecha y escribir la glosa del comprobante."
+        ],
+        "correctIndex": 0,
+        "explanation": "Este procedimiento lógico asegura que cada cuenta sea apropiada correctamente en el debe o el haber según su naturaleza."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿A qué subgrupo pertenecen las cuentas que representan dinero en efectivo de libre disponibilidad, como 'Caja' o 'Banco'?",
+        "options": [
+          "Disponibilidades",
+          "Inversiones",
+          "Cuentas por cobrar",
+          "Pasivo Corriente"
+        ],
+        "correctIndex": 0,
+        "explanation": "Este rubro agrupa los activos más líquidos que posee la empresa para realizar sus operaciones inmediatas."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En una venta de mercaderías al contado con factura en Bolivia, ¿cuál de las siguientes afirmaciones sobre el Impuesto a las Transacciones ($IT$) es correcta?",
+        "options": [
+          "Se registra simultáneamente como un gasto ($3\\%$) y como un pasivo por pagar ($3\\%$).",
+          "Se deduce directamente del valor de la mercadería en el inventario.",
+          "Se registra solo si el cliente no paga en efectivo.",
+          "Es un impuesto que el cliente debe pagar adicionalmente al precio facturado."
+        ],
+        "correctIndex": 0,
+        "explanation": "El IT es un impuesto directo a la transacción que genera un egreso para la empresa y una obligación devengada ante el Estado."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con el Reglamento de la UAGRM, ¿quiénes son los responsables obligatorios de firmar los Estados Financieros?",
+        "options": [
+          "El Rector, el Director Administrativo Financiero y el Jefe del Departamento de Contabilidad.",
+          "Únicamente el Auditor Interno de la universidad.",
+          "Todos los docentes y estudiantes que forman parte del ICU.",
+          "El Ministerio de Economía y Finanzas Públicas exclusivamente."
+        ],
+        "correctIndex": 0,
+        "explanation": "La normativa específica de la universidad y las NB-SCI exigen la firma de la MAE, el administrador financiero y el contador en ejercicio."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Qué representa el 'Ajuste Global al Patrimonio' en el balance de una empresa boliviana?",
+        "options": [
+          "La cuenta de reserva que refleja la actualización del patrimonio para mantener su valor frente a la inflación.",
+          "El pago total de los sueldos y salarios de la gestión.",
+          "La suma de todos los activos fijos depreciados.",
+          "El monto que los socios deben a la empresa por aportes no realizados."
+        ],
+        "correctIndex": 0,
+        "explanation": "Es una cuenta de reserva patrimonial que agrupa los ajustes por inflación aplicados al capital y otras cuentas de patrimonio."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Si una empresa compra mercadería por $BS 500$ con factura, ¿cuánto debe registrarse en la cuenta 'Crédito Fiscal IVA'?",
+        "options": [
+          "$BS 65$",
+          "$BS 15$",
+          "$BS 435$",
+          "$BS 500$"
+        ],
+        "correctIndex": 0,
+        "explanation": "El Crédito Fiscal IVA en Bolivia corresponde al $13\\%$ del valor total facturado ($500 \\times 0.13 = 65$)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cómo se clasifican las cuentas de 'Previsión para Cuentas Incobrables' y 'Depreciación Acumulada' en el Balance General?",
+        "options": [
+          "Cuentas reguladoras del activo (se exponen con signo negativo).",
+          "Pasivos exigibles a largo plazo.",
+          "Gastos de operación del ejercicio.",
+          "Patrimonio neto o reservas legales."
+        ],
+        "correctIndex": 0,
+        "explanation": "Su función es ajustar el valor bruto de los activos para mostrar un saldo real o neto de acuerdo a su desgaste o riesgo de incobrabilidad."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el registro de una planilla de sueldos, ¿por qué cuentas como 'Previsión para Indemnizaciones' no se cancelan en el asiento de pago mensual?",
+        "options": [
+          "Porque son beneficios sociales que se acumulan para ser pagados solo cuando el trabajador se retira o por ley.",
+          "Porque la empresa ha decidido no pagarlos para aumentar su utilidad.",
+          "Porque se pagan automáticamente a través del sistema bancario sin registro manual.",
+          "Porque son aportes que solo el Estado puede cobrar."
+        ],
+        "correctIndex": 0,
+        "explanation": "Son pasivos no corrientes (provisionales) que representan una contingencia futura, no una deuda de pago inmediato cada mes."
+      }
+    ]
+  },
+  {
+    "title": "TEMA 7",
+    "content": {
+      "title": "TEMA 7: Teneduría de Libros",
+      "summary": "La teneduría de libros es el conjunto de procesos manuales que utiliza una empresa para registrar sus transacciones conforme a la normativa contable y legal [1]. Su objetivo principal es brindar información sistemática, confiable y oportuna para la toma de decisiones [1]. Este proceso se materializa en los libros de contabilidad, donde se reflejan fielmente las operaciones mediante comprobantes de diario (clasificados según el flujo de fondos) y se sistematizan en los libros mayores para determinar los saldos de cada cuenta [2, 3].",
+      "mermaid_diagram": "graph TD; A[Teneduría de Libros] --> B[Comprobantes de Diario]; A --> C[Libros Mayores]; B --> D[Diario Traspaso CDT]; B --> E[Diario Ingreso CDI]; B --> F[Diario Egreso CDE]; D --> G[Base Devengado / Sin flujo]; E --> H[Entrada de Fondos]; F --> I[Salida de Fondos]; C --> J[Clasificación y Saldos]; J --> K[Debe / Haber / Saldo];",
+      "key_concepts": [
+        {
+          "term": "Registro Contable",
+          "def": "Conjunto de elementos manuales usados para registrar transacciones y brindar información para la toma de decisiones [1]."
+        },
+        {
+          "term": "Comprobante de Diario",
+          "def": "Documento donde se asientan las operaciones; pueden ser de traspaso, ingreso o egreso según el movimiento de fondos [2, 4]."
+        },
+        {
+          "term": "Libro Mayor",
+          "def": "Registro que clasifica los valores debitados y acreditados de cada cuenta para determinar su saldo [3, 5]."
+        }
+      ],
+      "detailed_sections": [
+        {
+          "heading": "Clasificación de Comprobantes de Diario",
+          "content": "Los comprobantes de diario no tienen un diseño estándar mundial, pero se clasifican según la base de registro:\n*   **Comprobantes de Diario Traspaso (CDT):** Registran operaciones bajo la base del devengado que no generan entrada ni salida real de fondos [2].\n*   **Comprobantes de Diario Ingreso (CDI):** Exponen transacciones que generan una **entrada real de fondos** a la empresa [4].\n*   **Comprobantes de Diario Egreso (CDE):** Registran operaciones que implican una **salida real de fondos** [4]."
+        },
+        {
+          "heading": "Estructura del Libro Mayor",
+          "content": "El diseño de los mayores responde a las necesidades del sistema contable de la empresa [3]. Comúnmente incluyen columnas para:\n1.  **Fecha:** Año, mes y día de la transacción [6].\n2.  **Detalle:** Causa de la apropiación de la cuenta [6].\n3.  **Comprobante:** Número de referencia del diario [6].\n4.  **Debe y Haber:** Valores monetarios cargados o abonados [5, 6].\n5.  **Saldo:** Diferencia resultante entre el Debe y el Haber [5]."
+        }
+      ],
+      "comparison_table": "| Tipo de Comprobante | Sigla | Naturaleza de la Operación | Efecto en Fondos |\n| :--- | :--- | :--- | :--- |\n| **Diario Traspaso** | CDT | Base devengado [2] | Sin entrada ni salida de fondos [2] |\n| **Diario Ingreso** | CDI | Recaudación/Cobro [4] | Genera entrada real de fondos [4] |\n| **Diario Egreso** | CDE | Desembolso/Pago [4] | Genera salida real de fondos [4] |"
+    },
+    "quiz": [
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la ecuación fundamental de balance que rige la contabilidad según el material proporcionado?",
+        "options": [
+          "Activo = Pasivo + Patrimonio",
+          "Activo + Pasivo = Patrimonio",
+          "Pasivo = Activo + Patrimonio",
+          "Patrimonio = Activo + Pasivo"
+        ],
+        "correctIndex": 0,
+        "explanation": "Esta igualdad refleja que todos los recursos de la empresa están financiados ya sea por terceros o por los propietarios."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el contexto de la normativa boliviana, ¿cuál es el estado actual de la aplicación de las Normas Internacionales de Información Financiera ($NIIF$)?",
+        "options": [
+          "Se aplican de forma supletoria cuando no existe una norma local específica.",
+          "Son de aplicación obligatoria y plena para todas las empresas desde 2011.",
+          "Están prohibidas por el Servicio de Impuestos Nacionales ($SIN$).",
+          "Solo se aplican para la elaboración del Balance General."
+        ],
+        "correctIndex": 0,
+        "explanation": "Bolivia utiliza principalmente las Normas de Contabilidad Generalmente Aceptadas ($NCGA$) y recurre a las internacionales solo en ausencia de guía local."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Dentro de la clasificación de las cuentas, ¿cuáles son los niveles que componen la estructura de codificación?",
+        "options": [
+          "Clase, Grupo, Subgrupo, Cuenta y Subcuenta",
+          "Activo, Pasivo, Patrimonio e Ingresos",
+          "Asiento, Libro Diario, Libro Mayor y Balance",
+          "Efectivo, Derechos, Bienes y Obligaciones"
+        ],
+        "correctIndex": 0,
+        "explanation": "Este orden jerárquico permite organizar la información desde lo más general (tipo de cuenta) hasta lo más específico (detalle transaccional)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con la Ley del Movimiento de Cuentas, ¿qué sucede cuando se registra un aumento en una cuenta de Pasivo?",
+        "options": [
+          "Se debe registrar en la columna del Haber.",
+          "Se debe registrar en la columna del Debe.",
+          "Se genera automáticamente un Crédito Fiscal.",
+          "La cuenta se considera un Egreso que aumenta."
+        ],
+        "correctIndex": 0,
+        "explanation": "Por naturaleza, las obligaciones y el capital aumentan su saldo mediante abonos en el lado derecho del registro."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Qué procedimiento se debe realizar mensualmente para determinar el saldo a pagar de $IVA$ al fisco?",
+        "options": [
+          "Compensación entre el Débito Fiscal y el Crédito Fiscal.",
+          "Suma del Impuesto a las Transacciones ($IT$) y el Débito Fiscal.",
+          "Cierre de las cuentas de Ingresos y Gastos.",
+          "Multiplicar el Activo Total por la tasa del $13\\%$."
+        ],
+        "correctIndex": 0,
+        "explanation": "Se comparan las ventas facturadas frente a las compras facturadas para determinar si existe un saldo a favor del contribuyente o del Estado."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En la clasificación del Balance General por el tiempo de realización, ¿cómo se define un Activo Corriente?",
+        "options": [
+          "Bienes y derechos con una realización no mayor a un año.",
+          "Deudas que la empresa debe pagar en un plazo mayor a un año.",
+          "Bienes materiales de larga duración como edificios y vehículos.",
+          "Aportes efectuados por los socios al inicio de actividades."
+        ],
+        "correctIndex": 0,
+        "explanation": "La clasificación corriente se basa en la liquidez o disponibilidad del recurso en el corto plazo (un ejercicio fiscal)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Según el material de $UAGRM$, el Sistema de Contabilidad Integrada se compone de tres subsistemas. ¿Cuáles son?",
+        "options": [
+          "Presupuestario, Patrimonial y de Tesorería",
+          "Activos, Pasivos y Patrimonio",
+          "Fiscalizador, Ejecutivo y Operativo",
+          "Ingresos, Gastos y Resultados"
+        ],
+        "correctIndex": 0,
+        "explanation": "La integración de estos tres módulos permite registrar la ejecución del presupuesto, los cambios en activos/pasivos y el flujo de efectivo."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En una transacción de venta de mercaderías al contado con factura, ¿qué cuenta de activo aumenta en el registro contable?",
+        "options": [
+          "Caja Moneda Nacional",
+          "Cuentas por Pagar",
+          "Crédito Fiscal $IVA$",
+          "Inventario de Mercaderías"
+        ],
+        "correctIndex": 0,
+        "explanation": "Al ser una venta al contado, la empresa recibe efectivo, lo cual incrementa sus disponibilidades líquidas."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Qué representa la 'Glosa' en un comprobante de diario?",
+        "options": [
+          "La narración o descripción breve del hecho económico realizado.",
+          "El código numérico asignado a la cuenta principal.",
+          "El monto total de la suma de la columna del Debe.",
+          "La firma de la Máxima Autoridad Ejecutiva."
+        ],
+        "correctIndex": 0,
+        "explanation": "Su función es facilitar la interpretación de la transacción para cualquier persona que revise el registro contable."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Si una empresa tiene Gastos por $\\$ 24,000$ e Ingresos por $\\$ 32,000$, según la ecuación de resultados, el resultado es:",
+        "options": [
+          "Una Utilidad de $\\$ 8,000$",
+          "Una Pérdida de $\\$ 8,000$",
+          "Un Patrimonio Neto de $\\$ 56,000$",
+          "Un Pasivo Corriente de $\\$ 32,000$"
+        ],
+        "correctIndex": 0,
+        "explanation": "La utilidad se produce cuando los ingresos superan a los gastos ($U = I - G$)."
+      }
+    ]
+  },
+  {
+    "title": "TEMA 8",
+    "content": {
+      "title": "TEMA N° 8: Papeles de Trabajo",
+      "summary": "Este tema aborda los documentos auxiliares fundamentales para el proceso contable previos a la emisión de estados financieros: el Balance de Comprobación de Sumas y Saldos y la Hoja de Trabajo. El Balance de Comprobación verifica la igualdad aritmética de los registros (Debe y Haber) y determina los saldos de las cuentas. La Hoja de Trabajo es una herramienta que sistematiza la clasificación de estos saldos en cuentas de resultado (costos, gastos, ingresos) y de balance (activo, pasivo, patrimonio), permitiendo determinar el resultado del periodo (utilidad o pérdida) y facilitando la preparación de los estados financieros finales. Se presentan variaciones de la hoja de trabajo desde 6 hasta 14 columnas según la complejidad requerida.",
+      "mermaid_diagram": "graph TD; A[Papeles de Trabajo] --> B[Balance de Comprobación]; A --> C[Hoja de Trabajo]; B --> B1[Verificación Aritmética]; B --> B2[Saldos Deudor/Acreedor]; C --> C1[6 Columnas: Saldos + Clasificación]; C --> C2[10 Columnas: + Ajustes]; C --> C3[12 Columnas: + Resultados Acumulados]; C --> C4[14 Columnas: + Cuentas de Orden]; C1 --> D[Estados Financieros];",
+      "key_concepts": [
+        {
+          "term": "Balance de Comprobación",
+          "def": "Estado financiero auxiliar que presenta la sumatoria de cargos y abonos, así como los saldos deudores y acreedores de todas las cuentas con movimiento."
+        },
+        {
+          "term": "Hoja de Trabajo",
+          "def": "Documento contable auxiliar utilizado para clasificar saldos, realizar ajustes y facilitar la preparación de los estados financieros básicos."
+        },
+        {
+          "term": "Ajustes",
+          "def": "Transacciones incorporadas en la hoja de trabajo (columnas 5 y 6 en el formato de 10) para aplicar la base del devengado y corregir saldos antes del cierre."
+        },
+        {
+          "term": "Resultados Acumulados",
+          "def": "Columnas específicas en la hoja de trabajo de 12 columnas destinadas a cuantificar utilidades o pérdidas de gestiones anteriores más el resultado actual."
+        }
+      ],
+      "detailed_sections": [
+        {
+          "heading": "Balance de Comprobación de Sumas y Saldos",
+          "content": "Es un estado auxiliar cuyo objetivo es proporcionar información oportuna sobre el movimiento de las cuentas. Se conforma típicamente de **6 columnas**: Código, Título de la cuenta, Sumas (Debe, Haber) y Saldos (Deudor, Acreedor). Su preparación es el paso previo indispensable para la Hoja de Trabajo, verificando que la contabilidad cumple con la partida doble (la suma del Debe iguala al Haber) [1], [2]."
+        },
+        {
+          "heading": "Hoja de Trabajo de 6 y 8 Columnas",
+          "content": "La **Hoja de Trabajo de 6 columnas** parte de los saldos (Deudor/Acreedor) y los clasifica en cuatro columnas finales: Gastos, Ingresos, Activo y Pasivo/Patrimonio [3], [4]. La **versión de 8 columnas** incluye dos columnas previas para las Sumas del Mayor (Debe y Haber) antes de los saldos, integrando esencialmente el Balance de Comprobación dentro de la hoja de trabajo [5], [6]."
+        },
+        {
+          "heading": "Hoja de Trabajo de 10, 12 y 14 Columnas",
+          "content": "A medida que la contabilidad se vuelve más compleja, la hoja de trabajo se expande:\n*   **10 Columnas**: Incorpora columnas para **Ajustes** (Debe y Haber) y **Saldos Ajustados**, permitiendo aplicar el principio de devengado [7].\n*   **12 Columnas**: Añade columnas para **Resultados Acumulados**, sumando resultados anteriores al actual [8].\n*   **14 Columnas**: Incluye columnas para **Cuentas de Orden** (Debe y Haber) para registros que no afectan el patrimonio pero requieren control [9]."
+        }
+      ],
+      "comparison_table": "| Tipo de Hoja de Trabajo | Columnas Totales | Contenido Principal | Propósito Específico |\n| :--- | :--- | :--- | :--- |\n| **6 Columnas** | Saldos, Resultados, Balance | Clasificación básica de cuentas (Base Efectivo) |\n| **8 Columnas** | Sumas, Saldos, Resultados, Balance | Incluye la comprobación de sumas del mayor |\n| **10 Columnas** | Saldos, Ajustes, Saldos Ajustados, Resultados, Balance | Incluye asientos de ajuste (Base Devengado) |\n| **12 Columnas** | ... + Resultados Acumulados | Separa resultados de gestiones anteriores |\n| **14 Columnas** | ... + Cuentas de Orden | Control de cuentas de orden (contingentes/recordatorias) |"
+    },
+    "quiz": [
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la ecuación fundamental de balance que debe respetarse en todo registro contable según la normativa boliviana?",
+        "options": [
+          "$Activo = Pasivo + Patrimonio$",
+          "$Activo + Pasivo = Patrimonio$",
+          "$Pasivo = Activo + Patrimonio$",
+          "$Patrimonio = Pasivo - Activo$"
+        ],
+        "correctIndex": 0,
+        "explanation": "Esta es la igualdad básica donde los recursos de la entidad son financiados ya sea por terceros o por los propietarios."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con el material sobre la divergencia normativa, ¿cuál es la principal diferencia en la aplicación de las NIIF entre Perú y Bolivia?",
+        "options": [
+          "Perú aplica NIIF completas de forma obligatoria, mientras que Bolivia utiliza sus propias normas locales (NCGA) y las NIIF solo de forma supletoria.",
+          "Bolivia ha adoptado las NIIF para PYMES de forma integral, mientras que Perú se resiste a la armonización contable.",
+          "Ambos países han abandonado las NIIF para volver a sistemas basados únicamente en el costo histórico.",
+          "En Bolivia las NIIF son de cumplimiento obligatorio para todas las empresas comerciales por encima de las normas del CTNAC."
+        ],
+        "correctIndex": 0,
+        "explanation": "El estudio indica que Bolivia mantiene sus 14 normas nacionales y solo recurre a las internacionales ante la ausencia de una norma local específica."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Qué representa el momento del 'Devengado' en el registro de gastos dentro del Sistema de Contabilidad Integrada (SCI)?",
+        "options": [
+          "El surgimiento de una obligación jurídica de pago con terceros por la recepción de bienes o servicios.",
+          "La salida física de dinero de la cuenta bancaria de la institución.",
+          "La reserva anticipada de presupuesto para un gasto que aún no ha ocurrido.",
+          "La etapa inicial de formulación del presupuesto anual de la entidad."
+        ],
+        "correctIndex": 0,
+        "explanation": "Define el punto en el que el gasto se reconoce oficialmente al existir un compromiso legal tras recibir lo contratado."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En la codificación de cuentas contables, ¿qué nivel representa el primer dígito del código?",
+        "options": [
+          "La Clase de cuenta (ej. Activo, Pasivo, etc.).",
+          "El Subgrupo de disponibilidad o exigibilidad.",
+          "La Cuenta específica de movimiento de la transacción.",
+          "El Grupo (ej. Activo Corriente o No Corriente)."
+        ],
+        "correctIndex": 0,
+        "explanation": "El primer dígito clasifica la naturaleza básica de la cuenta dentro de los estados financieros."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Según la Ley del Movimiento de Cuentas, ¿cómo se registra un incremento en una cuenta de Pasivo o de Patrimonio?",
+        "options": [
+          "Se debe registrar en la columna del Haber.",
+          "Se debe registrar en la columna del Debe.",
+          "Depende de si el activo también está aumentando simultáneamente.",
+          "Solo se registra si existe un documento de crédito fiscal asociado."
+        ],
+        "correctIndex": 0,
+        "explanation": "Por su naturaleza acreedora, estas cuentas aumentan su saldo mediante registros en el lado derecho o crédito."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Por qué las autoridades bolivianas no han aprobado oficialmente la implementación total de las NIIF?",
+        "options": [
+          "Debido a que implican cambios sustanciales en la normativa impositiva y el valor económico de los bienes.",
+          "Porque el Colegio de Auditores de Bolivia no ha presentado las propuestas necesarias.",
+          "Debido a que las NIIF solo están escritas en idiomas extranjeros y no hay traducción oficial.",
+          "Porque Bolivia prefiere seguir el modelo contable de Estados Unidos (US GAAP)."
+        ],
+        "correctIndex": 0,
+        "explanation": "El material de Auditores MJ señala que el impacto en la recaudación tributaria y la valoración es un freno principal."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Al realizar la compensación mensual de IVA, ¿qué sucede si el Débito Fiscal es mayor al Crédito Fiscal?",
+        "options": [
+          "Se genera un saldo a favor del fisco (impuesto por pagar).",
+          "Se genera un saldo a favor del contribuyente para el mes siguiente.",
+          "La cuenta de Crédito Fiscal debe mantenerse abierta con saldo deudor.",
+          "Se debe realizar un ajuste automático contra la cuenta de Utilidades Acumuladas."
+        ],
+        "correctIndex": 0,
+        "explanation": "Si el impuesto generado por las ventas supera al pagado en compras, la diferencia debe entregarse al Estado."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es el objetivo principal del Balance General o Estado de Situación Financiera?",
+        "options": [
+          "Proporcionar información sobre la situación patrimonial y financiera a una fecha determinada para la toma de decisiones.",
+          "Listar cronológicamente todas las ventas realizadas durante un año fiscal.",
+          "Determinar exclusivamente el monto de impuestos que la empresa debe pagar mensualmente.",
+          "Mostrar únicamente el flujo de efectivo que entró y salió de la caja de la empresa."
+        ],
+        "correctIndex": 0,
+        "explanation": "Es una 'fotografía' de la empresa que permite evaluar su solvencia y estructura de inversión en un momento dado."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el contexto de la UAGRM, ¿cuáles son los tres subsistemas que componen el Sistema de Contabilidad Integrada (SCI)?",
+        "options": [
+          "Registro Presupuestario, Registro Patrimonial y Registro de Tesorería.",
+          "Contabilidad de Costos, Contabilidad Tributaria y Auditoría Interna.",
+          "Activos Fijos, Inventarios y Planillas de Sueldos.",
+          "Ingresos Operativos, Gastos Administrativos y Resultados Netos."
+        ],
+        "correctIndex": 0,
+        "explanation": "Estos tres módulos trabajan de forma integrada para procesar toda la información financiera y presupuestaria de la institución."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Qué establece la Resolución CTNAC $N^{\\circ} 03/2020$ en el marco contable boliviano?",
+        "options": [
+          "La suspensión del ajuste por inflación de los estados financieros.",
+          "La obligatoriedad de adoptar las NIIF completas para todas las universidades públicas.",
+          "El incremento de la alícuota del IVA para el sector servicios.",
+          "La creación de un nuevo plan de cuentas único para empresas mineras."
+        ],
+        "correctIndex": 0,
+        "explanation": "Esta resolución detuvo la aplicación de la Norma de Contabilidad $N^{\\circ} 3$ referente al ajuste integral por inflación."
+      }
+    ]
+  },
+  {
+    "title": "TEMA 9",
+    "content": {
+      "title": "TEMA 9: Asientos de Ajuste",
+      "summary": "Los asientos de ajuste son el conjunto de operaciones contables realizadas periódicamente, generalmente al cierre del ejercicio, aplicando la base del devengado. Su objetivo principal es imputar correctamente los ingresos y gastos al periodo correspondiente, independientemente de si han sido cobrados o pagados, para determinar de manera razonable las variaciones patrimoniales y los resultados reales de la empresa. Incluyen procesos técnicos como la depreciación de bienes de uso, amortización de intangibles, constitución de previsiones y regularización de cuentas diferidas y acumuladas.",
+      "mermaid_diagram": "graph TD; A[Asientos de Ajuste] --> B(Depreciación Bienes de Uso); A --> C(Amortización Intangibles); A --> D(Previsión Cuentas Incobrables); A --> E(Regularización de Gastos e Ingresos); B --> B1[Método Línea Recta]; B --> B2[Otros Métodos]; E --> E1[Diferidos / Anticipados]; E --> E2[Acumulados / Pendientes];",
+      "key_concepts": [
+        {
+          "term": "Asientos de Ajuste",
+          "def": "Operaciones periódicas bajo la base del devengado para determinar resultados y variaciones patrimoniales precisas al cierre de gestión."
+        },
+        {
+          "term": "Depreciación",
+          "def": "Distribución del costo de un bien de uso renovable a lo largo de su vida útil estimada, reflejando su pérdida de valor."
+        },
+        {
+          "term": "Amortización",
+          "def": "Distribución sistemática del costo actualizado de activos intangibles entre sus años de vida útil estimados."
+        },
+        {
+          "term": "Base del Devengado",
+          "def": "Principio contable que requiere el registro de ingresos y gastos en el periodo en que ocurren, sin importar el flujo de efectivo."
+        }
+      ],
+      "detailed_sections": [
+        {
+          "heading": "Clasificación de Bienes para Depreciación",
+          "content": "Para fines de ajuste, los bienes de uso se clasifican en tres categorías:\n\n*   **Bienes sujetos a depreciación:** Son aquellos renovables por la mano del hombre (ej. vehículos, muebles, maquinaria) [1].\n*   **Bienes sujetos a agotamiento:** Son recursos no renovables que se extinguen con su extracción (ej. minas, pozos petroleros) [1].\n*   **Bienes que no se deprecian ni agotan:** Como los terrenos, que generalmente no pierden valor por el uso [1]."
+        },
+        {
+          "heading": "Cálculo de la Previsión para Cuentas Incobrables",
+          "content": "Se utiliza para cubrir el riesgo de créditos que no se podrán recuperar. Un método común se basa en la **sumatoria de créditos declarados incobrables de los últimos 3 años**, relacionándolos con los créditos totales para determinar un porcentaje promedio de incobrabilidad aplicable al saldo de cuentas por cobrar al cierre del ejercicio [2]."
+        },
+        {
+          "heading": "Tipos Comunes de Ajustes",
+          "content": "Los ajustes típicos incluyen:\n*   **Gastos pendientes de pago:** Servicios utilizados pero no pagados al cierre (ej. sueldos, servicios básicos) [3].\n*   **Gastos/Ingresos diferidos:** Regularización de seguros pagados por adelantado o alquileres cobrados por adelantado [3], [4].\n*   **Inventarios:** Ajuste para registrar el inventario final de mercaderías y suministros [3], [4]."
+        }
+      ],
+      "comparison_table": "| Concepto | Depreciación | Amortización | Agotamiento |\n| :--- | :--- | :--- | :--- |\n| **Objeto** | Bienes de Uso (Tangibles) [1] | Activos Intangibles [5] | Recursos Naturales [1] |\n| **Naturaleza** | Desgaste físico o tecnológico | Consumo del derecho o valor inmaterial | Extracción o consumo del recurso |\n| **Recuperabilidad** | Bienes renovables [1] | Derechos/Privilegios temporales | Bienes no renovables [1] |\n| **Ejemplo** | Vehículos, Edificios [6] | Gastos de Organización, Patentes [5] | Minas, Pozos Petroleros [1] |"
+    },
+    "quiz": [
+      {
+        "type": "multiple_choice",
+        "question": "Según la definición de Juan Funes Orellana citada en el material, ¿cuál es el fin primordial de la contabilidad al procesar hechos económicos?",
+        "options": [
+          "Emitir estados financieros para analizar la situación económica y financiera de la empresa.",
+          "Determinar únicamente el pago de impuestos ante el Servicio de Impuestos Nacionales.",
+          "Registrar exclusivamente las ventas al crédito para el control de cuentas por cobrar.",
+          "Garantizar que el patrimonio de la empresa nunca sea inferior a sus pasivos."
+        ],
+        "correctIndex": 0,
+        "explanation": "La contabilidad sistematiza la información para generar estados financieros que sirvan de base para la toma de decisiones por parte de usuarios internos y externos."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Si una entidad presenta activos por valor de $Bs 155,380$ y un patrimonio neto de $Bs 62,500$, ¿cuál es el importe total de sus obligaciones con terceros basándose en la ecuación fundamental?",
+        "options": [
+          "$Bs 92,880$",
+          "$Bs 217,880$",
+          "$Bs 155,380$",
+          "$Bs 62,500$"
+        ],
+        "correctIndex": 0,
+        "explanation": "Aplicando la ecuación derivada $Pasivo = Activo - Patrimonio$, se resta el valor residual de los recursos totales."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el contexto de los activos, ¿cuál es la principal diferencia entre un bien tangible y un derecho frente a terceras personas?",
+        "options": [
+          "El bien tangible tiene existencia física material, mientras que el derecho representa una cuenta por cobrar.",
+          "Los bienes tangibles son siempre de corto plazo y los derechos son siempre de largo plazo.",
+          "Los derechos no tienen valor monetario cuantificable hasta que se cobran efectivamente.",
+          "Un bien tangible es un recurso de la empresa, mientras que un derecho es una obligación con el banco."
+        ],
+        "correctIndex": 0,
+        "explanation": "Los activos se dividen en bienes (materiales o inmateriales) y derechos (exigibilidades como cuentas por cobrar a clientes)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Dentro de la codificación de cuentas, ¿qué nivel representa típicamente la asignación de los tres primeros dígitos (ej. 1.1.1)?",
+        "options": [
+          "Subgrupo",
+          "Clase",
+          "Cuenta de registro",
+          "Auxiliar"
+        ],
+        "correctIndex": 0,
+        "explanation": "La jerarquía contable suele estructurarse como: Clase (1 dígito), Grupo (2 dígitos) y Subgrupo (3 dígitos)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Al analizar una transacción de compra de mercadería en efectivo, ¿cuál es el registro correcto según la ley del movimiento de cuentas?",
+        "options": [
+          "Un aumento en el activo (Inventarios) en el Debe y una disminución en el activo (Caja) en el Haber.",
+          "Un aumento en el pasivo en el Debe y una disminución en el activo en el Haber.",
+          "Una disminución en el egreso en el Debe y un aumento en el pasivo en el Haber.",
+          "Un aumento en el patrimonio en el Debe y un aumento en el activo en el Haber."
+        ],
+        "correctIndex": 0,
+        "explanation": "La entrada de bienes aumenta el activo (Debe) y la salida de dinero en efectivo disminuye el activo (Haber)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la función principal de la 'Glosa' en un comprobante de diario?",
+        "options": [
+          "Proporcionar una narración o descripción detallada de la transacción para facilitar su interpretación por no contables.",
+          "Asignar un código numérico a cada cuenta para el sistema informático.",
+          "Verificar que el Debe y el Haber sumen cantidades iguales.",
+          "Determinar si la cuenta pertenece al Balance General o al Estado de Resultados."
+        ],
+        "correctIndex": 0,
+        "explanation": "La glosa explica el 'porqué' del asiento contable, permitiendo entender la operación sin necesidad de ser un experto técnico."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el proceso de compensación del IVA, ¿qué resultado contable se genera si el Débito Fiscal es mayor al Crédito Fiscal al final del mes?",
+        "options": [
+          "Se genera un saldo a favor del fisco que representa una obligación por pagar.",
+          "Se genera un saldo a favor de la empresa para compensar en el mes siguiente.",
+          "Se debe cerrar automáticamente la cuenta de Caja para cubrir la diferencia.",
+          "La diferencia se registra como un ingreso extraordinario para la empresa."
+        ],
+        "correctIndex": 0,
+        "explanation": "Cuando el impuesto generado por las ventas supera al impuesto pagado en las compras, la diferencia debe cancelarse al Estado."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Según el material sobre la normativa en Bolivia, ¿cuál es el organismo encargado de emitir las normas contables y de auditoría en el país?",
+        "options": [
+          "El Consejo Técnico Nacional de Auditoría y Contabilidad (CTNAC) del Colegio de Auditores.",
+          "El International Accounting Standards Board (IASB).",
+          "La Superintendencia del Mercado de Valores (SMV).",
+          "El Servicio de Impuestos Nacionales (SIN)."
+        ],
+        "correctIndex": 0,
+        "explanation": "El CTNAC es el brazo técnico que emite resoluciones y normas (como las 14 NCGA vigentes) en Bolivia."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con el estudio comparativo entre Perú y Bolivia, ¿cuál es una de las principales dificultades para la consolidación de estados financieros entre estos países?",
+        "options": [
+          "La falta de adopción plena de las NIIF en Bolivia en comparación con la obligatoriedad total en Perú.",
+          "La imposibilidad de utilizar la misma moneda (Boliviano) en ambos países.",
+          "Que en Bolivia no existe el concepto de depreciación acumulada para activos fijos.",
+          "La ausencia de planes de cuentas codificados en las empresas bolivianas."
+        ],
+        "correctIndex": 0,
+        "explanation": "Perú aplica NIIF completas, mientras que Bolivia mantiene sus NCGA locales, obligando a realizar ajustes significativos de conversión."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cómo se define una pérdida en términos de la ecuación de resultados presentados en el material?",
+        "options": [
+          "Es el exceso de los gastos (egresos) respecto de los ingresos obtenidos.",
+          "Es el total de activos menos el total de pasivos al final de la gestión.",
+          "Es la disminución del efectivo en caja debido a compras al contado.",
+          "Es el valor de los impuestos que la empresa debe pagar al Estado."
+        ],
+        "correctIndex": 0,
+        "explanation": "Financieramente, la pérdida ocurre cuando los recursos consumidos para operar superan a los beneficios generados por la actividad."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En la clasificación del Balance General por 'Tiempo de Realización', ¿qué cuentas se agrupan bajo el rubro de Activo Corriente?",
+        "options": [
+          "Aquellas que tienen una realización o conversión en efectivo no mayor a un año.",
+          "Los edificios, terrenos y maquinarias de la empresa.",
+          "Únicamente el dinero depositado en cuentas bancarias a plazo fijo de 2 años.",
+          "Las obligaciones que la empresa debe pagar a sus proveedores en 30 días."
+        ],
+        "correctIndex": 0,
+        "explanation": "La corriente o circulante se define por la liquidez inmediata o la expectativa de consumo/cobro dentro del ciclo de un año."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Por qué las NIIF no han sido aprobadas oficialmente por las autoridades gubernamentales en Bolivia hasta la fecha según los documentos?",
+        "options": [
+          "Debido a que determinan cambios sustanciales en la parte impositiva y el valor económico de los bienes.",
+          "Porque el Colegio de Auditores de Bolivia se opone a la globalización contable.",
+          "Debido a que las NIIF solo están escritas en inglés y no han sido traducidas.",
+          "Porque las empresas bolivianas no realizan transacciones comerciales con el exterior."
+        ],
+        "correctIndex": 0,
+        "explanation": "La adopción de NIIF implicaría modificar la base imponible del Impuesto a las Utilidades (IUE) y los criterios de valuación estatales."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con el Reglamento de la UAGRM, ¿cuál es el momento contable del gasto que crea una obligación jurídica de pago con terceros?",
+        "options": [
+          "Devengado",
+          "Compromiso",
+          "Apropiación",
+          "Pagado"
+        ],
+        "correctIndex": 0,
+        "explanation": "El devengamiento ocurre al recibir el bien o servicio, reconociendo la obligación de pago independientemente del desembolso efectivo."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Qué representa el rubro de 'Previsiones' cuando se presenta con signo negativo en el activo del Balance General?",
+        "options": [
+          "Cuentas reguladoras destinadas a exponer el valor neto real de activos como cuentas incobrables.",
+          "Una reserva de dinero en efectivo guardada para emergencias futuras.",
+          "El total de deudas que la empresa tiene con el banco por préstamos.",
+          "La utilidad neta del ejercicio que se va a repartir entre los socios."
+        ],
+        "correctIndex": 0,
+        "explanation": "Las previsiones (como para cuentas incobrables) ajustan el valor bruto del activo para mostrar una imagen más fiel de su recuperabilidad."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el análisis de transacciones, ¿cuál es el tercer paso sugerido para realizar un asiento contable correctamente?",
+        "options": [
+          "Utilizar la ley del movimiento de cuentas para determinar si el monto va al Debe o al Haber.",
+          "Determinar qué clase de cuenta interviene (Activo, Pasivo, etc.).",
+          "Elaborar la glosa descriptiva de la operación comercial.",
+          "Verificar si la factura presentada es válida ante la oficina de impuestos."
+        ],
+        "correctIndex": 0,
+        "explanation": "Tras identificar las cuentas y su variación (aumento/disminución), la ley indica la ubicación final del importe en el registro."
+      }
+    ]
+  },
+  {
+    "title": "TEMA 10",
+    "content": {
+      "title": "TEMA 10: Estados Financieros",
+      "summary": "Los estados financieros son documentos contables suscritos por profesionales que proporcionan información resumida, veraz y oportuna, en términos monetarios, sobre la situación patrimonial, financiera y los resultados de una empresa a una fecha o periodo determinado. Su objetivo principal es facilitar la toma de decisiones empresariales y el control de gestión. Deben cumplir con requisitos como ser útiles, pertinentes, confiables, objetivos, claros, comparables y oportunos, además de poseer cualidades de ser realistas y examinables (sujetos a auditoría).",
+      "mermaid_diagram": "graph TD; A[Estados Financieros] --> B[Balance General]; A --> C[Estado de Ganancias y Pérdidas]; B --> D[Activo]; B --> E[Pasivo]; B --> F[Patrimonio]; D --> D1[Corriente]; D --> D2[No Corriente]; E --> E1[Corriente]; E --> E2[No Corriente]; F --> F1[Capital]; F --> F2[Reservas]; F --> F3[Resultados]; C --> G[Ingresos]; C --> H[Costo de Ventas]; C --> I[Gastos de Operación];",
+      "key_concepts": [
+        {
+          "term": "Estados Financieros",
+          "def": "Conjunto de documentos contables que reflejan la situación financiera y los resultados de una empresa de acuerdo con normas contables y legales."
+        },
+        {
+          "term": "Balance General",
+          "def": "Estado financiero estático que muestra la naturaleza y cuantificación de los bienes, derechos (Activo), obligaciones (Pasivo) y el Patrimonio a una fecha determinada."
+        },
+        {
+          "term": "Estado de Ganancias y Pérdidas",
+          "def": "Estado financiero dinámico que expone los ingresos, costos y gastos para determinar el resultado (utilidad o pérdida) obtenido en un periodo de tiempo."
+        },
+        {
+          "term": "Patrimonio",
+          "def": "Rubro que agrupa las cuentas representativas de aportes de capital, reservas y resultados acumulados de la empresa."
+        }
+      ],
+      "detailed_sections": [
+        {
+          "heading": "Concepto y Objetivos",
+          "content": "Los **estados financieros** se definen como informes especializados que demuestran la captación y aplicación de recursos financieros. Su objetivo central es suministrar información **veraz y oportuna** para que usuarios internos y externos evalúen la capacidad de la empresa para generar flujos favorables y tomen decisiones económicas fundamentadas. Incluyen notas explicativas sobre las normas y prácticas contables aplicadas."
+        },
+        {
+          "heading": "Requisitos y Cualidades de la Información",
+          "content": "Para ser efectiva, la información financiera debe cumplir con requisitos rigurosos:\n*   **Útil y Pertinente:** Debe satisfacer necesidades y orientarse a la toma de decisiones.\n*   **Confiable y Objetiva:** Debe ser verídica, preparada con equidad y reflejar hechos reales sin distorsiones.\n*   **Clara y Comparable:** Debe usar lenguaje técnico preciso y permitir confrontaciones con periodos o entidades similares.\n*   **Oportuna y Sistemática:** Debe entregarse a tiempo y prepararse bajo normas estrictas.\nAdemás, posee dos cualidades esenciales: ser **realista** (basada en hechos ocurridos) y **examinable** (auditable por terceros)."
+        },
+        {
+          "heading": "Estructura del Balance General",
+          "content": "El Balance General clasifica las cuentas en:\n*   **Activo:** Bienes y derechos, divididos en *Corriente* (realización menor a un año) y *No Corriente* (largo plazo).\n*   **Pasivo:** Obligaciones hacia terceros, también divididas en *Corriente* y *No Corriente* según su exigibilidad.\n*   **Patrimonio:** Representa la participación de los propietarios, incluyendo *Capital* (aportes), *Reservas* (respaldos como la reserva legal o por revalúos) y *Resultados* (utilidades o pérdidas acumuladas)."
+        },
+        {
+          "heading": "Estructura del Estado de Ganancias y Pérdidas",
+          "content": "Este estado clasifica las cuentas de resultados para determinar la utilidad o pérdida neta:\n*   **Ingresos Operativos:** Beneficios del giro específico del negocio (Ventas).\n*   **Costo de Mercadería Vendida:** Costo directo de los bienes comercializados.\n*   **Gastos de Operación:** Incluye gastos de administración, gastos de venta y gastos financieros.\n*   **Otros Ingresos/Egresos:** Partidas extraordinarias o no operativas."
+        }
+      ],
+      "comparison_table": "| Característica | Balance General | Estado de Ganancias y Pérdidas |\n| :--- | :--- | :--- |\n| **Naturaleza** | Estado Estático (Situación a una fecha) | Estado Dinámico (Resultados de un periodo) |\n| **Componentes Principales** | Activo, Pasivo, Patrimonio | Ingresos, Costos, Gastos |\n| **Objetivo** | Mostrar la situación financiera y patrimonial | Mostrar la eficiencia operativa y rentabilidad |\n| **Cierre** | Las cuentas reales (balance) permanecen | Las cuentas nominales (resultados) se cierran al final del periodo |"
+    },
+    "quiz": [
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la definición de contabilidad según el enfoque de Juan Funes Orellana mencionado en el material?",
+        "options": [
+          "Es un sistema de información basado en principios, normas y procedimientos técnicos para registrar hechos económicos y emitir estados financieros.",
+          "Es únicamente una técnica de teneduría de libros diseñada para cumplir con las obligaciones tributarias de una empresa ante el Estado.",
+          "Es una herramienta de gestión administrativa que se encarga exclusivamente del manejo de efectivo y cuentas bancarias.",
+          "Es un conjunto de leyes mercantiles que dictan cómo deben organizarse los socios al momento de crear una sociedad comercial."
+        ],
+        "correctIndex": 0,
+        "explanation": "Esta definición destaca la naturaleza sistemática y normativa de la contabilidad orientada a la toma de decisiones mediante estados financieros."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con la ecuación de balance fundamental, ¿cuál es la fórmula correcta para determinar el Patrimonio?",
+        "options": [
+          "$Patrimonio = Activo - Pasivo$",
+          "$Patrimonio = Activo + Pasivo$",
+          "$Patrimonio = Pasivo - Activo$",
+          "$Activo = Pasivo - Patrimonio$"
+        ],
+        "correctIndex": 0,
+        "explanation": "El patrimonio representa la parte residual de los activos una vez deducidos todos los pasivos de la entidad."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Qué elemento se clasifica como un activo intangible según los ejemplos proporcionados en la clase de contabilidad?",
+        "options": [
+          "La marca de la empresa.",
+          "Los vehículos de transporte.",
+          "Las cuentas por cobrar a clientes.",
+          "La maquinaria de producción."
+        ],
+        "correctIndex": 0,
+        "explanation": "Los activos intangibles son bienes inmateriales, como nombres comerciales o patentes, que aportan valor económico a la empresa."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En la codificación de cuentas, ¿qué representa el primer dígito del código asignado?",
+        "options": [
+          "La clase de la cuenta (ej. Activo, Pasivo, Patrimonio).",
+          "El subgrupo específico como disponibilidades.",
+          "La subcuenta detallada que identifica al banco específico.",
+          "El grupo al que pertenece, como activo corriente."
+        ],
+        "correctIndex": 0,
+        "explanation": "El primer nivel de codificación identifica la naturaleza general o clase del elemento contable."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Según la Ley del Movimiento de Cuentas, ¿qué sucede cuando se registra un aumento en una cuenta de Activo?",
+        "options": [
+          "Se debe registrar en la columna del Debe.",
+          "Se debe registrar en la columna del Haber.",
+          "Se genera automáticamente una cuenta de ingreso.",
+          "La cuenta debe ser clasificada como una cuenta de resultados."
+        ],
+        "correctIndex": 0,
+        "explanation": "Por convención contable, los activos aumentan su saldo mediante cargos o registros en el Debe."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el proceso de compensación del IVA, ¿cuál es el procedimiento correcto cuando el Crédito Fiscal es menor que el Débito Fiscal?",
+        "options": [
+          "Se debe ajustar y cerrar el saldo del Crédito Fiscal, generando un saldo a pagar al fisco.",
+          "Se cierra el Débito Fiscal y el excedente se registra como un ingreso operativo.",
+          "No se realiza ningún asiento de ajuste hasta el cierre de la gestión anual.",
+          "Se debe aumentar el Crédito Fiscal artificialmente para igualar al Débito Fiscal."
+        ],
+        "correctIndex": 0,
+        "explanation": "Se cierra el importe menor para compensar; si el débito es mayor, la diferencia representa la obligación tributaria a cancelar."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la principal razón por la cual las NIIF completas no han sido aprobadas oficialmente por las autoridades bolivianas?",
+        "options": [
+          "Debido a los cambios sustanciales que generarían en la parte impositiva y en la valoración económica de los bienes.",
+          "Porque el Colegio de Auditores de Bolivia no ha presentado las normas ante el gobierno.",
+          "Porque Bolivia ya cuenta con un sistema contable superior basado en la inteligencia artificial.",
+          "Porque las NIIF solo son aplicables a empresas que operan en la Unión Europea."
+        ],
+        "correctIndex": 0,
+        "explanation": "La discrepancia entre la normativa contable internacional y las leyes tributarias locales (como la Ley $N^{\\circ} 843$) frena la adopción oficial."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En la comparación normativa entre Perú y Bolivia, ¿qué diferencia se destaca respecto a la aplicación de las NIIF?",
+        "options": [
+          "Perú aplica NIIF completas de forma obligatoria para grandes empresas, mientras que Bolivia aplica principalmente normas locales (NCGA).",
+          "Bolivia ha adoptado las NIIF completas desde el año 2011, superando la normativa peruana.",
+          "Ambos países utilizan exactamente el mismo Plan de Cuentas único sudamericano.",
+          "En Bolivia el uso de las NIIF es obligatorio para microempresas, pero opcional para grandes industrias."
+        ],
+        "correctIndex": 0,
+        "explanation": "Perú ha armonizado su marco contable con los estándares internacionales (IASB), mientras que Bolivia mantiene sus normas nacionales con aplicación supletoria limitada de NIIF."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Dentro del Sistema de Contabilidad Integrada de la UAGRM, ¿cuáles son los momentos de registro definidos para el subsistema de recursos?",
+        "options": [
+          "Estimación, Devengado y Percibido.",
+          "Compromiso, Devengado y Pagado.",
+          "Apropiación, Ajuste y Cierre.",
+          "Facturación, Cobro y Depósito."
+        ],
+        "correctIndex": 0,
+        "explanation": "Estos tres momentos capturan desde la planificación presupuestaria hasta el ingreso efectivo del dinero."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Qué representa el momento del 'Compromiso' en el subsistema de registro de gastos de una entidad pública boliviana?",
+        "options": [
+          "La reserva de un determinado crédito presupuestario para atender gastos originados por un hecho jurídico o administrativo.",
+          "El desembolso efectivo de dinero a favor de un tercero o proveedor.",
+          "La creación de una obligación jurídica de pago tras recibir bienes o servicios.",
+          "La aprobación anual del presupuesto por parte del Consejo Universitario."
+        ],
+        "correctIndex": 0,
+        "explanation": "El compromiso asegura que existan fondos disponibles antes de concretar una obligación o pago."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Al realizar una venta con factura en Bolivia, ¿qué impuestos deben registrarse según el análisis de transacciones?",
+        "options": [
+          "Débito Fiscal IVA ($13\\%$) e Impuesto a las Transacciones ($3\\%$).",
+          "Crédito Fiscal IVA ($13\\%$) e Impuesto a las Utilidades ($25\\%$).",
+          "Solo el Impuesto al Consumo Específico según la Ley $N^{\\circ} 843$.",
+          "Retenciones por servicios de terceros e IT por pagar."
+        ],
+        "correctIndex": 0,
+        "explanation": "Las ventas gravadas generan la obligación del IVA por el débito fiscal y el IT por la transacción realizada."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la función principal de las 'Cuentas de Orden' mencionadas en el manual de contabilidad integrada?",
+        "options": [
+          "Registrar hechos que no afectan directamente al activo o pasivo, pero que tienen importancia administrativa o posible repercusión futura.",
+          "Clasificar los gastos de administración para determinar la utilidad neta.",
+          "Corregir errores de registro detectados durante las conciliaciones bancarias.",
+          "Sustituir a las cuentas de patrimonio cuando la empresa tiene pérdidas acumuladas."
+        ],
+        "correctIndex": 0,
+        "explanation": "Permiten controlar bienes de dominio público o garantías recibidas sin alterar los estados de situación financiera."
+      }
+    ]
+  },
+  {
+    "title": "TEMA 11",
+    "content": {
+      "title": "TEMA 11: Cierre y Reapertura de Registros Contables",
+      "summary": "El Tema 11 aborda el procedimiento final del ciclo contable, conocido como cierre de registros. Este proceso consiste en realizar asientos contables para eliminar o saldar definitivamente las cuentas de resultado (costos y gastos e ingresos) y las cuentas de balance (activo, pasivo y patrimonio) al final de un ejercicio. Su objetivo es igualar numéricamente los saldos deudores y acreedores, preservar los registros por el tiempo legal (5 años) y habilitar un nuevo juego de libros para la reapertura del siguiente periodo fiscal. También incluye el tratamiento de depreciaciones como parte de los ajustes previos al cierre.",
+      "mermaid_diagram": "graph TD; A[Inicio: Estados Financieros Listos] --> B[Asientos de Ajuste]; B --> C{Tipo de Cuenta}; C -- Resultados (Gastos) --> D[Cargar: Pérdidas y Ganancias]; D --> E[Abonar: Cuentas de Gasto]; C -- Resultados (Ingresos) --> F[Cargar: Cuentas de Ingreso]; F --> G[Abonar: Pérdidas y Ganancias]; C -- Balance --> H[Cierre Definitivo]; H --> I[Cargar: Pasivo y Patrimonio]; I --> J[Abonar: Activo]; J --> K[Asiento de Reapertura (Siguiente Gestión)];",
+      "key_concepts": [
+        {
+          "term": "Asientos de Cierre",
+          "def": "Conjunto de registros contables destinados a saldar o eliminar definitivamente las cuentas con movimiento al final del ejercicio para igualar saldos deudores y acreedores."
+        },
+        {
+          "term": "Reapertura de Registros",
+          "def": "Procedimiento contable que reinicia el ciclo para el nuevo ejercicio, utilizando los saldos de cierre del periodo anterior como saldos iniciales (asiento de apertura)."
+        },
+        {
+          "term": "Depreciación",
+          "def": "Distribución del costo de bienes de uso renovables a lo largo de su vida útil. Se distingue del agotamiento, que aplica a recursos no renovables."
+        }
+      ],
+      "detailed_sections": [
+        {
+          "heading": "Concepto y Objetivo del Cierre Contable",
+          "content": "El cierre de registros contables constituye la etapa final del ciclo contable. Se define como el conjunto de asientos cuya finalidad es **cerrar o eliminar definitivamente** todas las cuentas que tuvieron movimiento durante el ejercicio [1]. El objetivo técnico es lograr que los saldos deudores igualen numéricamente a los saldos acreedores, dejando las cuentas en cero para preservar la información histórica y habilitar nuevos registros para el periodo siguiente [1]."
+        },
+        {
+          "heading": "Metodología de los Asientos de Cierre",
+          "content": "El procedimiento técnico para el cierre implica:\n\n1.  **Cierre de Cuentas de Resultado (Gastos):** Se debita la cuenta *Pérdidas y Ganancias* por la suma total de gastos y se abonan todas las cuentas de costo y gasto [2].\n2.  **Cierre de Cuentas de Balance:** Para cerrar las cuentas patrimoniales, se cargan las cuentas de pasivo, patrimonio y reguladoras de activo, y se abonan las cuentas de activo y reguladoras de pasivo [3].\nEste proceso está intrínsecamente ligado a la preparación de la **Hoja de Trabajo**, que puede variar entre 10, 12, 14 o 16 columnas según la complejidad requerida (incluyendo cuentas de orden o ajustes) [4], [5]."
+        },
+        {
+          "heading": "Tratamiento de Bienes de Uso en el Cierre",
+          "content": "Como parte de los ajustes previos al cierre (Caso Práctico), se distingue el tratamiento de los bienes de uso:\n*   **Bienes sujetos a depreciación:** Bienes renovables que el hombre puede reponer (ej. vehículos, muebles). Su valor residual tiende a cero a medida que la depreciación acumulada iguala al costo actualizado [6], [7].\n*   **Bienes sujetos a agotamiento:** Recursos no renovables (minería, petróleo) que no pueden ser repuestos por el hombre [6].\n*   **Bienes no depreciables:** Aquellos que no sufren desgaste ni agotamiento (ej. terrenos) [6]."
+        }
+      ],
+      "comparison_table": "| Tipo de Bien | Característica Principal | Tratamiento Contable | Ejemplo |\n| :--- | :--- | :--- | :--- |\n| **Sujeto a Depreciación** | Carácter renovable (se puede reponer). | Se deprecia anualmente hasta valor residual. | Vehículos, Muebles, Edificios [6]. |\n| **Sujeto a Agotamiento** | Carácter no renovable (recursos naturales). | Se agota según extracción/consumo. | Pozos petroleros, Minas [6]. |\n| **No se Deprecia ni Agota** | Vida útil ilimitada o no sufre desgaste físico. | No se aplica depreciación sistemática. | Terrenos [6]. |"
+    },
+    "quiz": [
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con la definición de Juan Funes Orellana mencionada en el material, ¿cuál es el propósito final de la contabilidad como sistema de información?",
+        "options": [
+          "Emitir estados financieros para analizar la situación económica y facilitar la toma de decisiones.",
+          "Registrar únicamente los hechos financieros de las empresas unipersonales para cumplir con el Servicio de Impuestos Nacionales.",
+          "Garantizar que el activo sea siempre superior al pasivo mediante un conjunto de procedimientos técnicos.",
+          "Sistematizar los gastos de organización para reducir la carga tributaria anual de la gestión empresarial."
+        ],
+        "correctIndex": 0,
+        "explanation": "El objetivo principal de procesar hechos económicos bajo normas técnicas es generar información útil que permita a los usuarios internos y externos decidir oportunamente sobre el futuro de la empresa."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es la ecuación fundamental de balance que rige la contabilidad según lo expuesto en el video sobre aspectos generales?",
+        "options": [
+          "$Activo = Pasivo + Patrimonio$",
+          "$Patrimonio = Activo + Pasivo$",
+          "$Pasivo = Activo + Patrimonio$",
+          "$Activo + Pasivo = Patrimonio$"
+        ],
+        "correctIndex": 0,
+        "explanation": "Esta igualdad representa que los recursos de la empresa (activos) son financiados ya sea por terceros (pasivos) o por los dueños (patrimonio)."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En la codificación de cuentas, ¿qué nivel representa el uso de los tres primeros dígitos?",
+        "options": [
+          "Subgrupo",
+          "Clase",
+          "Cuenta",
+          "Subcuenta"
+        ],
+        "correctIndex": 0,
+        "explanation": "En la jerarquía contable, el primer dígito es la clase, los dos primeros el grupo y los tres primeros definen el subgrupo, como 'disponibilidades' dentro de 'activos corrientes'."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cuál es una de las razones principales por las que las NIIF (IFRS) no han sido aprobadas oficialmente por las autoridades gubernamentales en Bolivia?",
+        "options": [
+          "Generan cambios sustanciales en la parte impositiva y en la valoración económica de los bienes.",
+          "El Colegio de Auditores de Bolivia aún no ha presentado las normas ante las instancias gubernamentales.",
+          "Las normas internacionales son incompatibles con el software contable utilizado por el Servicio de Impuestos Nacionales.",
+          "Bolivia utiliza exclusivamente las normas peruanas debido a la cercanía geográfica y la consolidación de estados."
+        ],
+        "correctIndex": 0,
+        "explanation": "La implementación de las NIIF afectaría directamente la base imponible y el valor de los activos, lo que genera resistencia debido al estricto control tributario de leyes como la Ley $N^o$ 843."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Durante el proceso de compensación del $IVA$, ¿qué procedimiento se sigue si el débito fiscal es mayor al crédito fiscal?",
+        "options": [
+          "Se genera un saldo a favor del fisco que debe cancelarse tras cerrar la cuenta de crédito fiscal.",
+          "Se registra un activo exigible que se arrastra automáticamente al mes siguiente sin necesidad de pago.",
+          "Se debe aumentar el crédito fiscal artificialmente para igualar la partida doble en el formulario 200.",
+          "Se cierra la cuenta de débito fiscal y se mantiene el saldo restante en la cuenta de ventas operativas."
+        ],
+        "correctIndex": 0,
+        "explanation": "Cuando las ventas gravadas (débito) superan a las compras (crédito), la empresa adeuda la diferencia al Estado, debiendo ajustar el monto menor para determinar el pago."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "En el Sistema de Contabilidad Integrada de la UAGRM, ¿cuáles son los tres subsistemas que lo componen?",
+        "options": [
+          "Registro Presupuestario, Registro Patrimonial y Registro de Tesorería.",
+          "Registro Civil, Registro de Bienes y Registro de Personal.",
+          "Estos son módulos o funciones específicas, pero no constituyen los pilares del Sistema de Contabilidad Integrada ($SCI$).",
+          "Registro Tributario, Registro de Deuda Externa y Registro de Donaciones."
+        ],
+        "correctIndex": 0,
+        "explanation": "Estos tres componentes interactúan para registrar la ejecución del presupuesto, la posición financiera y los flujos de efectivo en un solo sistema integrado."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "Dentro del subsistema de registro presupuestario de gastos, ¿cuál es el momento contable que consiste en reservar un crédito presupuestario antes de la obligación jurídica?",
+        "options": [
+          "Compromiso",
+          "Devengado",
+          "Apropiación",
+          "Pagado"
+        ],
+        "correctIndex": 0,
+        "explanation": "El compromiso es un acto de administración interna que asegura que existen fondos disponibles para un gasto futuro derivado de un hecho administrativo o comercial."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Cómo se define un activo intangible según los conceptos de contabilidad general presentados?",
+        "options": [
+          "Bienes de carácter inmaterial o incorpóreo que rinden beneficios económicos, como las marcas o el software.",
+          "Derechos sobre terceras personas derivados exclusivamente de las ventas al crédito con factura.",
+          "Dinero depositado en cuentas bancarias de moneda extranjera que no puede ser tocado físicamente.",
+          "Obligaciones presentes de la entidad que no requieren el uso inmediato de efectivo."
+        ],
+        "correctIndex": 0,
+        "explanation": "A diferencia de los bienes físicos, los intangibles son recursos sin sustancia material que aportan un valor extra y beneficios futuros a la entidad."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "De acuerdo con el material sobre ecuaciones contables, ¿cuál es la fórmula correcta para calcular el Costo de Mercadería Vendida ($CV$) en un sistema de inventario periódico?",
+        "options": [
+          "$CV = Inventario\\ Inicial + Compras - Inventario\\ Final$",
+          "$CV = Inventario\\ Final + Compras - Inventario\\ Inicial$",
+          "$CV = Ventas\\ Totales - Utilidad\\ Bruta$",
+          "$CV = (Compras \\times 0.87) + Crédito\\ Fiscal$"
+        ],
+        "correctIndex": 0,
+        "explanation": "El costo de lo vendido se determina sumando lo que se tenía al inicio y lo que se compró, restando lo que aún queda físicamente en el almacén al final del periodo."
+      },
+      {
+        "type": "multiple_choice",
+        "question": "¿Qué característica deben tener los importes registrados en los formularios de impuestos (como el 200 y 400) en Bolivia según la práctica contable?",
+        "options": [
+          "Deben ser números enteros, redondeando los valores contables que tengan decimales.",
+          "Deben incluir hasta dos decimales para cumplir con el principio de exposición detallada.",
+          "Deben expresarse siempre en dólares americanos para evitar la inflación según la Resolución CTNAC $N^o$ 03/2020.",
+          "Deben representar únicamente el $87\\%$ del valor total de las ventas del periodo."
+        ],
+        "correctIndex": 0,
+        "explanation": "Las declaraciones juradas impositivas no admiten centavos, por lo que el profesional contable debe ajustar el pago al entero más cercano."
+      }
+    ]
+  }
+]
