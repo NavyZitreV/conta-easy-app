@@ -52,8 +52,6 @@ st.markdown("""
     }
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    header {visibility: hidden;}
-
     /* Estilos para los mensajes del chat */
     .stChatMessage {
         background-color: #ffffff;
@@ -985,3 +983,4 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
