@@ -598,8 +598,11 @@ def main():
                         genai.configure(api_key=api_key)
                         model = genai.GenerativeModel('gemini-flash-latest')
                         
-                        reglas_actuales = load_tax_rules()
-                        prompt_lab = f"""Eres un Tutor de Contabilidad Senior de la UNICEN. El alumno necesita resolver este caso práctico: "{st.session_state.current_active_case}". 
+                        r# --- LEER NOMBRE DINÁMICO ---
+            nombre_uni = st.secrets["general"].get("NOMBRE_INSTITUCION", "Institución Educativa")
+            
+            reglas_actuales = load_tax_rules()
+            prompt_lab = f"""Eres un Tutor de Contabilidad Senior de la {nombre_uni}. El alumno necesita resolver este caso práctico: "{st.session_state.current_active_case}". 
 PROHIBIDO usar formato LaTeX, signos de dólar ($) o etiquetas como \\mathbf para fórmulas matemáticas. Escribe los cálculos en texto plano normal.
 DEBES dejar obligatoriamente una línea en blanco (un Enter) justo ANTES de empezar la tabla del asiento contable.
 
@@ -681,11 +684,40 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 st.session_state.messages.append({"role": "assistant", "content": "Proyecto cancelado. Volviendo al modo normal."})
                 st.rerun()
 
-    # Chat History
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
-
-    # --- Pantalla de Bienvenida (Solo si no hay mensajes) ---
+    # --- Lógica para mostrar el Panel de Administración ---
+    if st.session_state.get("show_admin_panel", False):
+        st.markdown("---")
+        st.header("📊 Panel de Gestión de Estudiantes")
+        
+        # Traer lista de alumnos de Firebase
+        usuarios_ref = db.collection('usuarios').where('rol', '==', 'estudiante').get()
+        
+        # Preparar los datos para el archivo de Excel (CSV)
+        csv_data = "Correo Electronico,Experiencia (XP),Racha (Dias)\n"
+        st.write(f"**Total de alumnos registrados:** {len(usuarios_ref)}")
+        
+        for u in usuarios_ref:
+            data = u.to_dict()
+            correo = data.get('correo', 'Desconocido')
+            xp = data.get('xp', 0)
+            racha = data.get('racha', 0)
+            st.info(f"👤 **{correo}** | XP: {xp} | Racha: {racha}")
+            csv_data += f"{correo},{xp},{racha}\n"
+            
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("❌ Cerrar Panel", use_container_width=True):
+                st.session_state.show_admin_panel = False
+                st.rerun()
+        with col2:
+            st.download_button(
+                label="📥 Descargar Reporte (Excel)",
+                data=csv_data.encode('utf-8-sig'),
+                file_name=f"Reporte_Laboratorio_{datetime.now().strftime('%Y%m%d')}.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
+            # --- Pantalla de Bienvenida (Solo si no hay mensajes) ---
     if not st.session_state.messages:
         st.markdown("<br><br>", unsafe_allow_html=True)
         col_a, col_b, col_c = st.columns([1, 4, 1])
@@ -778,8 +810,10 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             "COLEGA EN FORMACIÓN, detrás de cada cuenta hay una gran responsabilidad legal y penal. Revisemos su propuesta contable paso a paso."
                         ]
                         frase_apertura = random.choice(frases_auditor)
-                        
-                        prompt_audit = f"""Eres un Auditor Contable y Docente Universitario en Bolivia. Evalúas a un estudiante. Tu tono es ESTRICTAMENTE PROFESIONAL, OBJETIVO y TÉCNICO.
+                        # --- LEER NOMBRE DINÁMICO ---
+                        nombre_uni = st.secrets["general"].get("NOMBRE_INSTITUCION", "Institución Educativa")
+
+                        prompt_audit = f"""Eres un Auditor Contable y Docente Universitario en la {nombre_uni}. Evalúas a un estudiante. Tu tono es ESTRICTAMENTE PROFESIONAL, OBJETIVO y TÉCNICO.
                         
                         {reglas_actuales}
                     REGLA 1 (APERTURA OBLIGATORIA): Inicia tu respuesta EXACTAMENTE con este párrafo, sin agregar nada antes:
@@ -1106,6 +1140,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             st.info(f"👤 **{data['correo']}** | XP: {data['xp']} | Racha: {data['racha']}")
 if __name__ == "__main__":
     main()
+
 
 
 
