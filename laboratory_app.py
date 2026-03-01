@@ -710,13 +710,37 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         
         for u in usuarios_ref:
             data = u.to_dict()
+            user_doc_id = u.id  # Identificador único en Firebase
             correo = data.get('correo', 'Desconocido')
             nombre = data.get('nombre', 'Sin Nombre Registrado')
             carrera = data.get('carrera', 'Sin Carrera')
             xp = data.get('xp', 0)
             racha = data.get('racha', 0)
             
-            st.info(f"👤 **{nombre}** ({carrera}) | ✉️ {correo} | XP: {xp} | Racha: {racha}")
+            # Crear un contenedor con 3 columnas (Información, Botón Pass, Botón XP)
+            with st.container():
+                col_info, col_btn1, col_btn2 = st.columns([4, 1, 1])
+                
+                with col_info:
+                    st.info(f"👤 **{nombre}** ({carrera}) | ✉️ {correo} | XP: {xp} | Racha: {racha}")
+                
+                with col_btn1:
+                    # Botón para resetear contraseña a 123456
+                    if st.button("🔑 Reset Pass", key=f"pass_{user_doc_id}", help="Cambia la contraseña a 123456", use_container_width=True):
+                        db.collection('usuarios').document(user_doc_id).update({"password": "123456"})
+                        st.toast(f"✅ Contraseña de {nombre} cambiada a 123456")
+                        time.sleep(1)
+                        st.rerun()
+                        
+                with col_btn2:
+                    # Botón para reiniciar XP y Racha
+                    if st.button("🔄 Reset XP", key=f"xp_{user_doc_id}", help="Reinicia XP y Racha a cero", use_container_width=True):
+                        db.collection('usuarios').document(user_doc_id).update({"xp": 0, "racha": 0})
+                        st.toast(f"✅ Progreso de {nombre} reiniciado a 0")
+                        time.sleep(1)
+                        st.rerun()
+
+            # Añadir al Excel
             csv_data += f"{nombre};{carrera};{correo};{xp};{racha}\n"
             
         col1, col2 = st.columns(2)
@@ -1143,6 +1167,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
