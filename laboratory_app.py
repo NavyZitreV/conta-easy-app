@@ -693,16 +693,19 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         usuarios_ref = db.collection('usuarios').where('rol', '==', 'estudiante').get()
         
         # Preparar los datos para el archivo de Excel (CSV)
-        csv_data = "Correo Electronico,Experiencia (XP),Racha (Dias)\n"
+        csv_data = "Nombre Completo;Carrera;Correo Electronico;Experiencia (XP);Racha (Dias)\n"
         st.write(f"**Total de alumnos registrados:** {len(usuarios_ref)}")
         
         for u in usuarios_ref:
             data = u.to_dict()
             correo = data.get('correo', 'Desconocido')
+            nombre = data.get('nombre', 'Sin Nombre Registrado')
+            carrera = data.get('carrera', 'Sin Carrera')
             xp = data.get('xp', 0)
             racha = data.get('racha', 0)
-            st.info(f"👤 **{correo}** | XP: {xp} | Racha: {racha}")
-            csv_data += f"{correo},{xp},{racha}\n"
+            
+            st.info(f"👤 **{nombre}** ({carrera}) | ✉️ {correo} | XP: {xp} | Racha: {racha}")
+            csv_data += f"{nombre};{carrera};{correo};{xp};{racha}\n"
             
         col1, col2 = st.columns(2)
         with col1:
@@ -1143,6 +1146,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             st.info(f"👤 **{data['correo']}** | XP: {data['xp']} | Racha: {data['racha']}")
 if __name__ == "__main__":
     main()
+
 
 
 
