@@ -598,11 +598,11 @@ def main():
                         genai.configure(api_key=api_key)
                         model = genai.GenerativeModel('gemini-flash-latest')
                         
-                        r# --- LEER NOMBRE DINÁMICO ---
-            nombre_uni = st.secrets["general"].get("NOMBRE_INSTITUCION", "Institución Educativa")
+                        # --- LEER NOMBRE DINÁMICO ---
+                        nombre_uni = st.secrets["general"].get("NOMBRE_INSTITUCION", "Institución Educativa")
             
-            reglas_actuales = load_tax_rules()
-            prompt_lab = f"""Eres un Tutor de Contabilidad Senior de la {nombre_uni}. El alumno necesita resolver este caso práctico: "{st.session_state.current_active_case}". 
+                        reglas_actuales = load_tax_rules()
+                        prompt_lab = f"""Eres un Tutor de Contabilidad Senior de la {nombre_uni}. El alumno necesita resolver este caso práctico: "{st.session_state.current_active_case}". 
 PROHIBIDO usar formato LaTeX, signos de dólar ($) o etiquetas como \\mathbf para fórmulas matemáticas. Escribe los cálculos en texto plano normal.
 DEBES dejar obligatoriamente una línea en blanco (un Enter) justo ANTES de empezar la tabla del asiento contable.
 
@@ -1140,6 +1140,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             st.info(f"👤 **{data['correo']}** | XP: {data['xp']} | Racha: {data['racha']}")
 if __name__ == "__main__":
     main()
+
 
 
 
