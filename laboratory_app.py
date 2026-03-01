@@ -16,13 +16,16 @@ from firebase_admin import credentials, firestore
 def get_db():
     if not firebase_admin._apps:
         try:
-            cred_dict = dict(st.secrets["firebase"]["info"])
+            # CORRECCIÓN VITAL: Usamos json.loads para procesar el texto de Secrets
+            cred_info = st.secrets["firebase"]["info"]
+            cred_dict = json.loads(cred_info)
+            
             cred = credentials.Certificate(cred_dict)
             firebase_admin.initialize_app(cred)
         except Exception as e:
             st.error(f"Error al inicializar Firebase: {e}")
             return None
-    return firestore.client()
+        return firestore.client()
 
 db = get_db()
 
@@ -1082,4 +1085,5 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
