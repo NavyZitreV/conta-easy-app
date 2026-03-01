@@ -718,6 +718,9 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 use_container_width=True
             )
             # --- Pantalla de Bienvenida (Solo si no hay mensajes) ---
+    # --- Inicializar memoria del chat ---
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
     if not st.session_state.messages:
         st.markdown("<br><br>", unsafe_allow_html=True)
         col_a, col_b, col_c = st.columns([1, 4, 1])
@@ -1140,6 +1143,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             st.info(f"👤 **{data['correo']}** | XP: {data['xp']} | Racha: {data['racha']}")
 if __name__ == "__main__":
     main()
+
 
 
 
