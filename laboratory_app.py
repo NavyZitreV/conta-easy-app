@@ -443,10 +443,15 @@ def mostrar_login():
                             
         with tab_register:
             nuevo_correo = st.text_input("Correo Electrónico", key="reg_correo")
+            # --- NUEVOS CAMPOS ---
+            nombre_reg = st.text_input("Nombre Completo", key="reg_nombre")
+            carrera_reg = st.selectbox("Carrera", ["Contaduría Pública", "Ingeniería Financiera", "Administración de Empresas", "Otra"], key="reg_carrera")
+            # ---------------------
             nuevo_password = st.text_input("Contraseña", type="password", key="reg_pass")
+            
             if st.button("Crear Cuenta", type="primary", use_container_width=True):
-                if not nuevo_correo or not nuevo_password:
-                    st.error("Por favor llena todos los campos.")
+                if not nuevo_correo or not nuevo_password or not nombre_reg:
+                    st.error("Por favor llena todos los campos, incluyendo tu nombre.")
                 elif db is None:
                     st.error("Base de datos no disponible.")
                 else:
@@ -457,6 +462,8 @@ def mostrar_login():
                     else:
                         nuevo_usuario = {
                             "correo": nuevo_correo,
+                            "nombre": nombre_reg,       # Guardamos el nombre
+                            "carrera": carrera_reg,     # Guardamos la carrera
                             "password": nuevo_password,
                             "xp": 0,
                             "racha": 0,
@@ -1129,23 +1136,9 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     
                 except Exception as e:
                     st.error(f"Error al generar el balance: {e}")
-# --- Lógica para mostrar el Panel de Administración ---
-    if st.session_state.get("show_admin_panel", False):
-        st.markdown("---")
-        st.header("📊 Panel de Gestión de Estudiantes")
-        if st.button("❌ Cerrar Panel"):
-            st.session_state.show_admin_panel = False
-            st.rerun()
-            
-        # Traer lista de alumnos de Firebase
-        usuarios = db.collection('usuarios').where('rol', '==', 'estudiante').get()
-        st.write(f"Total de alumnos registrados: {len(usuarios)}")
-        
-        for u in usuarios:
-            data = u.to_dict()
-            st.info(f"👤 **{data['correo']}** | XP: {data['xp']} | Racha: {data['racha']}")
 if __name__ == "__main__":
     main()
+
 
 
 
