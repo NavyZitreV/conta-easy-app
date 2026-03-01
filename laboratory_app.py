@@ -1089,9 +1089,24 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     
                 except Exception as e:
                     st.error(f"Error al generar el balance: {e}")
-
+# --- Lógica para mostrar el Panel de Administración ---
+    if st.session_state.get("show_admin_panel", False):
+        st.markdown("---")
+        st.header("📊 Panel de Gestión de Estudiantes")
+        if st.button("❌ Cerrar Panel"):
+            st.session_state.show_admin_panel = False
+            st.rerun()
+            
+        # Traer lista de alumnos de Firebase
+        usuarios = db.collection('usuarios').where('rol', '==', 'estudiante').get()
+        st.write(f"Total de alumnos registrados: {len(usuarios)}")
+        
+        for u in usuarios:
+            data = u.to_dict()
+            st.info(f"👤 **{data['correo']}** | XP: {data['xp']} | Racha: {data['racha']}")
 if __name__ == "__main__":
     main()
+
 
 
 
