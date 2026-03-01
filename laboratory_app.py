@@ -437,7 +437,12 @@ def mostrar_login():
                     else:
                         user_doc = query[0]
                         user_data = user_doc.to_dict()
-                        if user_data.get("password") == password:
+                        
+                        # --- NUEVA LÍNEA: VERIFICAR BLOQUEO ---
+                        if user_data.get("estado") == "bloqueado":
+                            st.error("🚫 Tu cuenta ha sido suspendida. Comunícate con Coordinación.")
+                        # ---------------------------------------
+                        elif user_data.get("password") == password:
                             st.session_state.user_id = user_doc.id
                             st.session_state.user_xp = user_data.get("xp", 0)
                             st.session_state.user_streak = user_data.get("racha", 0)
@@ -710,37 +715,50 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         
         for u in usuarios_ref:
             data = u.to_dict()
-            user_doc_id = u.id  # Identificador único en Firebase
+            user_doc_id = u.id
             correo = data.get('correo', 'Desconocido')
             nombre = data.get('nombre', 'Sin Nombre Registrado')
             carrera = data.get('carrera', 'Sin Carrera')
             xp = data.get('xp', 0)
             racha = data.get('racha', 0)
+            estado = data.get('estado', 'activo') # Por defecto todos son activos
             
-            # Crear un contenedor con 3 columnas (Información, Botón Pass, Botón XP)
+            # Crear un contenedor con 4 columnas
             with st.container():
-                col_info, col_btn1, col_btn2 = st.columns([4, 1, 1])
+                col_info, col_btn1, col_btn2, col_btn3 = st.columns([3, 1, 1, 1])
                 
                 with col_info:
-                    st.info(f"👤 **{nombre}** ({carrera}) | ✉️ {correo} | XP: {xp} | Racha: {racha}")
+                    estado_icono = "🔴 BLOQUEADO" if estado == "bloqueado" else "🟢 ACTIVO"
+                    st.info(f"👤 **{nombre}** ({carrera}) | XP: {xp} | {estado_icono}")
                 
                 with col_btn1:
-                    # Botón para resetear contraseña a 123456
                     if st.button("🔑 Reset Pass", key=f"pass_{user_doc_id}", help="Cambia la contraseña a 123456", use_container_width=True):
                         db.collection('usuarios').document(user_doc_id).update({"password": "123456"})
-                        st.toast(f"✅ Contraseña de {nombre} cambiada a 123456")
+                        st.toast(f"✅ Contraseña cambiada a 123456")
                         time.sleep(1)
                         st.rerun()
                         
                 with col_btn2:
-                    # Botón para reiniciar XP y Racha
-                    if st.button("🔄 Reset XP", key=f"xp_{user_doc_id}", help="Reinicia XP y Racha a cero", use_container_width=True):
+                    if st.button("🔄 Reset XP", key=f"xp_{user_doc_id}", help="Reinicia XP y Racha", use_container_width=True):
                         db.collection('usuarios').document(user_doc_id).update({"xp": 0, "racha": 0})
-                        st.toast(f"✅ Progreso de {nombre} reiniciado a 0")
+                        st.toast(f"✅ Progreso reiniciado a 0")
                         time.sleep(1)
                         st.rerun()
+                        
+                with col_btn3:
+                    if estado == "bloqueado":
+                        if st.button("✅ Desbloquear", key=f"unblock_{user_doc_id}", use_container_width=True):
+                            db.collection('usuarios').document(user_doc_id).update({"estado": "activo"})
+                            st.toast(f"✅ Usuario activado")
+                            time.sleep(1)
+                            st.rerun()
+                    else:
+                        if st.button("🚫 Bloquear", key=f"block_{user_doc_id}", use_container_width=True):
+                            db.collection('usuarios').document(user_doc_id).update({"estado": "bloqueado"})
+                            st.toast(f"🚫 Usuario bloqueado")
+                            time.sleep(1)
+                            st.rerun()
 
-            # Añadir al Excel
             csv_data += f"{nombre};{carrera};{correo};{xp};{racha}\n"
             
         col1, col2 = st.columns(2)
@@ -1167,6 +1185,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
