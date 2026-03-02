@@ -956,6 +956,23 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         st.bar_chart(datos_ia)
                     else:
                         st.caption("Aún no hay suficientes datos de interacción con la IA para graficar.")
+                        # --- FILA 3: TERMÓMETRO POR CATEGORÍA ---
+                    st.divider()
+                    st.markdown("### 🌡️ Termómetro de Rendimiento por Temas")
+                    st.caption("Mide el dominio del curso en cada categoría contable según la Experiencia (XP) ganada.")
+                    
+                    # Consolidar datos de todas las categorías
+                    rendimiento_global = {}
+                    for e in estudiantes:
+                        rendimiento_usuario = e.get('rendimiento_categorias', {})
+                        for cat, xp_ganada in rendimiento_usuario.items():
+                            rendimiento_global[cat] = rendimiento_global.get(cat, 0) + xp_ganada
+                            
+                    if rendimiento_global:
+                        # Dibujar un gráfico de barras horizontal (o vertical) nativo de Streamlit
+                        st.bar_chart(rendimiento_global)
+                    else:
+                        st.info("Aún no hay datos de rendimiento. Los alumnos deben ganar XP resolviendo casos para que el termómetro se active.")
     # --- Inicializar memoria del chat ---
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -1117,8 +1134,30 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                         "racha": st.session_state.user_streak
                                     })
                                 except Exception as e:
-                                    st.warning(f"No se pudo guardar la métrica en la nube: {e}")
-                        
+                                    # Update gamification to Firebase
+        if db is not None:
+            try:
+                user_ref = db.collection('usuarios').document(st.session_state.user_id)
+                
+                # --- NUEVO: RASTREADOR DE TEMAS PARA EL TERMÓMETRO ---
+                # NOTA PARA TI: Revisa el nombre exacto de la variable que guarda tu categoría actual 
+                # (si en tu menú lateral el selectbox de categoría tiene un key="categoria", usa ese nombre aquí)
+                categoria_actual = st.session_state.get("categoria", "Práctica General") 
+                
+                user_data = user_ref.get().to_dict()
+                rendimiento = user_data.get("rendimiento_categorias", {})
+                
+                # Le sumamos los puntos que acaba de ganar al tema específico
+                rendimiento[categoria_actual] = rendimiento.get(categoria_actual, 0) + score
+                # -----------------------------------------------------
+
+                user_ref.update({
+                    "xp": st.session_state.user_xp,
+                    "racha": st.session_state.user_streak,
+                    "rendimiento_categorias": rendimiento # Guardamos el termómetro actualizado
+                })
+            except Exception as e:
+                st.warning(f"No se pudo guardar la métrica en la nube: {e}")
                         st.session_state.auditor_mode = False # End challenge after advice
                         st.session_state.last_auditor_response = full_response
                         st.success("Evaluación Completada.")
@@ -1382,6 +1421,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
