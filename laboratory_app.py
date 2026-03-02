@@ -249,7 +249,7 @@ def load_local_data():
 
 def load_laboratory_cases():
     cases = {}
-    # 1. Cargar locales (JSON original)
+    # 1. Cargar locales (JSON original - para todos)
     try:
         base_path = os.path.dirname(os.path.abspath(__file__))
         file_path = os.path.join(base_path, 'data', 'laboratory_cases.json')
@@ -258,13 +258,27 @@ def load_laboratory_cases():
     except Exception:
         pass
         
-    # 2. Cargar de Firebase (Casos subidos por docentes)
+    # 2. Cargar de Firebase (El Muro Institucional)
     if db is not None:
         try:
-            casos_nube = db.collection('casos_practicos').get()
+            mi_institucion = st.session_state.get("user_institucion", "UNICEN")
+            mi_rol = st.session_state.get("user_rol", "estudiante")
+            
+            # El Muro: Si es admin, ve TODO. Si es docente/alumno, solo ve su U.
+            if mi_rol == "admin":
+                casos_nube = db.collection('casos_practicos').get()
+            else:
+                casos_nube = db.collection('casos_practicos').where('institucion', '==', mi_institucion).get()
+                
             for doc in casos_nube:
                 data = doc.to_dict()
                 cat = data.get('categoria', 'Categoría Personalizada')
+                
+                # Si tú (admin) lo ves, le ponemos una etiqueta para que sepas de qué U es
+                if mi_rol == "admin":
+                    inst_tag = data.get('institucion', 'Global')
+                    cat = f"[{inst_tag}] {cat}"
+                    
                 enunciado = data.get('enunciado', '')
                 if cat not in cases:
                     cases[cat] = []
@@ -723,15 +737,29 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
     # --- Lógica para mostrar el Panel de Administración ---
     if st.session_state.get("show_admin_panel", False):
         st.markdown("---")
-        st.header("🛠️ Panel de Administración General")
+        st.header("🛠️ Panel de Administración")
         
+        # Leemos quién está entrando
+        mi_institucion = st.session_state.get("user_institucion", "UNICEN")
+        mi_rol = st.session_state.get("user_rol", "docente")
+        
+        if mi_rol == "admin":
+            st.success("👑 MODO SUPER ADMIN: Viendo datos globales de TODAS las instituciones.")
+        else:
+            st.info(f"👨‍🏫 MODO DOCENTE: Viendo datos exclusivos de {mi_institucion}.")
+
         tab_alumnos, tab_casos = st.tabs(["👥 Gestión de Estudiantes", "📚 Gestor de Casos Prácticos"])
         
         # PESTAÑA 1: ESTUDIANTES
         with tab_alumnos:
-            usuarios_ref = db.collection('usuarios').where('rol', '==', 'estudiante').get()
-            csv_data = "Nombre Completo;Carrera;Correo Electronico;Experiencia (XP);Racha (Dias)\n"
-            st.write(f"**Total de alumnos registrados:** {len(usuarios_ref)}")
+            # --- EL MURO PARA ESTUDIANTES ---
+            if mi_rol == "admin":
+                usuarios_ref = db.collection('usuarios').where('rol', '==', 'estudiante').get()
+            else:
+                usuarios_ref = db.collection('usuarios').where('rol', '==', 'estudiante').where('institucion', '==', mi_institucion).get()
+            
+            csv_data = "Nombre Completo;Carrera;Institucion;Correo Electronico;Experiencia (XP);Racha (Dias)\n"
+            st.write(f"**Total de alumnos encontrados:** {len(usuarios_ref)}")
             
             for u in usuarios_ref:
                 data = u.to_dict()
@@ -739,6 +767,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 correo = data.get('correo', 'Desconocido')
                 nombre = data.get('nombre', 'Sin Nombre Registrado')
                 carrera = data.get('carrera', 'Sin Carrera')
+                inst_alumno = data.get('institucion', 'Desconocida')
                 xp = data.get('xp', 0)
                 racha = data.get('racha', 0)
                 estado = data.get('estado', 'activo')
@@ -747,34 +776,36 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     col_info, col_btn1, col_btn2, col_btn3 = st.columns([3, 1, 1, 1])
                     with col_info:
                         estado_icono = "🔴 BLOQUEADO" if estado == "bloqueado" else "🟢 ACTIVO"
-                        st.info(f"👤 **{nombre}** ({carrera}) | XP: {xp} | {estado_icono}")
+                        # Etiqueta visual solo para el Admin
+                        etiqueta_inst = f"🏛️ {inst_alumno} | " if mi_rol == "admin" else ""
+                        st.info(f"👤 **{nombre}** | {etiqueta_inst}{carrera} | XP: {xp} | {estado_icono}")
                     with col_btn1:
-                        if st.button("🔑 Reset Pass", key=f"pass_{user_doc_id}", help="Cambia la contraseña a 123456", use_container_width=True):
+                        if st.button("🔑 Reset", key=f"pass_{user_doc_id}", use_container_width=True):
                             db.collection('usuarios').document(user_doc_id).update({"password": "123456"})
-                            st.toast(f"✅ Contraseña cambiada")
+                            st.toast("✅ Contraseña cambiada")
                             time.sleep(1)
                             st.rerun()
                     with col_btn2:
-                        if st.button("🔄 Reset XP", key=f"xp_{user_doc_id}", help="Reinicia XP y Racha", use_container_width=True):
+                        if st.button("🔄 XP", key=f"xp_{user_doc_id}", use_container_width=True):
                             db.collection('usuarios').document(user_doc_id).update({"xp": 0, "racha": 0})
-                            st.toast(f"✅ Progreso reiniciado")
+                            st.toast("✅ Progreso reiniciado")
                             time.sleep(1)
                             st.rerun()
                     with col_btn3:
                         if estado == "bloqueado":
-                            if st.button("✅ Desbloquear", key=f"unblock_{user_doc_id}", use_container_width=True):
+                            if st.button("✅ Activar", key=f"unblock_{user_doc_id}", use_container_width=True):
                                 db.collection('usuarios').document(user_doc_id).update({"estado": "activo"})
-                                st.toast(f"✅ Usuario activado")
+                                st.toast("✅ Usuario activado")
                                 time.sleep(1)
                                 st.rerun()
                         else:
                             if st.button("🚫 Bloquear", key=f"block_{user_doc_id}", use_container_width=True):
                                 db.collection('usuarios').document(user_doc_id).update({"estado": "bloqueado"})
-                                st.toast(f"🚫 Usuario bloqueado")
+                                st.toast("🚫 Usuario bloqueado")
                                 time.sleep(1)
                                 st.rerun()
 
-                csv_data += f"{nombre};{carrera};{correo};{xp};{racha}\n"
+                csv_data += f"{nombre};{carrera};{inst_alumno};{correo};{xp};{racha}\n"
                 
             col1, col2 = st.columns(2)
             with col1:
@@ -787,8 +818,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         # PESTAÑA 2: SUBIR CASOS (CRUD)
         with tab_casos:
             st.subheader("Subir Nuevo Ejercicio a la Nube")
-            
-            # EL TRUCO: clear_on_submit=True limpia el formulario al guardar
             with st.form("form_nuevo_caso", clear_on_submit=True):
                 nueva_categoria = st.text_input("Categoría (Ej. 'Ajustes Contables', 'Pasivos', etc.)")
                 nivel_dificultad = st.selectbox("Nivel de Dificultad", ["[BÁSICO]", "[INTERMEDIO]", "[AVANZADO]"])
@@ -799,34 +828,41 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         nuevo_documento = {
                             "categoria": nueva_categoria,
                             "enunciado": f"{nivel_dificultad} {nuevo_enunciado}",
-                            "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            "institucion": mi_institucion # --- EL MURO PARA CASOS ---
                         }
                         db.collection('casos_practicos').add(nuevo_documento)
-                        st.success("¡Caso guardado exitosamente!")
+                        st.success(f"¡Caso guardado exclusivamente para los alumnos de {mi_institucion}!")
                         time.sleep(1.5)
                         st.rerun()
                     else:
                         st.error("Por favor completa la categoría y el enunciado.")
                         
             st.divider()
-            st.markdown("### 📚 Casos Subidos por Docentes (Nube)")
+            st.markdown("### 📚 Casos Subidos en la Nube")
             try:
-                casos_db = db.collection('casos_practicos').get()
+                # --- EL MURO PARA VER CASOS ---
+                if mi_rol == "admin":
+                    casos_db = db.collection('casos_practicos').get()
+                else:
+                    casos_db = db.collection('casos_practicos').where('institucion', '==', mi_institucion).get()
+                    
                 if len(casos_db) == 0:
                     st.info("Aún no hay casos personalizados en la nube.")
                 else:
                     for c in casos_db:
                         c_data = c.to_dict()
-                        c_id = c.id # Obtenemos el ID para poder borrarlo
+                        c_id = c.id
+                        inst_caso = c_data.get('institucion', 'Global')
                         
                         col_texto, col_borrar = st.columns([5, 1])
                         with col_texto:
-                            st.info(f"📁 **{c_data.get('categoria')}**: {c_data.get('enunciado')}")
+                            etiqueta = f"🏛️ {inst_caso} | " if mi_rol == "admin" else ""
+                            st.info(f"{etiqueta}📁 **{c_data.get('categoria')}**: {c_data.get('enunciado')}")
                         with col_borrar:
-                            # BOTÓN DE ELIMINAR
                             if st.button("🗑️ Eliminar", key=f"del_caso_{c_id}", use_container_width=True):
                                 db.collection('casos_practicos').document(c_id).delete()
-                                st.toast("✅ Caso eliminado de la base de datos")
+                                st.toast("✅ Caso eliminado")
                                 time.sleep(1)
                                 st.rerun()
             except Exception as e:
@@ -1241,6 +1277,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
