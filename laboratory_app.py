@@ -545,7 +545,40 @@ def main():
         with col_streak:
             st.metric(label="Racha 🔥", value=f"{st.session_state.user_streak}")
         st.divider()
-
+        
+# --- RANKING PÚBLICO (LEADERBOARD) ---
+        st.sidebar.divider()
+        with st.sidebar.expander("🏆 Ranking de mi Universidad", expanded=False):
+            if db is not None:
+                try:
+                    mi_institucion_r = st.session_state.get("user_institucion", "UNICEN")
+                    # Traer estudiantes de la MISMA institución
+                    estudiantes_ref = db.collection('usuarios').where('rol', '==', 'estudiante').where('institucion', '==', mi_institucion_r).get()
+                    
+                    lista_estudiantes = []
+                    for est in estudiantes_ref:
+                        data_est = est.to_dict()
+                        if data_est.get('xp', 0) > 0: # Solo participan los que tienen más de 0 XP
+                            lista_estudiantes.append({
+                                "nombre": data_est.get("nombre", "Anónimo").split()[0], # Solo el primer nombre por privacidad
+                                "xp": data_est.get("xp", 0)
+                            })
+                    
+                    # Ordenar de mayor a menor XP y sacar el Top 5
+                    top_5 = sorted(lista_estudiantes, key=lambda x: x["xp"], reverse=True)[:5]
+                    
+                    if len(top_5) == 0:
+                        st.info("Aún no hay alumnos con puntos. ¡Sé el primero en liderar la tabla!")
+                    else:
+                        for i, alumno in enumerate(top_5):
+                            # Asignar medallas según la posición
+                            medalla = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else "🏅"
+                            st.markdown(f"**{i+1}. {medalla} {alumno['nombre']}** - {alumno['xp']} XP")
+                 except Exception as e:
+                    st.caption("No se pudo cargar el ranking en este momento.")
+        st.sidebar.divider()
+        # -------------------------------------
+        
         # --- PANEL DE CONTROL (SOLO PARA ADMIN Y DOCENTES) ---
         user_ref = db.collection('usuarios').document(st.session_state.user_id).get()
         # LA MAGIA ESTÁ AQUÍ: Acepta "admin" o "docente"
@@ -1411,6 +1444,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
