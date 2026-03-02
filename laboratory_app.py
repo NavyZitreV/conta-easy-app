@@ -10,13 +10,16 @@ import base64
 import streamlit.components.v1 as components
 import firebase_admin
 from firebase_admin import credentials, firestore
+import google.generativeai as genai
+from fpdf import FPDF
+import markdown
+import re
 
 # --- Configurar Firebase ---
 @st.cache_resource
 def get_db():
     if not firebase_admin._apps:
         try:
-            # CORRECCIÓN VITAL: Usamos json.loads para procesar el texto de Secrets
             cred_info = st.secrets["firebase"]["info"]
             cred_dict = json.loads(cred_info)
             
@@ -25,7 +28,7 @@ def get_db():
         except Exception as e:
             st.error(f"Error al inicializar Firebase: {e}")
             return None
-        return firestore.client()
+    return firestore.client()
 
 db = get_db()
 
@@ -35,7 +38,6 @@ def reproducir_sonido(file_path):
             data = f.read()
             b64 = base64.b64encode(data).decode()
         
-        # Inyección de JavaScript para forzar la reproducción
         js_code = f"""
             <script>
                 var audio = new Audio("data:audio/mp3;base64,{b64}");
@@ -59,14 +61,12 @@ st.set_page_config(
 # --- CSS Styling Avanzado ---
 st.markdown("""
 <style>
-    /* Importar fuente moderna */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
     }
     
-    /* Fondo principal y ocultar elementos de Streamlit */
     .stApp {
         background-color: #f8f9fa;
     }
@@ -74,7 +74,6 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Estilos para los mensajes del chat */
     .stChatMessage {
         background-color: #ffffff;
         border: 1px solid #e0e0e0;
@@ -88,15 +87,13 @@ st.markdown("""
         transform: translateY(-2px);
     }
     
-    /* Diferenciar Avatar del Usuario vs IA */
     [data-testid="chatAvatarIcon-user"] {
-        background-color: #003366 !important; /* Azul Corporativo */
+        background-color: #003366 !important;
     }
     [data-testid="chatAvatarIcon-assistant"] {
-        background-color: #198754 !important; /* Verde Éxito */
+        background-color: #198754 !important;
     }
 
-    /* Estilizar los botones de la barra lateral */
     .stButton > button {
         width: 100%;
         border-radius: 8px;
@@ -110,7 +107,6 @@ st.markdown("""
         transform: translateY(-1px);
     }
     
-    /* Botón primario (Generar EEFF) */
     [data-testid="baseButton-primary"] {
         background-color: #003366 !important;
         color: white !important;
@@ -119,7 +115,6 @@ st.markdown("""
         background-color: #002244 !important;
     }
 
-    /* Estilo de las métricas (Gamificación) */
     [data-testid="stMetricValue"] {
         font-size: 2rem !important;
         font-weight: 800 !important;
@@ -132,10 +127,6 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
-import google.generativeai as genai
-from fpdf import FPDF
-import markdown
 
 # --- Helper Functions for Premium Features ---
 def get_difficulty_badge(text):
@@ -151,34 +142,27 @@ def clean_case_title(text):
     return text.replace("[BÁSICO]", "").replace("[INTERMEDIO]", "").replace("[AVANZADO]", "").strip()
 
 def generar_pdf(markdown_content):
-    # 1. ESCUDO ABSOLUTO ANTI-EMOJIS Y CARACTERES NO SOPORTADOS
     markdown_content = markdown_content.replace('•', '-').replace('“', '"').replace('”', '"').replace('‘', "'").replace('’', "'").replace('–', '-').replace('—', '-')
-    # Forzar codificación estricta a latin-1 eliminando lo que la fuente Helvetica no soporte
     markdown_content = markdown_content.encode('latin-1', 'ignore').decode('latin-1')
 
     class PDF(FPDF):
         def header(self):
-            # Insertar Logo (Manejar excepción por si no encuentra la ruta)
             try:
-                # Assuming logo.png is in img/ folder relative to script
-                self.image('img/Logo.png', 10, 4, 22) # x, y, ancho en mm
+                self.image('img/Logo.png', 10, 4, 22)
             except Exception:
                 pass 
             
-            # --- LEER NOMBRE DINÁMICO ---
             nombre_uni = st.secrets["general"].get("NOMBRE_INSTITUCION", "Institución Educativa")
             
             self.set_font('helvetica', 'B', 15)
-            self.cell(25) # Espacio para que el texto no pise el logo
-            
-            # Imprimir el nombre de forma automática
+            self.cell(25)
             self.cell(0, 8, nombre_uni, border=0, ln=1, align='C')
             
             self.set_font('helvetica', 'I', 10)
             self.cell(25)
             self.cell(0, 8, 'Laboratorio Contable - Reporte de Práctica IA', border=0, ln=1, align='C')
             
-            self.set_draw_color(0, 51, 102) # Línea azul oscuro
+            self.set_draw_color(0, 51, 102)
             self.line(10, 28, 200, 28)
             self.ln(15)
             
@@ -190,37 +174,25 @@ def generar_pdf(markdown_content):
     pdf = PDF()
     pdf.add_page()
     
-    import re
-    
-    # 2. CONVERSIÓN SIMPLE A HTML
     html_text = markdown.markdown(markdown_content, extensions=['tables'])
-
-    # 3. INTERLINEADO Y BORDES DE TABLAS
     html_text = html_text.replace('</p>', '</p><br>')
     html_text = html_text.replace('</li>', '</li><br>')
     html_text = re.sub(r'<table[^>]*>', '<br><table border="1" width="100%">', html_text)
     html_text = html_text.replace('</table>', '</table><br>')
 
-    # Dar formato de "Corrector de Examen" a los títulos principales (H1 y H2)
-    # Forzar títulos grandes (H1 y H2) a color rojo oscuro (#990000)
     html_text = re.sub(r'<h1[^>]*>(.*?)</h1>', r'<h1><font color="#990000">\1</font></h1>', html_text, flags=re.IGNORECASE)
     html_text = re.sub(r'<h2[^>]*>(.*?)</h2>', r'<h2><font color="#990000">\1</font></h2>', html_text, flags=re.IGNORECASE)
-    
-    # Limpieza de seguridad: Si el LLM escribe la calificación entre corchetes sin H1, la convertimos a H1 Rojo
     html_text = re.sub(r'\[CALIFICACIÓN:\s*([^\]]+)\]', r'<h1><font color="#990000">1. CALIFICACIÓN: \1</font></h1>', html_text, flags=re.IGNORECASE)
 
-    # 4. TRADUCCIÓN DE ALINEACIÓN PARA FPDF2
     html_text = html_text.replace('style="text-align: right;"', 'align="right"')
     html_text = html_text.replace('style="text-align: left;"', 'align="left"')
     html_text = html_text.replace('style="text-align: center;"', 'align="center"')
 
-    # 5. CREACIÓN DEL DOCUMENTO
     pdf.set_font("helvetica", size=10)
 
     try:
         pdf.write_html(html_text)
     except Exception as e:
-        # Fallback simple en caso de emergencia extrema
         pdf.set_text_color(255, 0, 0)
         pdf.multi_cell(0, 10, f"Error rendering HTML: {e}\n\nFallback Content:\n{markdown_content}")
         pdf.set_text_color(0, 0, 0)
@@ -249,7 +221,6 @@ def load_local_data():
 
 def load_laboratory_cases():
     cases = {}
-    # 1. Cargar locales (JSON original - para todos)
     try:
         base_path = os.path.dirname(os.path.abspath(__file__))
         file_path = os.path.join(base_path, 'data', 'laboratory_cases.json')
@@ -258,13 +229,11 @@ def load_laboratory_cases():
     except Exception:
         pass
         
-    # 2. Cargar de Firebase (El Muro Institucional)
     if db is not None:
         try:
             mi_institucion = st.session_state.get("user_institucion", "UNICEN")
             mi_rol = st.session_state.get("user_rol", "estudiante")
             
-            # El Muro: Si es admin, ve TODO. Si es docente/alumno, solo ve su U.
             if mi_rol == "admin":
                 casos_nube = db.collection('casos_practicos').get()
             else:
@@ -274,7 +243,6 @@ def load_laboratory_cases():
                 data = doc.to_dict()
                 cat = data.get('categoria', 'Categoría Personalizada')
                 
-                # Si tú (admin) lo ves, le ponemos una etiqueta para que sepas de qué U es
                 if mi_rol == "admin":
                     inst_tag = data.get('institucion', 'Global')
                     cat = f"[{inst_tag}] {cat}"
@@ -315,20 +283,16 @@ def search_local(query, topics):
 
         score = 0
         
-        # 1. Exact Phrase Match (High Priority)
         if len(palabras_clave) > 1 and query_clean in text_norm:
             score += 50
         
-        # 2. Keyword Matching
         for palabra in palabras_clave:
             if palabra in title_norm:
                 score += 10
             if palabra in text_norm:
                 score += 3
                 
-        # UMBRAL RELAJADO (User Request): Score >= 3 (antes 12)
         if score >= 3:
-            # Try to center snippet on the exact phrase first, then keywords
             idx = -1
             if len(palabras_clave) > 1 and query_clean in text_norm:
                 idx = text_norm.find(query_clean)
@@ -354,7 +318,7 @@ def search_local(query, topics):
 # --- Level 1.5: The Smart Judge (LLM) ---
 def evaluate_snippet_with_llm(user_query, snippet, api_key):
     if not api_key:
-        return "INSUFICIENTE" # Fallback if no key
+        return "INSUFICIENTE" 
 
     try:
         genai.configure(api_key=api_key)
@@ -371,19 +335,15 @@ Si ninguno de los extractos responde realmente a la pregunta, responde estrictam
         response = model.generate_content(system_prompt)
         text_response = response.text.strip()
         
-        # Clean up potential extra wording from LLM if it tries to be chatty around the keyword
         if "INSUFICIENTE" in text_response.upper() and len(text_response) < 20:
              return "INSUFICIENTE"
              
         return text_response
     except Exception as e:
-        # Re-raise explicit errors for the UI to handle
         raise e
 
 # --- Level 2: NotebookLM ---
-# --- Level 2: NotebookLM ---
 def search_notebooklm(query):
-    # Dictionary of Notebooks: Title -> ID
     notebooks = {
         "CURSO CONTABILIDAD BASICA": "af525325-ca19-4f82-975f-349f01c6a099",
         "Compendio Normativo y Guía del Sistema Tributario Boliviano": "ead8f2c0-19e9-42dc-8040-c4659126b7e9"
@@ -393,15 +353,10 @@ def search_notebooklm(query):
     
     for title, notebook_id in notebooks.items():
         try:
-            # Use our custom python wrapper that talks to MCP server via ID
-            # This avoids issues with special characters in names
             command = ['python', 'scripts/nlm_query_id.py', notebook_id, query]
-            
-            # Timeout increased to 60s as MCP might take time
             result = subprocess.run(command, capture_output=True, text=True, timeout=60)
             
             if result.returncode == 0 and result.stdout.strip():
-                # Filter out "Error:" lines if any mixed in stdout
                 output = result.stdout.strip()
                 if "Error:" not in output[:20]: 
                     combined_results.append(f"**Fuente: {title}**\n{output}")
@@ -470,10 +425,8 @@ def mostrar_login():
                             st.session_state.user_id = user_doc.id
                             st.session_state.user_xp = user_data.get("xp", 0)
                             st.session_state.user_streak = user_data.get("racha", 0)
-                            # --- NUEVO: GUARDAR EN MEMORIA EL ROL Y LA INSTITUCIÓN ---
                             st.session_state.user_rol = user_data.get("rol", "estudiante")
                             st.session_state.user_institucion = user_data.get("institucion", "UNICEN") 
-                            # ---------------------------------------------------------
                             st.success("¡Sesión iniciada exitosamente!")
                             st.rerun()
                         else:
@@ -483,11 +436,7 @@ def mostrar_login():
             nuevo_correo = st.text_input("Correo Electrónico", key="reg_correo")
             nombre_reg = st.text_input("Nombre Completo", key="reg_nombre")
             carrera_reg = st.selectbox("Carrera", ["Contaduría Pública", "Ingeniería Financiera", "Administración de Empresas", "Otra"], key="reg_carrera")
-            
-            # --- NUEVO: LISTA DE INSTITUCIONES ---
             institucion_reg = st.selectbox("Institución", ["UNICEN", "UNIVALLE", "Otra"], key="reg_inst")
-            # -------------------------------------
-            
             nuevo_password = st.text_input("Contraseña", type="password", key="reg_pass")
             
             if st.button("Crear Cuenta", type="primary", use_container_width=True):
@@ -505,7 +454,7 @@ def mostrar_login():
                             "correo": nuevo_correo,
                             "nombre": nombre_reg,
                             "carrera": carrera_reg,
-                            "institucion": institucion_reg, # --- NUEVO: GUARDAR INSTITUCIÓN ---
+                            "institucion": institucion_reg,
                             "password": nuevo_password,
                             "xp": 0,
                             "racha": 0,
@@ -520,6 +469,7 @@ def mostrar_login():
                         st.session_state.user_institucion = institucion_reg
                         st.success("Cuenta creada exitosamente. ¡Bienvenido!")
                         st.rerun()
+
 def main():
     if "user_id" not in st.session_state:
         mostrar_login()
@@ -528,16 +478,13 @@ def main():
     st.title("📚 Laboratorio de Contabilidad (IA)")
     st.markdown("Asistente inteligente con Búsqueda en Cascada (Local -> NotebookLM -> Web)")
 
-    # --- Gestor de Sonidos ---
     if "pending_sound" in st.session_state:
         reproducir_sonido(st.session_state.pending_sound)
         del st.session_state.pending_sound
 
-    # Sidebar
     with st.sidebar:
         st.header("Configuración")
         
-        # --- Perfil y Progreso ---
         st.markdown("### 🏆 Tu Progreso")
         col_xp, col_streak = st.columns(2)
         with col_xp:
@@ -546,55 +493,48 @@ def main():
             st.metric(label="Racha 🔥", value=f"{st.session_state.user_streak}")
         st.divider()
         
-# --- RANKING PÚBLICO (LEADERBOARD) ---
-        st.sidebar.divider()
+        # --- RANKING PÚBLICO (LEADERBOARD) ---
         with st.sidebar.expander("🏆 Ranking de mi Universidad", expanded=False):
             if db is not None:
                 try:
                     mi_institucion_r = st.session_state.get("user_institucion", "UNICEN")
-                    # Traer estudiantes de la MISMA institución
                     estudiantes_ref = db.collection('usuarios').where('rol', '==', 'estudiante').where('institucion', '==', mi_institucion_r).get()
                     
                     lista_estudiantes = []
                     for est in estudiantes_ref:
                         data_est = est.to_dict()
-                        if data_est.get('xp', 0) > 0: # Solo participan los que tienen más de 0 XP
+                        if data_est.get('xp', 0) > 0: 
                             lista_estudiantes.append({
-                                "nombre": data_est.get("nombre", "Anónimo").split()[0], # Solo el primer nombre por privacidad
+                                "nombre": data_est.get("nombre", "Anónimo").split()[0],
                                 "xp": data_est.get("xp", 0)
                             })
                     
-                    # Ordenar de mayor a menor XP y sacar el Top 5
                     top_5 = sorted(lista_estudiantes, key=lambda x: x["xp"], reverse=True)[:5]
                     
                     if len(top_5) == 0:
                         st.info("Aún no hay alumnos con puntos. ¡Sé el primero en liderar la tabla!")
                     else:
                         for i, alumno in enumerate(top_5):
-                            # Asignar medallas según la posición
                             medalla = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else "🏅"
                             st.markdown(f"**{i+1}. {medalla} {alumno['nombre']}** - {alumno['xp']} XP")
                 except Exception as e:
                     st.caption("No se pudo cargar el ranking en este momento.")
         st.sidebar.divider()
-        # -------------------------------------
         
         # --- PANEL DE CONTROL (SOLO PARA ADMIN Y DOCENTES) ---
         user_ref = db.collection('usuarios').document(st.session_state.user_id).get()
-        # LA MAGIA ESTÁ AQUÍ: Acepta "admin" o "docente"
         if user_ref.exists and user_ref.to_dict().get("rol") in ["admin", "docente"]:
             st.markdown("### 🛠️ Administración")
             if st.button("📊 Panel de Control", type="secondary"):
                 st.session_state.show_admin_panel = True
             st.divider()
-        # --- Carga Segura de API Key (Invisible para el usuario) ---
+
         try:
             api_key = st.secrets["general"]["GEMINI_API_KEY"]
         except Exception:
             st.error("⚠️ Error Crítico: No se encontró la API Key en los secretos del servidor.")
             api_key = ""
 
-        # --- Módulo: Motor de Búsqueda ---
         st.divider()
         st.header("🔍 Motor de Búsqueda")
         deep_search_active = st.checkbox("Activar Búsqueda Profunda", value=False, key="deep_search", help="Consultar las 3 fuentes simultáneamente")
@@ -613,31 +553,24 @@ def main():
                     del st.session_state[key]
             st.rerun()
 
-
-        # --- Laboratorio de Casos (Sidebar) ---
         st.divider()
         st.header("📝 Laboratorio de Casos")
         
         lab_cases = load_laboratory_cases()
         
         if lab_cases:
-            # 1. Select Category
             categories = list(lab_cases.keys())
-            selected_category = st.selectbox("Categoría", categories)
+            selected_category = st.selectbox("Categoría", categories, key="categoria")
             
-            # 2. Select Case
             cases = lab_cases.get(selected_category, [])
             selected_case = st.selectbox("Ejercicio Práctico", cases)
             
-            # Visual Badge
             badge_html = get_difficulty_badge(selected_case)
             if badge_html:
                 st.markdown(f"{badge_html}", unsafe_allow_html=True)
             
-            # --- CONTROL DE CASO ACTIVO (SISTEMA ANTI-COPIA) ---
             caso_limpio = clean_case_title(selected_case)
             
-            # Si el usuario cambia de caso en el selectbox, reseteamos al caso original
             if "selected_case_tracker" not in st.session_state or st.session_state.selected_case_tracker != caso_limpio:
                 st.session_state.selected_case_tracker = caso_limpio
                 st.session_state.current_active_case = caso_limpio
@@ -645,7 +578,7 @@ def main():
             st.markdown(f"**📝 Caso Activo:** {st.session_state.current_active_case}")
             
             if st.button("🎲 Generar Variante Anti-Copia (Aleatorio)", help="Crea una versión única de este ejercicio para evitar copias."):
-                reproducir_sonido("audio/dice.mp3") # Sonido de dados
+                reproducir_sonido("audio/dice.mp3") 
                 with st.spinner("Creando variante única..."):
                     try:
                         genai.configure(api_key=api_key)
@@ -664,24 +597,22 @@ def main():
                         """
                         response = model.generate_content(prompt_mutacion)
                         st.session_state.current_active_case = response.text.strip()
-                        st.rerun() # Recargar la interfaz para mostrar el nuevo caso
+                        st.rerun() 
                     except Exception as e:
                         st.error(f"Error al generar variante: {e}")
             
             col1, col2 = st.columns(2)
             
-            # Button 1: Tutor Mode
             if col1.button("👨‍🏫 Analizar con Tutor"):
-                reproducir_sonido("audio/click.mp3") # Sonido de interfaz
+                reproducir_sonido("audio/click.mp3") 
                 st.session_state.messages.append({"role": "user", "content": st.session_state.current_active_case})
-                st.session_state.auditor_mode = False # Reset challenge
+                st.session_state.auditor_mode = False 
                 
                 with st.spinner("👨‍🏫 El Tutor está analizando el caso..."):
                     try:
                         genai.configure(api_key=api_key)
                         model = genai.GenerativeModel('gemini-flash-latest')
                         
-                        # --- LEER NOMBRE DINÁMICO ---
                         nombre_uni = st.secrets["general"].get("NOMBRE_INSTITUCION", "Institución Educativa")
             
                         reglas_actuales = load_tax_rules()
@@ -724,15 +655,14 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         lab_response = response.text.strip()
                         
                         st.session_state.messages.append({"role": "assistant", "content": lab_response})
-                        st.session_state.last_lab_response = lab_response # Store for PDF
+                        st.session_state.last_lab_response = lab_response 
                         st.rerun()
                         
                     except Exception as e:
                         st.error(f"Error: {e}")
 
-            # Button 2: Auditor Challenge
             if col2.button("⚔️ Reto Auditor"):
-                st.session_state.pending_sound = "audio/swords.mp3" # Sonido de espadas chocar
+                st.session_state.pending_sound = "audio/swords.mp3" 
                 st.session_state.auditor_mode = True
                 st.session_state.auditor_case = st.session_state.current_active_case
                 st.session_state.messages.append({"role": "assistant", "content": f"⚔️ **¡Reto Aceptado!**\n\nCaso: *{st.session_state.current_active_case}*\n\nEscribe en el chat tu asiento contable propuesto (Cuentas y Montos). Yo actuaré como un Auditor estricto y calificaré tu respuesta."})
@@ -741,13 +671,12 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         else:
             st.warning("⚠️ No se encontraron casos de laboratorio. Verifica data/laboratory_cases.json")
 
-        # --- Simulador de Ciclo Completo (Sidebar) ---
         st.divider()
         st.header("🏢 Proyecto: Ciclo Contable")
         
         if not st.session_state.get("project_mode", False):
             if st.button("🚀 Iniciar Nuevo Proyecto"):
-                st.session_state.pending_sound = "audio/rocket.mp3" # Sonido de despegue
+                st.session_state.pending_sound = "audio/rocket.mp3" 
                 st.session_state.project_mode = True
                 st.session_state.project_transactions = []
                 st.session_state.messages.append({"role": "assistant", "content": "🏢 **¡Modo Proyecto Iniciado!**\n\nVamos a simular un ciclo contable. Escribe tus transacciones una por una en el chat (ej. 'Transacción 1: Inicio de actividades con 50.000 Bs en caja...').\n\nEl sistema las guardará. Cuando termines todas, presiona el botón **'Generar EEFF'** en la barra lateral."})
@@ -772,11 +701,9 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         st.markdown("---")
         st.header("🛠️ Panel de Administración y Analíticas")
         
-        # Leemos quién está entrando
         mi_institucion = st.session_state.get("user_institucion", "UNICEN")
         mi_rol = st.session_state.get("user_rol", "docente")
         
-        # OPTIMIZACIÓN: Hacemos la consulta a Firebase UNA SOLA VEZ para todas las pestañas
         if mi_rol == "admin":
             st.success("👑 MODO SUPER ADMIN: Viendo datos globales de TODAS las instituciones.")
             usuarios_ref = db.collection('usuarios').get()
@@ -784,10 +711,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             st.info(f"👨‍🏫 MODO DOCENTE: Viendo datos exclusivos de {mi_institucion}.")
             usuarios_ref = db.collection('usuarios').where('rol', '==', 'estudiante').where('institucion', '==', mi_institucion).get()
             
-        # Filtramos para no auto-bloquearte
         usuarios_lista = [u for u in usuarios_ref if u.to_dict().get('rol') != 'admin']
 
-        # NUEVO: TRES PESTAÑAS EN LUGAR DE DOS
         tab_alumnos, tab_casos, tab_analiticas = st.tabs(["👥 Gestión de Estudiantes", "📚 Gestor de Casos Prácticos", "🧠 Analíticas"])
         
         # ==========================================
@@ -827,7 +752,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             time.sleep(1)
                             st.rerun()
                     with col_btn2:
-                        # --- EL BOTÓN MÁGICO PARA DAR ACCESO A ANALÍTICAS A LOS DOCENTES ---
                         if mi_rol == "admin" and rol_usuario == "docente":
                             if acceso_ana:
                                 if st.button("🚫 Ocultar Analíticas", key=f"ana_{user_doc_id}", use_container_width=True):
@@ -920,7 +844,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         # PESTAÑA 3: ANALÍTICAS E INTELIGENCIA
         # ==========================================
         with tab_analiticas:
-            # Validar permisos
             mi_usuario_db = db.collection('usuarios').document(st.session_state.user_id).get().to_dict()
             tiene_permiso = (mi_rol == "admin") or (mi_rol == "docente" and mi_usuario_db.get("acceso_analiticas", False) == True)
             
@@ -989,12 +912,12 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         st.bar_chart(datos_ia)
                     else:
                         st.caption("Aún no hay suficientes datos de interacción con la IA para graficar.")
-                        # --- FILA 3: TERMÓMETRO POR CATEGORÍA ---
+                        
+                    # --- FILA 3: TERMÓMETRO POR CATEGORÍA ---
                     st.divider()
                     st.markdown("### 🌡️ Termómetro de Rendimiento por Temas")
                     st.caption("Mide el dominio del curso en cada categoría contable según la Experiencia (XP) ganada.")
                     
-                    # Consolidar datos de todas las categorías
                     rendimiento_global = {}
                     for e in estudiantes:
                         rendimiento_usuario = e.get('rendimiento_categorias', {})
@@ -1002,10 +925,10 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             rendimiento_global[cat] = rendimiento_global.get(cat, 0) + xp_ganada
                             
                     if rendimiento_global:
-                        # Dibujar un gráfico de barras horizontal (o vertical) nativo de Streamlit
                         st.bar_chart(rendimiento_global)
                     else:
                         st.info("Aún no hay datos de rendimiento. Los alumnos deben ganar XP resolviendo casos para que el termómetro se active.")
+                        
     # --- Inicializar memoria del chat ---
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -1037,9 +960,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
             
-            # Show download button if this message is the last one and from assistant
             if message == st.session_state.messages[-1] and message["role"] == "assistant":
-                # Check if we have content to download (heuristic or explicit state)
                 if "last_lab_response" in st.session_state and st.session_state.last_lab_response in message["content"]:
                     pdf_bytes = generar_pdf(message["content"])
                     st.download_button(label="📄 Descargar PDF", data=pdf_bytes, file_name="Resolucion_Laboratorio.pdf", mime="application/pdf", key=f"pdf_{len(st.session_state.messages)}")
@@ -1055,12 +976,10 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         mime="application/pdf", 
                         key=f"pdf_chat_hist_{len(st.session_state.messages)}"
                     )
-                # NUEVO BLOQUE: Historial del Proyecto
                 elif "# 📊 REPORTE DEL CICLO CONTABLE Y ESTADOS FINANCIEROS FINALES" in message["content"]:
                     pdf_bytes = generar_pdf(message["content"])
                     st.download_button(label="📄 Descargar Balance y EDFF en PDF", data=pdf_bytes, file_name="Proyecto_Ciclo_Contable.pdf", mime="application/pdf", key=f"pdf_chat_hist_{len(st.session_state.messages)}")
     
-    # Helper for intent detection
     def should_run_deep_search(prompt, checkbox_state):
         keywords = ['en la web', 'en internet', 'según impuestos', 'en notebooklm', 'busca en todas']
         return checkbox_state or any(k in prompt.lower() for k in keywords)
@@ -1077,7 +996,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 user_ref = db.collection('usuarios').document(st.session_state.user_id)
                 user_data = user_ref.get().to_dict()
                 
-                # Leemos la variable exacta de tu código (línea 1036)
                 es_auditor = st.session_state.get("auditor_mode", False) 
                 
                 if es_auditor:
@@ -1087,6 +1005,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             except Exception as e:
                 pass
         # ----------------------------------------
+        
         with st.chat_message("assistant"):
             response_container = st.empty()
             full_response = ""
@@ -1108,7 +1027,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         reglas_actuales = load_tax_rules()
                         case_ref = st.session_state.get("auditor_case", "Caso desconocido")
                         
-                        # --- REPERTORIO DEL AUDITOR ---
                         frases_auditor = [
                             "SEÑOR ESTUDIANTE, recuerde que la contabilidad es el lenguaje de los negocios y una ciencia exacta, no un simple juego de sumas y restas.",
                             "FUTURO COLEGA, la precisión contable es innegociable. Un asiento mal registrado altera el destino financiero y tributario de toda una empresa.",
@@ -1117,7 +1035,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             "COLEGA EN FORMACIÓN, detrás de cada cuenta hay una gran responsabilidad legal y penal. Revisemos su propuesta contable paso a paso."
                         ]
                         frase_apertura = random.choice(frases_auditor)
-                        # --- LEER NOMBRE DINÁMICO ---
                         nombre_uni = st.secrets["general"].get("NOMBRE_INSTITUCION", "Institución Educativa")
 
                         prompt_audit = f"""Eres un Auditor Contable y Docente Universitario en la {nombre_uni}. Evalúas a un estudiante. Tu tono es ESTRICTAMENTE PROFESIONAL, OBJETIVO y TÉCNICO.
@@ -1142,60 +1059,52 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         response = model.generate_content(prompt_audit)
                         full_response = response.text.strip()
                         
-                        import re
-                        # Buscar el patrón de calificación generado por la IA
                         match = re.search(r'CALIFICACIÓN:\s*(\d+)/100', full_response, re.IGNORECASE)
                         if match:
                             score = int(match.group(1))
-                            st.session_state.user_xp += score # Sumar XP
+                            st.session_state.user_xp += score 
                             
                             if score >= 80:
                                 st.session_state.user_streak += 1
-                                st.balloons() # Efecto visual de celebración
-                                reproducir_sonido("audio/success.mp3") # NUEVO: Efecto de sonido
+                                st.balloons() 
+                                reproducir_sonido("audio/success.mp3") 
                                 st.toast(f"¡Excelente! Ganaste {score} XP. Racha aumentada a {st.session_state.user_streak} 🔥", icon="🔥")
                             else:
                                 st.session_state.user_streak = 0
-                                reproducir_sonido("audio/error.mp3") # NUEVO: Efecto de sonido de fallo
+                                reproducir_sonido("audio/error.mp3") 
                                 st.toast(f"Obtuviste {score} XP. La racha ha vuelto a cero. ¡Revisa la norma y recupera tu fuego!", icon="🧊")
                             
-                        # Update gamification to Firebase
-        if db is not None:
-            try:
-                user_ref = db.collection('usuarios').document(st.session_state.user_id)
-                
-                # --- NUEVO: RASTREADOR DE TEMAS PARA EL TERMÓMETRO ---
-                categoria_actual = st.session_state.get("categoria", "Práctica General")
-                
-                user_data = user_ref.get().to_dict()
-                rendimiento = user_data.get("rendimiento_categorias", {})
-                
-                # Le sumamos los puntos que acaba de ganar al tema específico
-                rendimiento[categoria_actual] = rendimiento.get(categoria_actual, 0) + score
-                # -----------------------------------------------------
+                            # Update gamification to Firebase
+                            if db is not None:
+                                try:
+                                    user_ref = db.collection('usuarios').document(st.session_state.user_id)
+                                    categoria_actual = st.session_state.get("categoria", "Práctica General")
+                                    user_data = user_ref.get().to_dict()
+                                    rendimiento = user_data.get("rendimiento_categorias", {})
+                                    
+                                    rendimiento[categoria_actual] = rendimiento.get(categoria_actual, 0) + score
+                                    
+                                    user_ref.update({
+                                        "xp": st.session_state.user_xp,
+                                        "racha": st.session_state.user_streak,
+                                        "rendimiento_categorias": rendimiento
+                                    })
+                                except Exception as e:
+                                    st.warning(f"No se pudo guardar la métrica en la nube: {e}")
 
-                user_ref.update({
-                    "xp": st.session_state.user_xp,
-                    "racha": st.session_state.user_streak,
-                    "rendimiento_categorias": rendimiento # Guardamos el termómetro actualizado
-                })
-            except Exception as e:
-                st.warning(f"No se pudo guardar la métrica en la nube: {e}")
-
-        st.session_state.auditor_mode = False # End challenge after advice
-        st.session_state.last_auditor_response = full_response
-        st.success("Evaluación Completada.")
+                        st.session_state.auditor_mode = False 
+                        st.session_state.last_auditor_response = full_response
+                        st.success("Evaluación Completada.")
                         
                     except Exception as e:
                         full_response = f"Error del Auditor: {e}"
-            # ...
+                        st.session_state.auditor_mode = False
+
             else:
                 is_deep_search = should_run_deep_search(prompt, deep_search_active)
                 
                 if is_deep_search:
-                    # --- DEEP SEARCH MODE (Parallel Execution) ---
                     with st.spinner('Consultando todas las bases de datos (Local, NLM, Web)...'):
-                        # 1. Local Search
                         topics_data = load_local_data()
                         local_candidates = search_local(prompt, topics_data)
                         local_text = ""
@@ -1205,13 +1114,9 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         else:
                             local_text = "Sin resultados locales relevantes."
 
-                        # 2. NotebookLM
                         nlm_text = search_notebooklm(prompt) or "Sin resultados en NotebookLM."
-                        
-                        # 3. Web Search
                         web_text = search_web(prompt) or "Sin resultados en la Web."
                         
-                        # Synthesize with LLM
                         master_context = f"""
                         [RESULTADOS LOCALES]:
                         {local_text}
@@ -1234,22 +1139,18 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             
                             response = model.generate_content(system_prompt)
                             full_response = response.text.strip()
-                            
                             st.success("✅ Respuesta Generada en Modo Profundo (3 Fuentes).")
                             
                         except Exception as e:
                             full_response = f"Error al sintetizar respuesta profunda: {e}\n\nDetalles de fuentes:\n{master_context}"
                 
                 else:
-                    # --- NORMAL MODE (Waterfall) ---
-                    # Level 1: Local Search
                     topics_data = load_local_data()
                     local_candidates = search_local(prompt, topics_data)
                     
                     should_escalate = True
                     
                     if local_candidates:
-                        # DEBUG VISIBILITY: Show what we found locally (Top 3)
                         combined_snippets = ""
                         
                         with st.expander(f"📄 Documentos encontrados ({len(local_candidates)})"):
@@ -1265,19 +1166,14 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                 if llm_verdict != "INSUFICIENTE":
                                     full_response = f"**Tutor UNICEN:**\n\n{llm_verdict}"
                                     st.success("✅ Respuesta validada por Juez IA (Contexto Combinado).")
-                                    should_escalate = False # We have a good answer
+                                    should_escalate = False 
                                     
                             except Exception as e:
                                 st.error(f"Error de API (El Juez): {e}")
-                                # Don't escalate effectively if API fails, just stop or let user know
                                 should_escalate = False 
                                 full_response = "⚠️ Ocurrió un error al contactar con la IA para validar la respuesta local. Por favor verifica tu API Key."
-                    else:
-                         # No local candidates found
-                         pass # Logic falls through to should_escalate=True
 
                     if should_escalate:
-                        # Level 2: NotebookLM
                         with st.spinner("🤖 Consultando base de conocimiento extendida (NotebookLM)..."):
                             if not local_candidates:
                                  st.info("Búsqueda local sin coincidencias fuertes (Score < 3). Escalando...")
@@ -1290,7 +1186,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             full_response = f"**Respuesta de NotebookLM:**\n\n{nlm_result}"
                             st.success("✅ Respuesta recuperada de NotebookLM.")
                         else:
-                            # Level 3: Web
                             with st.spinner("🌐 Buscando normativa oficial en la web (Nivel 3)..."):
                                 st.warning("NotebookLM no tiene datos. Escalando a Nivel 3...")
                                 web_result = search_web(prompt)
@@ -1298,7 +1193,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             if web_result:
                                 full_response = f"**Búsqueda Web (Normativa Bolivia):**\n\n{web_result}"
                             else:
-                                # FALLBACK: Si no hay info teórica, asumimos que es un ejercicio práctico libre.
                                 with st.spinner("👨‍🏫 Parece un caso práctico. Generando resolución estructurada..."):
                                     try:
                                         genai.configure(api_key=api_key)
@@ -1341,7 +1235,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             response_container.markdown(full_response)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
 
-            # Show download button immediately for Auditor (before next rerun)
             if st.session_state.get("last_auditor_response") == full_response:
                 pdf_bytes = generar_pdf(full_response)
                 st.download_button(
@@ -1363,8 +1256,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
     # --- PROCESS PROJECT BALANCE ---
     if st.session_state.get("generate_project_balance", False):
-        st.session_state.generate_project_balance = False # Reset flag
-        st.session_state.project_mode = False # End mode
+        st.session_state.generate_project_balance = False 
+        st.session_state.project_mode = False 
         
         with st.chat_message("assistant"):
             with st.spinner("📊 Analizando el ciclo completo y estructurando el Balance de Comprobación..."):
@@ -1431,7 +1324,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.markdown(full_response)
                     st.session_state.messages.append({"role": "assistant", "content": full_response})
                     
-                    # NUEVO: Generar PDF y mostrar botón inmediatamente en la pantalla
                     pdf_bytes = generar_pdf(full_response)
                     st.download_button(
                         label="📄 Descargar Balance en PDF",
@@ -1443,33 +1335,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     
                 except Exception as e:
                     st.error(f"Error al generar el balance: {e}")
+
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
