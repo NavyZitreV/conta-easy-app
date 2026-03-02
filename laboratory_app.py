@@ -574,7 +574,7 @@ def main():
                             # Asignar medallas según la posición
                             medalla = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else "🏅"
                             st.markdown(f"**{i+1}. {medalla} {alumno['nombre']}** - {alumno['xp']} XP")
-                 except Exception as e:
+                except Exception as e:
                     st.caption("No se pudo cargar el ranking en este momento.")
         st.sidebar.divider()
         # -------------------------------------
@@ -1444,6 +1444,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
