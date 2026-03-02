@@ -780,7 +780,9 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         # PESTAÑA 2: SUBIR CASOS (CRUD)
         with tab_casos:
             st.subheader("Subir Nuevo Ejercicio a la Nube")
-            with st.form("form_nuevo_caso"):
+            
+            # EL TRUCO: clear_on_submit=True limpia el formulario al guardar
+            with st.form("form_nuevo_caso", clear_on_submit=True):
                 nueva_categoria = st.text_input("Categoría (Ej. 'Ajustes Contables', 'Pasivos', etc.)")
                 nivel_dificultad = st.selectbox("Nivel de Dificultad", ["[BÁSICO]", "[INTERMEDIO]", "[AVANZADO]"])
                 nuevo_enunciado = st.text_area("Enunciado del Caso Práctico")
@@ -793,7 +795,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         }
                         db.collection('casos_practicos').add(nuevo_documento)
-                        st.success("¡Caso guardado exitosamente en la base de datos!")
+                        st.success("¡Caso guardado exitosamente!")
                         time.sleep(1.5)
                         st.rerun()
                     else:
@@ -803,11 +805,25 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             st.markdown("### 📚 Casos Subidos por Docentes (Nube)")
             try:
                 casos_db = db.collection('casos_practicos').get()
-                for c in casos_db:
-                    c_data = c.to_dict()
-                    st.info(f"📁 **{c_data.get('categoria')}**: {c_data.get('enunciado')}")
-            except Exception:
-                st.warning("Aún no hay casos personalizados en la nube.")
+                if len(casos_db) == 0:
+                    st.info("Aún no hay casos personalizados en la nube.")
+                else:
+                    for c in casos_db:
+                        c_data = c.to_dict()
+                        c_id = c.id # Obtenemos el ID para poder borrarlo
+                        
+                        col_texto, col_borrar = st.columns([5, 1])
+                        with col_texto:
+                            st.info(f"📁 **{c_data.get('categoria')}**: {c_data.get('enunciado')}")
+                        with col_borrar:
+                            # BOTÓN DE ELIMINAR
+                            if st.button("🗑️ Eliminar", key=f"del_caso_{c_id}", use_container_width=True):
+                                db.collection('casos_practicos').document(c_id).delete()
+                                st.toast("✅ Caso eliminado de la base de datos")
+                                time.sleep(1)
+                                st.rerun()
+            except Exception as e:
+                st.warning(f"Error al cargar los casos: {e}")
     # --- Inicializar memoria del chat ---
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -1218,6 +1234,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
