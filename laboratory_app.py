@@ -1127,21 +1127,11 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                 st.toast(f"Obtuviste {score} XP. La racha ha vuelto a cero. ¡Revisa la norma y recupera tu fuego!", icon="🧊")
                             
                             # Update gamification to Firebase
-                            if db is not None:
-                                try:
-                                    db.collection('usuarios').document(st.session_state.user_id).update({
-                                        "xp": st.session_state.user_xp,
-                                        "racha": st.session_state.user_streak
-                                    })
-                                except Exception as e:
-                                    # Update gamification to Firebase
         if db is not None:
             try:
                 user_ref = db.collection('usuarios').document(st.session_state.user_id)
                 
                 # --- NUEVO: RASTREADOR DE TEMAS PARA EL TERMÓMETRO ---
-                # NOTA PARA TI: Revisa el nombre exacto de la variable que guarda tu categoría actual 
-                # (si en tu menú lateral el selectbox de categoría tiene un key="categoria", usa ese nombre aquí)
                 categoria_actual = st.session_state.get("categoria", "Práctica General") 
                 
                 user_data = user_ref.get().to_dict()
@@ -1158,9 +1148,9 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 })
             except Exception as e:
                 st.warning(f"No se pudo guardar la métrica en la nube: {e}")
-                        st.session_state.auditor_mode = False # End challenge after advice
-                        st.session_state.last_auditor_response = full_response
-                        st.success("Evaluación Completada.")
+        st.session_state.auditor_mode = False # End challenge after advice
+        st.session_state.last_auditor_response = full_response
+        st.success("Evaluación Completada.")
                         
                     except Exception as e:
                         full_response = f"Error del Auditor: {e}"
@@ -1421,6 +1411,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
