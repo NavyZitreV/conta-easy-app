@@ -904,7 +904,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 else:
                     total_estudiantes = len(estudiantes)
                     xp_total = sum(e.get('xp', 0) for e in estudiantes)
-                    xp_promedio = int(xp_total / total_estudiantes)
+                    xp_promedio = int(xp_total / total_estudiantes) if total_estudiantes > 0 else 0
                     alumnos_en_racha = sum(1 for e in estudiantes if e.get('racha', 0) > 0)
                     
                     # Fila de métricas
@@ -915,17 +915,32 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     
                     st.divider()
                     
-                    # Top 5 Mejores Estudiantes
-                    st.markdown("### 🏆 Top 5 - Cuadro de Honor")
-                    estudiantes_ordenados = sorted(estudiantes, key=lambda x: x.get('xp', 0), reverse=True)[:5]
+                    # DIVIDIR PANTALLA EN 2 COLUMNAS (ÉXITO VS RIESGO)
+                    col_top, col_riesgo = st.columns(2)
                     
-                    # Crear gráfico nativo de Streamlit
-                    datos_grafico = {e.get('nombre', 'Anónimo'): e.get('xp', 0) for e in estudiantes_ordenados if e.get('xp', 0) > 0}
-                    
-                    if datos_grafico:
-                        st.bar_chart(datos_grafico)
-                    else:
-                        st.caption("Aún no hay alumnos con Experiencia (XP) para mostrar en el gráfico.")
+                    with col_top:
+                        st.markdown("### 🏆 Top 5 - Cuadro de Honor")
+                        estudiantes_ordenados = sorted(estudiantes, key=lambda x: x.get('xp', 0), reverse=True)[:5]
+                        datos_grafico = {e.get('nombre', 'Anónimo'): e.get('xp', 0) for e in estudiantes_ordenados if e.get('xp', 0) > 0}
+                        if datos_grafico:
+                            st.bar_chart(datos_grafico)
+                        else:
+                            st.caption("Aún no hay alumnos con Experiencia (XP) para mostrar en el gráfico.")
+                            
+                    with col_riesgo:
+                        st.markdown("### 🚨 Radar de Alerta Temprana")
+                        st.caption("Alumnos inactivos (0 XP). Intervención sugerida.")
+                        
+                        alumnos_riesgo = [e for e in estudiantes if e.get('xp', 0) == 0]
+                        
+                        if len(alumnos_riesgo) > 0:
+                            for ar in alumnos_riesgo:
+                                nombre_ar = ar.get('nombre', 'Sin Nombre')
+                                correo_ar = ar.get('correo', 'Sin Correo')
+                                # Tarjeta roja de alerta
+                                st.error(f"⚠️ **{nombre_ar}** \n\n ✉️ {correo_ar}")
+                        else:
+                            st.success("¡Excelente! Todos los alumnos tienen participación activa en la plataforma.")
     # --- Inicializar memoria del chat ---
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -1336,6 +1351,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
