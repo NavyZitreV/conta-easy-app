@@ -737,35 +737,31 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
     # --- Lógica para mostrar el Panel de Administración ---
     if st.session_state.get("show_admin_panel", False):
         st.markdown("---")
-        st.header("🛠️ Panel de Administración")
+        st.header("🛠️ Panel de Administración y Analíticas")
         
         # Leemos quién está entrando
         mi_institucion = st.session_state.get("user_institucion", "UNICEN")
         mi_rol = st.session_state.get("user_rol", "docente")
         
+        # OPTIMIZACIÓN: Hacemos la consulta a Firebase UNA SOLA VEZ para todas las pestañas
         if mi_rol == "admin":
             st.success("👑 MODO SUPER ADMIN: Viendo datos globales de TODAS las instituciones.")
+            usuarios_ref = db.collection('usuarios').get()
         else:
             st.info(f"👨‍🏫 MODO DOCENTE: Viendo datos exclusivos de {mi_institucion}.")
+            usuarios_ref = db.collection('usuarios').where('rol', '==', 'estudiante').where('institucion', '==', mi_institucion).get()
+            
+        # Filtramos para no auto-bloquearte
+        usuarios_lista = [u for u in usuarios_ref if u.to_dict().get('rol') != 'admin']
 
-        tab_alumnos, tab_casos = st.tabs(["👥 Gestión de Estudiantes", "📚 Gestor de Casos Prácticos"])
+        # NUEVO: TRES PESTAÑAS EN LUGAR DE DOS
+        tab_alumnos, tab_casos, tab_analiticas = st.tabs(["👥 Gestión de Estudiantes", "📚 Gestor de Casos Prácticos", "🧠 Analíticas"])
         
-# PESTAÑA 1: ESTUDIANTES Y DOCENTES
+        # ==========================================
+        # PESTAÑA 1: ESTUDIANTES Y DOCENTES
+        # ==========================================
         with tab_alumnos:
-            # --- EL MURO INTELIGENTE ---
-            if mi_rol == "admin":
-                # El Super Admin trae a TODOS los usuarios de la base de datos
-                usuarios_ref = db.collection('usuarios').get()
-            else:
-                # El Docente solo trae a los ESTUDIANTES de su propia INSTITUCIÓN
-                usuarios_ref = db.collection('usuarios').where('rol', '==', 'estudiante').where('institucion', '==', mi_institucion).get()
-            
-            # Agregamos la columna 'Rol' al Excel
             csv_data = "Nombre Completo;Rol;Carrera;Institucion;Correo Electronico;Experiencia (XP);Racha (Dias)\n"
-            
-            # Filtramos para que tú (admin) no te veas a ti mismo en la lista y evites auto-bloquearte
-            usuarios_lista = [u for u in usuarios_ref if u.to_dict().get('rol') != 'admin']
-            
             st.write(f"**Total de usuarios encontrados:** {len(usuarios_lista)}")
             
             for u in usuarios_lista:
@@ -779,13 +775,12 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 xp = data.get('xp', 0)
                 racha = data.get('racha', 0)
                 estado = data.get('estado', 'activo')
+                acceso_ana = data.get('acceso_analiticas', False)
                 
                 with st.container():
                     col_info, col_btn1, col_btn2, col_btn3 = st.columns([3, 1, 1, 1])
                     with col_info:
                         estado_icono = "🔴 BLOQUEADO" if estado == "bloqueado" else "🟢 ACTIVO"
-                        
-                        # Si eres Admin, te mostramos si es Docente o Estudiante. Si es docente, muestra lo normal.
                         if mi_rol == "admin":
                             etiqueta_rol = "👨‍🏫 DOCENTE" if rol_usuario == "docente" else "🧑‍🎓 ESTUDIANTE"
                             st.info(f"👤 **{nombre}** | 🏛️ {inst_alumno} | {etiqueta_rol} | {estado_icono}")
@@ -799,26 +794,33 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             time.sleep(1)
                             st.rerun()
                     with col_btn2:
-                        if st.button("🔄 XP", key=f"xp_{user_doc_id}", use_container_width=True):
-                            db.collection('usuarios').document(user_doc_id).update({"xp": 0, "racha": 0})
-                            st.toast("✅ Progreso reiniciado")
-                            time.sleep(1)
-                            st.rerun()
+                        # --- EL BOTÓN MÁGICO PARA DAR ACCESO A ANALÍTICAS A LOS DOCENTES ---
+                        if mi_rol == "admin" and rol_usuario == "docente":
+                            if acceso_ana:
+                                if st.button("🚫 Ocultar Analíticas", key=f"ana_{user_doc_id}", use_container_width=True):
+                                    db.collection('usuarios').document(user_doc_id).update({"acceso_analiticas": False})
+                                    st.rerun()
+                            else:
+                                if st.button("📊 Dar Analíticas", key=f"ana_{user_doc_id}", use_container_width=True):
+                                    db.collection('usuarios').document(user_doc_id).update({"acceso_analiticas": True})
+                                    st.rerun()
+                        else:
+                            if st.button("🔄 XP", key=f"xp_{user_doc_id}", use_container_width=True):
+                                db.collection('usuarios').document(user_doc_id).update({"xp": 0, "racha": 0})
+                                st.toast("✅ Progreso reiniciado")
+                                time.sleep(1)
+                                st.rerun()
+                                
                     with col_btn3:
                         if estado == "bloqueado":
                             if st.button("✅ Activar", key=f"unblock_{user_doc_id}", use_container_width=True):
                                 db.collection('usuarios').document(user_doc_id).update({"estado": "activo"})
-                                st.toast("✅ Usuario activado")
-                                time.sleep(1)
                                 st.rerun()
                         else:
                             if st.button("🚫 Bloquear", key=f"block_{user_doc_id}", use_container_width=True):
                                 db.collection('usuarios').document(user_doc_id).update({"estado": "bloqueado"})
-                                st.toast("🚫 Usuario bloqueado")
-                                time.sleep(1)
                                 st.rerun()
 
-                # Guardamos los datos en el Excel
                 csv_data += f"{nombre};{rol_usuario};{carrera};{inst_alumno};{correo};{xp};{racha}\n"
                 
             col1, col2 = st.columns(2)
@@ -829,7 +831,9 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             with col2:
                 st.download_button("📥 Descargar Reporte (Excel)", data=csv_data.encode('utf-8-sig'), file_name=f"Reporte_{datetime.now().strftime('%Y%m%d')}.csv", mime="text/csv", use_container_width=True)
 
+        # ==========================================
         # PESTAÑA 2: SUBIR CASOS (CRUD)
+        # ==========================================
         with tab_casos:
             st.subheader("Subir Nuevo Ejercicio a la Nube")
             with st.form("form_nuevo_caso", clear_on_submit=True):
@@ -843,10 +847,10 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             "categoria": nueva_categoria,
                             "enunciado": f"{nivel_dificultad} {nuevo_enunciado}",
                             "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                            "institucion": mi_institucion # --- EL MURO PARA CASOS ---
+                            "institucion": mi_institucion
                         }
                         db.collection('casos_practicos').add(nuevo_documento)
-                        st.success(f"¡Caso guardado exclusivamente para los alumnos de {mi_institucion}!")
+                        st.success("¡Caso guardado!")
                         time.sleep(1.5)
                         st.rerun()
                     else:
@@ -855,7 +859,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             st.divider()
             st.markdown("### 📚 Casos Subidos en la Nube")
             try:
-                # --- EL MURO PARA VER CASOS ---
                 if mi_rol == "admin":
                     casos_db = db.collection('casos_practicos').get()
                 else:
@@ -876,11 +879,53 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         with col_borrar:
                             if st.button("🗑️ Eliminar", key=f"del_caso_{c_id}", use_container_width=True):
                                 db.collection('casos_practicos').document(c_id).delete()
-                                st.toast("✅ Caso eliminado")
-                                time.sleep(1)
                                 st.rerun()
             except Exception as e:
-                st.warning(f"Error al cargar los casos: {e}")
+                pass
+
+        # ==========================================
+        # PESTAÑA 3: ANALÍTICAS E INTELIGENCIA
+        # ==========================================
+        with tab_analiticas:
+            # Validar permisos
+            mi_usuario_db = db.collection('usuarios').document(st.session_state.user_id).get().to_dict()
+            tiene_permiso = (mi_rol == "admin") or (mi_rol == "docente" and mi_usuario_db.get("acceso_analiticas", False) == True)
+            
+            if not tiene_permiso:
+                st.warning("🔒 No tienes acceso al módulo de analíticas. Solicita la habilitación al Administrador General.")
+            else:
+                st.subheader(f"🧠 Inteligencia Académica - {mi_institucion if mi_rol != 'admin' else 'Global'}")
+                
+                # Calcular métricas basadas en 'usuarios_lista'
+                estudiantes = [u.to_dict() for u in usuarios_lista if u.to_dict().get('rol') == 'estudiante']
+                
+                if len(estudiantes) == 0:
+                    st.info("No hay suficientes datos de estudiantes para generar analíticas.")
+                else:
+                    total_estudiantes = len(estudiantes)
+                    xp_total = sum(e.get('xp', 0) for e in estudiantes)
+                    xp_promedio = int(xp_total / total_estudiantes)
+                    alumnos_en_racha = sum(1 for e in estudiantes if e.get('racha', 0) > 0)
+                    
+                    # Fila de métricas
+                    c1, c2, c3 = st.columns(3)
+                    c1.metric("👥 Estudiantes Activos", total_estudiantes)
+                    c2.metric("⭐ XP Promedio", xp_promedio)
+                    c3.metric("🔥 Alumnos en Racha", alumnos_en_racha)
+                    
+                    st.divider()
+                    
+                    # Top 5 Mejores Estudiantes
+                    st.markdown("### 🏆 Top 5 - Cuadro de Honor")
+                    estudiantes_ordenados = sorted(estudiantes, key=lambda x: x.get('xp', 0), reverse=True)[:5]
+                    
+                    # Crear gráfico nativo de Streamlit
+                    datos_grafico = {e.get('nombre', 'Anónimo'): e.get('xp', 0) for e in estudiantes_ordenados if e.get('xp', 0) > 0}
+                    
+                    if datos_grafico:
+                        st.bar_chart(datos_grafico)
+                    else:
+                        st.caption("Aún no hay alumnos con Experiencia (XP) para mostrar en el gráfico.")
     # --- Inicializar memoria del chat ---
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -1291,6 +1336,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
