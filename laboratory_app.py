@@ -450,14 +450,16 @@ def mostrar_login():
                         user_doc = query[0]
                         user_data = user_doc.to_dict()
                         
-                        # --- NUEVA LÍNEA: VERIFICAR BLOQUEO ---
                         if user_data.get("estado") == "bloqueado":
                             st.error("🚫 Tu cuenta ha sido suspendida. Comunícate con Coordinación.")
-                        # ---------------------------------------
                         elif user_data.get("password") == password:
                             st.session_state.user_id = user_doc.id
                             st.session_state.user_xp = user_data.get("xp", 0)
                             st.session_state.user_streak = user_data.get("racha", 0)
+                            # --- NUEVO: GUARDAR EN MEMORIA EL ROL Y LA INSTITUCIÓN ---
+                            st.session_state.user_rol = user_data.get("rol", "estudiante")
+                            st.session_state.user_institucion = user_data.get("institucion", "UNICEN") 
+                            # ---------------------------------------------------------
                             st.success("¡Sesión iniciada exitosamente!")
                             st.rerun()
                         else:
@@ -465,10 +467,13 @@ def mostrar_login():
                             
         with tab_register:
             nuevo_correo = st.text_input("Correo Electrónico", key="reg_correo")
-            # --- NUEVOS CAMPOS ---
             nombre_reg = st.text_input("Nombre Completo", key="reg_nombre")
             carrera_reg = st.selectbox("Carrera", ["Contaduría Pública", "Ingeniería Financiera", "Administración de Empresas", "Otra"], key="reg_carrera")
-            # ---------------------
+            
+            # --- NUEVO: LISTA DE INSTITUCIONES ---
+            institucion_reg = st.selectbox("Institución", ["UNICEN", "UNIVALLE", "Otra"], key="reg_inst")
+            # -------------------------------------
+            
             nuevo_password = st.text_input("Contraseña", type="password", key="reg_pass")
             
             if st.button("Crear Cuenta", type="primary", use_container_width=True):
@@ -484,22 +489,23 @@ def mostrar_login():
                     else:
                         nuevo_usuario = {
                             "correo": nuevo_correo,
-                            "nombre": nombre_reg,       # Guardamos el nombre
-                            "carrera": carrera_reg,     # Guardamos la carrera
+                            "nombre": nombre_reg,
+                            "carrera": carrera_reg,
+                            "institucion": institucion_reg, # --- NUEVO: GUARDAR INSTITUCIÓN ---
                             "password": nuevo_password,
                             "xp": 0,
                             "racha": 0,
-                            "rol": "estudiante"
+                            "rol": "estudiante",
+                            "estado": "activo"
                         }
                         _, doc_ref = usuarios_ref.add(nuevo_usuario)
                         st.session_state.user_id = doc_ref.id
                         st.session_state.user_xp = 0
                         st.session_state.user_streak = 0
+                        st.session_state.user_rol = "estudiante"
+                        st.session_state.user_institucion = institucion_reg
                         st.success("Cuenta creada exitosamente. ¡Bienvenido!")
                         st.rerun()
-
-
-# --- Main App Logic ---
 def main():
     if "user_id" not in st.session_state:
         mostrar_login()
@@ -1235,6 +1241,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
