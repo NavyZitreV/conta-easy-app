@@ -1160,30 +1160,31 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                 st.toast(f"Obtuviste {score} XP. La racha ha vuelto a cero. ¡Revisa la norma y recupera tu fuego!", icon="🧊")
                             
                         # Update gamification to Firebase
-                        if db is not None:
-                               try:
-                                   user_ref = db.collection('usuarios').document(st.session_state.user_id)
+        if db is not None:
+            try:
+                user_ref = db.collection('usuarios').document(st.session_state.user_id)
                 
-                                   # --- NUEVO: RASTREADOR DE TEMAS PARA EL TERMÓMETRO ---
-                                   categoria_actual = st.session_state.get("categoria", "Práctica General") 
+                # --- NUEVO: RASTREADOR DE TEMAS PARA EL TERMÓMETRO ---
+                categoria_actual = st.session_state.get("categoria", "Práctica General")
                 
-                                   user_data = user_ref.get().to_dict()
-                                   rendimiento = user_data.get("rendimiento_categorias", {})
+                user_data = user_ref.get().to_dict()
+                rendimiento = user_data.get("rendimiento_categorias", {})
                 
-                                  # Le sumamos los puntos que acaba de ganar al tema específico
-                                  rendimiento[categoria_actual] = rendimiento.get(categoria_actual, 0) + score
-                                  # -----------------------------------------------------
+                # Le sumamos los puntos que acaba de ganar al tema específico
+                rendimiento[categoria_actual] = rendimiento.get(categoria_actual, 0) + score
+                # -----------------------------------------------------
 
-                                  user_ref.update({
-                                      "xp": st.session_state.user_xp,
-                                      "racha": st.session_state.user_streak,
-                                      "rendimiento_categorias": rendimiento # Guardamos el termómetro actualizado
-                                  })
-                               except Exception as e:
-                                  st.warning(f"No se pudo guardar la métrica en la nube: {e}")
-                        st.session_state.auditor_mode = False # End challenge after advice
-                        st.session_state.last_auditor_response = full_response
-                        st.success("Evaluación Completada.")
+                user_ref.update({
+                    "xp": st.session_state.user_xp,
+                    "racha": st.session_state.user_streak,
+                    "rendimiento_categorias": rendimiento # Guardamos el termómetro actualizado
+                })
+            except Exception as e:
+                st.warning(f"No se pudo guardar la métrica en la nube: {e}")
+
+        st.session_state.auditor_mode = False # End challenge after advice
+        st.session_state.last_auditor_response = full_response
+        st.success("Evaluación Completada.")
                         
                     except Exception as e:
                         full_response = f"Error del Auditor: {e}"
@@ -1444,6 +1445,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
