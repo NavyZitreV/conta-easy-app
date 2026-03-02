@@ -247,20 +247,32 @@ def load_local_data():
         st.error("Error: data/topics_content.json no encontrado.")
         return []
 
-@st.cache_data
 def load_laboratory_cases():
+    cases = {}
+    # 1. Cargar locales (JSON original)
     try:
         base_path = os.path.dirname(os.path.abspath(__file__))
         file_path = os.path.join(base_path, 'data', 'laboratory_cases.json')
-        
         with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        st.error(f"Error: No se encontró el archivo en {file_path}")
-        return {}
-    except json.JSONDecodeError as e:
-        st.error(f"Error descifrando JSON: {e}")
-        return {}
+            cases = json.load(f)
+    except Exception:
+        pass
+        
+    # 2. Cargar de Firebase (Casos subidos por docentes)
+    if db is not None:
+        try:
+            casos_nube = db.collection('casos_practicos').get()
+            for doc in casos_nube:
+                data = doc.to_dict()
+                cat = data.get('categoria', 'Categoría Personalizada')
+                enunciado = data.get('enunciado', '')
+                if cat not in cases:
+                    cases[cat] = []
+                cases[cat].append(enunciado)
+        except Exception:
+            pass
+            
+    return cases
 
 def normalize_text(text):
     if not isinstance(text, str): return ""
@@ -704,77 +716,98 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
     # --- Lógica para mostrar el Panel de Administración ---
     if st.session_state.get("show_admin_panel", False):
         st.markdown("---")
-        st.header("📊 Panel de Gestión de Estudiantes")
+        st.header("🛠️ Panel de Administración General")
         
-        # Traer lista de alumnos de Firebase
-        usuarios_ref = db.collection('usuarios').where('rol', '==', 'estudiante').get()
+        tab_alumnos, tab_casos = st.tabs(["👥 Gestión de Estudiantes", "📚 Gestor de Casos Prácticos"])
         
-        # Preparar los datos para el archivo de Excel (CSV)
-        csv_data = "Nombre Completo;Carrera;Correo Electronico;Experiencia (XP);Racha (Dias)\n"
-        st.write(f"**Total de alumnos registrados:** {len(usuarios_ref)}")
-        
-        for u in usuarios_ref:
-            data = u.to_dict()
-            user_doc_id = u.id
-            correo = data.get('correo', 'Desconocido')
-            nombre = data.get('nombre', 'Sin Nombre Registrado')
-            carrera = data.get('carrera', 'Sin Carrera')
-            xp = data.get('xp', 0)
-            racha = data.get('racha', 0)
-            estado = data.get('estado', 'activo') # Por defecto todos son activos
+        # PESTAÑA 1: ESTUDIANTES
+        with tab_alumnos:
+            usuarios_ref = db.collection('usuarios').where('rol', '==', 'estudiante').get()
+            csv_data = "Nombre Completo;Carrera;Correo Electronico;Experiencia (XP);Racha (Dias)\n"
+            st.write(f"**Total de alumnos registrados:** {len(usuarios_ref)}")
             
-            # Crear un contenedor con 4 columnas
-            with st.container():
-                col_info, col_btn1, col_btn2, col_btn3 = st.columns([3, 1, 1, 1])
+            for u in usuarios_ref:
+                data = u.to_dict()
+                user_doc_id = u.id
+                correo = data.get('correo', 'Desconocido')
+                nombre = data.get('nombre', 'Sin Nombre Registrado')
+                carrera = data.get('carrera', 'Sin Carrera')
+                xp = data.get('xp', 0)
+                racha = data.get('racha', 0)
+                estado = data.get('estado', 'activo')
                 
-                with col_info:
-                    estado_icono = "🔴 BLOQUEADO" if estado == "bloqueado" else "🟢 ACTIVO"
-                    st.info(f"👤 **{nombre}** ({carrera}) | XP: {xp} | {estado_icono}")
-                
-                with col_btn1:
-                    if st.button("🔑 Reset Pass", key=f"pass_{user_doc_id}", help="Cambia la contraseña a 123456", use_container_width=True):
-                        db.collection('usuarios').document(user_doc_id).update({"password": "123456"})
-                        st.toast(f"✅ Contraseña cambiada a 123456")
-                        time.sleep(1)
-                        st.rerun()
-                        
-                with col_btn2:
-                    if st.button("🔄 Reset XP", key=f"xp_{user_doc_id}", help="Reinicia XP y Racha", use_container_width=True):
-                        db.collection('usuarios').document(user_doc_id).update({"xp": 0, "racha": 0})
-                        st.toast(f"✅ Progreso reiniciado a 0")
-                        time.sleep(1)
-                        st.rerun()
-                        
-                with col_btn3:
-                    if estado == "bloqueado":
-                        if st.button("✅ Desbloquear", key=f"unblock_{user_doc_id}", use_container_width=True):
-                            db.collection('usuarios').document(user_doc_id).update({"estado": "activo"})
-                            st.toast(f"✅ Usuario activado")
+                with st.container():
+                    col_info, col_btn1, col_btn2, col_btn3 = st.columns([3, 1, 1, 1])
+                    with col_info:
+                        estado_icono = "🔴 BLOQUEADO" if estado == "bloqueado" else "🟢 ACTIVO"
+                        st.info(f"👤 **{nombre}** ({carrera}) | XP: {xp} | {estado_icono}")
+                    with col_btn1:
+                        if st.button("🔑 Reset Pass", key=f"pass_{user_doc_id}", help="Cambia la contraseña a 123456", use_container_width=True):
+                            db.collection('usuarios').document(user_doc_id).update({"password": "123456"})
+                            st.toast(f"✅ Contraseña cambiada")
                             time.sleep(1)
                             st.rerun()
-                    else:
-                        if st.button("🚫 Bloquear", key=f"block_{user_doc_id}", use_container_width=True):
-                            db.collection('usuarios').document(user_doc_id).update({"estado": "bloqueado"})
-                            st.toast(f"🚫 Usuario bloqueado")
+                    with col_btn2:
+                        if st.button("🔄 Reset XP", key=f"xp_{user_doc_id}", help="Reinicia XP y Racha", use_container_width=True):
+                            db.collection('usuarios').document(user_doc_id).update({"xp": 0, "racha": 0})
+                            st.toast(f"✅ Progreso reiniciado")
                             time.sleep(1)
                             st.rerun()
+                    with col_btn3:
+                        if estado == "bloqueado":
+                            if st.button("✅ Desbloquear", key=f"unblock_{user_doc_id}", use_container_width=True):
+                                db.collection('usuarios').document(user_doc_id).update({"estado": "activo"})
+                                st.toast(f"✅ Usuario activado")
+                                time.sleep(1)
+                                st.rerun()
+                        else:
+                            if st.button("🚫 Bloquear", key=f"block_{user_doc_id}", use_container_width=True):
+                                db.collection('usuarios').document(user_doc_id).update({"estado": "bloqueado"})
+                                st.toast(f"🚫 Usuario bloqueado")
+                                time.sleep(1)
+                                st.rerun()
 
-            csv_data += f"{nombre};{carrera};{correo};{xp};{racha}\n"
-            
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("❌ Cerrar Panel", use_container_width=True):
-                st.session_state.show_admin_panel = False
-                st.rerun()
-        with col2:
-            st.download_button(
-                label="📥 Descargar Reporte (Excel)",
-                data=csv_data.encode('utf-8-sig'),
-                file_name=f"Reporte_Laboratorio_{datetime.now().strftime('%Y%m%d')}.csv",
-                mime="text/csv",
-                use_container_width=True
-            )
-            # --- Pantalla de Bienvenida (Solo si no hay mensajes) ---
+                csv_data += f"{nombre};{carrera};{correo};{xp};{racha}\n"
+                
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("❌ Cerrar Panel", use_container_width=True):
+                    st.session_state.show_admin_panel = False
+                    st.rerun()
+            with col2:
+                st.download_button("📥 Descargar Reporte (Excel)", data=csv_data.encode('utf-8-sig'), file_name=f"Reporte_{datetime.now().strftime('%Y%m%d')}.csv", mime="text/csv", use_container_width=True)
+
+        # PESTAÑA 2: SUBIR CASOS (CRUD)
+        with tab_casos:
+            st.subheader("Subir Nuevo Ejercicio a la Nube")
+            with st.form("form_nuevo_caso"):
+                nueva_categoria = st.text_input("Categoría (Ej. 'Ajustes Contables', 'Pasivos', etc.)")
+                nivel_dificultad = st.selectbox("Nivel de Dificultad", ["[BÁSICO]", "[INTERMEDIO]", "[AVANZADO]"])
+                nuevo_enunciado = st.text_area("Enunciado del Caso Práctico")
+                
+                if st.form_submit_button("💾 Guardar Caso", type="primary"):
+                    if nueva_categoria and nuevo_enunciado:
+                        nuevo_documento = {
+                            "categoria": nueva_categoria,
+                            "enunciado": f"{nivel_dificultad} {nuevo_enunciado}",
+                            "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        }
+                        db.collection('casos_practicos').add(nuevo_documento)
+                        st.success("¡Caso guardado exitosamente en la base de datos!")
+                        time.sleep(1.5)
+                        st.rerun()
+                    else:
+                        st.error("Por favor completa la categoría y el enunciado.")
+                        
+            st.divider()
+            st.markdown("### 📚 Casos Subidos por Docentes (Nube)")
+            try:
+                casos_db = db.collection('casos_practicos').get()
+                for c in casos_db:
+                    c_data = c.to_dict()
+                    st.info(f"📁 **{c_data.get('categoria')}**: {c_data.get('enunciado')}")
+            except Exception:
+                st.warning("Aún no hay casos personalizados en la nube.")
     # --- Inicializar memoria del chat ---
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -1185,6 +1218,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
