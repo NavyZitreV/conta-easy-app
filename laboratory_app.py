@@ -750,20 +750,28 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
         tab_alumnos, tab_casos = st.tabs(["👥 Gestión de Estudiantes", "📚 Gestor de Casos Prácticos"])
         
-        # PESTAÑA 1: ESTUDIANTES
+# PESTAÑA 1: ESTUDIANTES Y DOCENTES
         with tab_alumnos:
-            # --- EL MURO PARA ESTUDIANTES ---
+            # --- EL MURO INTELIGENTE ---
             if mi_rol == "admin":
-                usuarios_ref = db.collection('usuarios').where('rol', '==', 'estudiante').get()
+                # El Super Admin trae a TODOS los usuarios de la base de datos
+                usuarios_ref = db.collection('usuarios').get()
             else:
+                # El Docente solo trae a los ESTUDIANTES de su propia INSTITUCIÓN
                 usuarios_ref = db.collection('usuarios').where('rol', '==', 'estudiante').where('institucion', '==', mi_institucion).get()
             
-            csv_data = "Nombre Completo;Carrera;Institucion;Correo Electronico;Experiencia (XP);Racha (Dias)\n"
-            st.write(f"**Total de alumnos encontrados:** {len(usuarios_ref)}")
+            # Agregamos la columna 'Rol' al Excel
+            csv_data = "Nombre Completo;Rol;Carrera;Institucion;Correo Electronico;Experiencia (XP);Racha (Dias)\n"
             
-            for u in usuarios_ref:
+            # Filtramos para que tú (admin) no te veas a ti mismo en la lista y evites auto-bloquearte
+            usuarios_lista = [u for u in usuarios_ref if u.to_dict().get('rol') != 'admin']
+            
+            st.write(f"**Total de usuarios encontrados:** {len(usuarios_lista)}")
+            
+            for u in usuarios_lista:
                 data = u.to_dict()
                 user_doc_id = u.id
+                rol_usuario = data.get('rol', 'estudiante')
                 correo = data.get('correo', 'Desconocido')
                 nombre = data.get('nombre', 'Sin Nombre Registrado')
                 carrera = data.get('carrera', 'Sin Carrera')
@@ -776,13 +784,18 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     col_info, col_btn1, col_btn2, col_btn3 = st.columns([3, 1, 1, 1])
                     with col_info:
                         estado_icono = "🔴 BLOQUEADO" if estado == "bloqueado" else "🟢 ACTIVO"
-                        # Etiqueta visual solo para el Admin
-                        etiqueta_inst = f"🏛️ {inst_alumno} | " if mi_rol == "admin" else ""
-                        st.info(f"👤 **{nombre}** | {etiqueta_inst}{carrera} | XP: {xp} | {estado_icono}")
+                        
+                        # Si eres Admin, te mostramos si es Docente o Estudiante. Si es docente, muestra lo normal.
+                        if mi_rol == "admin":
+                            etiqueta_rol = "👨‍🏫 DOCENTE" if rol_usuario == "docente" else "🧑‍🎓 ESTUDIANTE"
+                            st.info(f"👤 **{nombre}** | 🏛️ {inst_alumno} | {etiqueta_rol} | {estado_icono}")
+                        else:
+                            st.info(f"👤 **{nombre}** | {carrera} | XP: {xp} | {estado_icono}")
+                            
                     with col_btn1:
                         if st.button("🔑 Reset", key=f"pass_{user_doc_id}", use_container_width=True):
                             db.collection('usuarios').document(user_doc_id).update({"password": "123456"})
-                            st.toast("✅ Contraseña cambiada")
+                            st.toast("✅ Contraseña cambiada a 123456")
                             time.sleep(1)
                             st.rerun()
                     with col_btn2:
@@ -805,7 +818,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                 time.sleep(1)
                                 st.rerun()
 
-                csv_data += f"{nombre};{carrera};{inst_alumno};{correo};{xp};{racha}\n"
+                # Guardamos los datos en el Excel
+                csv_data += f"{nombre};{rol_usuario};{carrera};{inst_alumno};{correo};{xp};{racha}\n"
                 
             col1, col2 = st.columns(2)
             with col1:
@@ -1277,6 +1291,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
