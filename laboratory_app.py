@@ -896,7 +896,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             else:
                 st.subheader(f"🧠 Inteligencia Académica - {mi_institucion if mi_rol != 'admin' else 'Global'}")
                 
-                # Calcular métricas basadas en 'usuarios_lista'
                 estudiantes = [u.to_dict() for u in usuarios_lista if u.to_dict().get('rol') == 'estudiante']
                 
                 if len(estudiantes) == 0:
@@ -907,7 +906,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     xp_promedio = int(xp_total / total_estudiantes) if total_estudiantes > 0 else 0
                     alumnos_en_racha = sum(1 for e in estudiantes if e.get('racha', 0) > 0)
                     
-                    # Fila de métricas
                     c1, c2, c3 = st.columns(3)
                     c1.metric("👥 Estudiantes Activos", total_estudiantes)
                     c2.metric("⭐ XP Promedio", xp_promedio)
@@ -915,7 +913,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     
                     st.divider()
                     
-                    # DIVIDIR PANTALLA EN 2 COLUMNAS (ÉXITO VS RIESGO)
+                    # --- FILA 1: TOP 5 Y RIESGO ---
                     col_top, col_riesgo = st.columns(2)
                     
                     with col_top:
@@ -925,22 +923,39 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         if datos_grafico:
                             st.bar_chart(datos_grafico)
                         else:
-                            st.caption("Aún no hay alumnos con Experiencia (XP) para mostrar en el gráfico.")
+                            st.caption("Aún no hay alumnos con Experiencia (XP) para mostrar.")
                             
                     with col_riesgo:
                         st.markdown("### 🚨 Radar de Alerta Temprana")
                         st.caption("Alumnos inactivos (0 XP). Intervención sugerida.")
-                        
                         alumnos_riesgo = [e for e in estudiantes if e.get('xp', 0) == 0]
-                        
                         if len(alumnos_riesgo) > 0:
                             for ar in alumnos_riesgo:
                                 nombre_ar = ar.get('nombre', 'Sin Nombre')
                                 correo_ar = ar.get('correo', 'Sin Correo')
-                                # Tarjeta roja de alerta
                                 st.error(f"⚠️ **{nombre_ar}** \n\n ✉️ {correo_ar}")
                         else:
-                            st.success("¡Excelente! Todos los alumnos tienen participación activa en la plataforma.")
+                            st.success("¡Excelente! Todos los alumnos tienen participación activa.")
+                            
+                    # --- FILA 2: NUEVO COMPORTAMIENTO IA ---
+                    st.divider()
+                    st.markdown("### 🤖 Comportamiento de Aprendizaje (Uso de IA)")
+                    st.caption("Mide la confianza del grupo: ¿Buscan ayuda o se ponen a prueba?")
+                    
+                    total_tutor = sum(e.get('uso_tutor', 0) for e in estudiantes)
+                    total_auditor = sum(e.get('uso_auditor', 0) for e in estudiantes)
+                    
+                    col_t1, col_t2 = st.columns(2)
+                    with col_t1:
+                        st.info(f"🧑‍🏫 **Tutor Analista (Fase Aprendizaje):** {total_tutor} consultas")
+                    with col_t2:
+                        st.success(f"🕵️ **Reto Auditor (Fase Evaluación):** {total_auditor} intentos")
+                        
+                    if total_tutor > 0 or total_auditor > 0:
+                        datos_ia = {"Tutor Analista": total_tutor, "Reto Auditor": total_auditor}
+                        st.bar_chart(datos_ia)
+                    else:
+                        st.caption("Aún no hay suficientes datos de interacción con la IA para graficar.")
     # --- Inicializar memoria del chat ---
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -1005,7 +1020,23 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
-
+            
+        # --- RASTREADOR DE IA PARA ANALÍTICAS ---
+        if st.session_state.get("user_id"):
+            try:
+                user_ref = db.collection('usuarios').document(st.session_state.user_id)
+                user_data = user_ref.get().to_dict()
+                
+                # Leemos la variable exacta de tu código (línea 1036)
+                es_auditor = st.session_state.get("auditor_mode", False) 
+                
+                if es_auditor:
+                    user_ref.update({"uso_auditor": user_data.get("uso_auditor", 0) + 1})
+                else:
+                    user_ref.update({"uso_tutor": user_data.get("uso_tutor", 0) + 1})
+            except Exception as e:
+                pass
+        # ----------------------------------------
         with st.chat_message("assistant"):
             response_container = st.empty()
             full_response = ""
@@ -1351,6 +1382,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.error(f"Error al generar el balance: {e}")
 if __name__ == "__main__":
     main()
+
 
 
 
