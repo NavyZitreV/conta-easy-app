@@ -737,9 +737,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         else:
             st.warning("⚠️ No se encontraron casos de laboratorio. Verifica data/laboratory_cases.json")
 
-        st.divider()
-        st.header("🏢 Proyecto: Ciclo Contable")
-        
+           
         st.divider()
         st.header("🏢 Proyecto: Ciclo Contable")
         
@@ -1481,6 +1479,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
