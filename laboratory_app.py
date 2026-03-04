@@ -779,7 +779,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             if st.button("📊 Generar EEFF", type="primary"):
                 if len(st.session_state.project_transactions) > 0:
                     st.session_state.generate_project_balance = True
-                    # Al generar, limpiamos el bolsillo de la nube para el próximo proyecto
+                    # Limpiamos Firebase al terminar
                     if db is not None:
                         try:
                             db.collection('usuarios').document(st.session_state.user_id).update({"proyecto_en_curso": []})
@@ -790,26 +790,12 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             if st.button("❌ Cancelar Proyecto"):
                 st.session_state.project_mode = False
                 st.session_state.project_transactions = []
-                # Si cancela, también limpiamos la nube
+                # Limpiamos Firebase al cancelar
                 if db is not None:
                     try:
                         db.collection('usuarios').document(st.session_state.user_id).update({"proyecto_en_curso": []})
                     except: pass
                 st.session_state.messages.append({"role": "assistant", "content": "Proyecto cancelado y borrado de la nube. Volviendo al modo normal."})
-                st.rerun()
-        else:
-            st.info(f"Transacciones registradas: {len(st.session_state.get('project_transactions', []))}")
-            
-            if st.button("📊 Generar EEFF", type="primary"):
-                if len(st.session_state.project_transactions) > 0:
-                    st.session_state.generate_project_balance = True
-                else:
-                    st.warning("Debes ingresar al menos una transacción en el chat.")
-            
-            if st.button("❌ Cancelar Proyecto"):
-                st.session_state.project_mode = False
-                st.session_state.project_transactions = []
-                st.session_state.messages.append({"role": "assistant", "content": "Proyecto cancelado. Volviendo al modo normal."})
                 st.rerun()
 
     # --- Lógica para mostrar el Panel de Administración ---
@@ -1479,6 +1465,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
