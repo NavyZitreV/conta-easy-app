@@ -201,46 +201,67 @@ def generar_pdf(markdown_content):
 
     return bytes(pdf.output())
     
-# --- NUEVA FUNCIÓN: EXPORTAR A EXCEL ---
-def generar_excel_ciclo(transacciones):
+# --- NUEVA FUNCIÓN: EXPORTAR A EXCEL (LECTURA INTELIGENTE DE TABLAS) ---
+def generar_excel_ciclo(markdown_text, transacciones):
     output = io.BytesIO()
     
-    # --- MOTOR DE PROCESAMIENTO CONTABLE ---
-    datos_diario = []
-    totales_cuentas = {}
-
-    for i, t in enumerate(transacciones):
-        lineas = t.split('\n')
-        for linea in lineas:
-            montos = re.findall(r'\d+(?:[.,]\d+)?', linea)
-            if montos:
-                monto_limpio = montos[0].replace('.', '').replace(',', '.')
-                monto_float = float(monto_limpio)
-                cuenta = re.sub(r'[^a-zA-Z\s]', '', linea).strip()
-                
-                if len(cuenta) > 3:
-                    datos_diario.append({"Asiento": i+1, "Cuenta": cuenta, "Monto (Bs.)": monto_float})
-                    totales_cuentas[cuenta] = totales_cuentas.get(cuenta, 0) + monto_float
-
-    # --- CREACIÓN DEL ARCHIVO ESTRUCTURADO ---
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        df_diario = pd.DataFrame(datos_diario) if datos_diario else pd.DataFrame({"Glosa/Enunciado": transacciones})
-        df_diario.to_excel(writer, sheet_name='Libro Diario', index=False)
+        # 1. Hoja de Enunciados (Lo que el alumno escribió)
+        df_enunciados = pd.DataFrame({"N°": range(1, len(transacciones)+1), "Transacción": transacciones})
+        df_enunciados.to_excel(writer, sheet_name='Enunciados', index=False)
         
-        if totales_cuentas:
-            df_mayores = pd.DataFrame([
-                {"Cuenta": k, "Debe (Bs.)": v, "Haber (Bs.)": 0, "Saldo": v} 
-                for k, v in totales_cuentas.items()
-            ])
+        # 2. Escanear el texto de la IA buscando tablas Markdown
+        lineas = markdown_text.split('\n')
+        tablas = []
+        tabla_actual = []
+        
+        for linea in lineas:
+            if linea.strip().startswith('|'):
+                tabla_actual.append(linea.strip())
+            else:
+                if tabla_actual:
+                    tablas.append(tabla_actual)
+                    tabla_actual = []
+        if tabla_actual:
+            tablas.append(tabla_actual)
+        
+        diario_filas = []
+        diario_headers = ["Fecha", "Detalle / Cuenta", "Debe (Bs.)", "Haber (Bs.)"]
+        
+        # 3. Clasificar cada tabla encontrada y enviarla a su pestaña
+        for tabla in tablas:
+            if len(tabla) < 3: continue # Ignorar tablas incompletas
+            
+            encabezados = [c.strip() for c in tabla[0].split('|')[1:-1]]
+            str_headers = " ".join(encabezados).upper()
+            
+            datos = []
+            for fila in tabla[2:]:
+                celdas = [c.strip() for c in fila.split('|')[1:-1]]
+                while len(celdas) < len(encabezados): celdas.append("")
+                datos.append(celdas[:len(encabezados)])
+                
+            # Clasificador Automático
+            if "FECHA" in str_headers and "DEBE" in str_headers:
+                diario_filas.extend(datos)
+                diario_filas.append(["", "---", "", ""]) # Separador visual entre asientos
+            elif "SUMAS DEBE" in str_headers or "SALDO DEUDOR" in str_headers:
+                pd.DataFrame(datos, columns=encabezados).to_excel(writer, sheet_name='Balance Comprobación', index=False)
+            elif "CONCEPTO" in str_headers and "MONTO" in str_headers:
+                pd.DataFrame(datos, columns=encabezados).to_excel(writer, sheet_name='Estado Resultados', index=False)
+            elif "ACTIVO" in str_headers and "PASIVO" in str_headers:
+                pd.DataFrame(datos, columns=encabezados).to_excel(writer, sheet_name='Balance General', index=False)
+        
+        # Guardar Libro Diario consolidado
+        if diario_filas:
+            df_diario = pd.DataFrame(diario_filas, columns=diario_headers)
+            df_diario.to_excel(writer, sheet_name='Libro Diario', index=False)
         else:
-            df_mayores = pd.DataFrame(columns=["Cuenta", "Debe (Bs.)", "Haber (Bs.)", "Saldo"])
-        df_mayores.to_excel(writer, sheet_name='Mayores', index=False)
+            pd.DataFrame(columns=diario_headers).to_excel(writer, sheet_name='Libro Diario', index=False)
         
-        df_eeff = df_mayores.copy()
-        df_eeff.to_excel(writer, sheet_name='Estados Financieros', index=False)
-
+        # Ajuste profesional de ancho de columnas
         for sheet in writer.sheets.values():
-            sheet.set_column('A:Z', 30)
+            sheet.set_column('A:Z', 22)
 
     return output.getvalue()
 
@@ -1026,7 +1047,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.download_button(label="📄 Descargar Balance y EDFF en PDF", data=pdf_bytes, file_name="Proyecto_Ciclo_Contable.pdf", mime="application/pdf", key=f"pdf_chat_hist_{len(st.session_state.messages)}")
                     
                     # --- MANTENER EL BOTÓN DE EXCEL EN MEMORIA ---
-                    excel_bytes = generar_excel_ciclo(st.session_state.get('project_transactions', []))
+                    excel_bytes = generar_excel_ciclo(message["content"], st.session_state.get('project_transactions', []))
                     st.download_button(
                         label="📥 Descargar Planilla de Trabajo (Excel)",
                         data=excel_bytes,
@@ -1408,5 +1429,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
