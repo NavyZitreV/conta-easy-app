@@ -199,33 +199,53 @@ def generar_pdf(markdown_content):
 
     return bytes(pdf.output())
     
-# --- NUEVA FUNCIÓN: EXPORTAR A EXCEL ---
-import pandas as pd
-import io
+import re
 
 def generar_excel_ciclo(transacciones):
-    # Crear un buffer en memoria para el archivo
     output = io.BytesIO()
     
-    # Usar ExcelWriter con el motor xlsxwriter
+    # --- MOTOR DE PROCESAMIENTO CONTABLE ---
+    datos_diario = []
+    totales_cuentas = {}
+
+    for i, t in enumerate(transacciones):
+        lineas = t.split('\n')
+        for linea in lineas:
+            # Detectar montos numéricos
+            montos = re.findall(r'\d+(?:[.,]\d+)?', linea)
+            if montos:
+                # Limpiar y convertir a float
+                monto_float = float(montos[0].replace('.', '').replace(',', '.'))
+                # Extraer nombre de la cuenta (solo letras)
+                cuenta = re.sub(r'[^a-zA-Z\s]', '', linea).strip()
+                if len(cuenta) > 3:
+                    datos_diario.append({"Asiento": i+1, "Cuenta": cuenta, "Monto (Bs.)": monto_float})
+                    # Acumular para los Mayores
+                    totales_cuentas[cuenta] = totales_cuentas.get(cuenta, 0) + monto_float
+
+    # --- CREACIÓN DEL ARCHIVO ESTRUCTURADO ---
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        # 1. Hoja de transacciones (Libro Diario simplificado)
-        df_diario = pd.DataFrame({
-            "N°": range(1, len(transacciones) + 1),
-            "Glosa / Enunciado": transacciones
-        })
+        # Hoja 1: Libro Diario con datos extraídos
+        df_diario = pd.DataFrame(datos_diario) if datos_diario else pd.DataFrame({"Glosa": transacciones})
         df_diario.to_excel(writer, sheet_name='Libro Diario', index=False)
         
-        # 2. Hojas de trabajo (Plantillas para el alumno)
-        df_mayores = pd.DataFrame(columns=["Código", "Cuenta", "Debe (Bs.)", "Haber (Bs.)", "Saldo"])
+        # Hoja 2: Mayores con traspaso automático
+        if totales_cuentas:
+            df_mayores = pd.DataFrame([
+                {"Cuenta": k, "Debe (Bs.)": v, "Haber (Bs.)": 0, "Saldo": v} 
+                for k, v in totales_cuentas.items()
+            ])
+        else:
+            df_mayores = pd.DataFrame(columns=["Cuenta", "Debe (Bs.)", "Haber (Bs.)", "Saldo"])
         df_mayores.to_excel(writer, sheet_name='Mayores', index=False)
         
-        df_eeff = pd.DataFrame(columns=["Cuenta", "Balance General", "Estado de Resultados"])
+        # Hoja 3: Estados Financieros (Resumen de Saldos)
+        df_eeff = df_mayores.copy()
         df_eeff.to_excel(writer, sheet_name='Estados Financieros', index=False)
-        
-        # Ajustar ancho de columnas automáticamente
+
+        # Formato visual de columnas
         for sheet in writer.sheets.values():
-            sheet.set_column('A:Z', 25)
+            sheet.set_column('A:Z', 30)
 
     return output.getvalue()
 
@@ -1365,7 +1385,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     # --- BOTÓN DE EXCEL CON ICONO PROFESIONAL ---
                     excel_bytes = generar_excel_ciclo(st.session_state.project_transactions)
                     st.download_button(
-                        label=":material/table_view: Descargar Planilla de Trabajo (Excel)",
+                        label=":material/spreadsheet: Descargar Planilla de Trabajo (Excel)",
                         data=excel_bytes,
                         file_name=f"Planilla_Contable_{datetime.now().strftime('%Y%m%d')}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -1376,5 +1396,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
