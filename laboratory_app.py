@@ -740,12 +740,64 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         st.divider()
         st.header("🏢 Proyecto: Ciclo Contable")
         
+        st.divider()
+        st.header("🏢 Proyecto: Ciclo Contable")
+        
         if not st.session_state.get("project_mode", False):
-            if st.button("🚀 Iniciar Nuevo Proyecto"):
+            if st.button("🚀 Iniciar / Retomar Proyecto"):
                 st.session_state.pending_sound = "audio/rocket.mp3" 
                 st.session_state.project_mode = True
+                
+                # --- MAGIA: RECUPERAR DE FIREBASE ---
+                transacciones_guardadas = []
+                if db is not None:
+                    try:
+                        user_data = db.collection('usuarios').document(st.session_state.user_id).get().to_dict()
+                        transacciones_guardadas = user_data.get("proyecto_en_curso", [])
+                    except Exception:
+                        pass
+                
+                st.session_state.project_transactions = transacciones_guardadas
+                
+                if len(transacciones_guardadas) > 0:
+                    st.session_state.messages.append({"role": "assistant", "content": f"☁️ **¡Proyecto Retomado!**\n\nHe recuperado **{len(transacciones_guardadas)} transacciones** de la nube. Puedes continuar ingresando la siguiente."})
+                else:
+                    st.session_state.messages.append({"role": "assistant", "content": "🏢 **¡Modo Proyecto Iniciado!**\n\nVamos a simular un ciclo contable. Escribe tus transacciones una por una en el chat.\n\nEl sistema las guardará. Recuerda usar el botón **'💾 Guardar Avance'** de la barra lateral periódicamente para no perder tu progreso."})
+                st.rerun()
+        else:
+            st.info(f"Transacciones registradas: {len(st.session_state.get('project_transactions', []))}")
+            
+            # --- NUEVO BOTÓN: GUARDAR AVANCE ---
+            if st.button("💾 Guardar Avance"):
+                if db is not None:
+                    try:
+                        db.collection('usuarios').document(st.session_state.user_id).update({
+                            "proyecto_en_curso": st.session_state.project_transactions
+                        })
+                        st.toast("✅ Avance guardado en la nube exitosamente", icon="☁️")
+                    except Exception as e:
+                        st.error(f"Error al guardar: {e}")
+                        
+            if st.button("📊 Generar EEFF", type="primary"):
+                if len(st.session_state.project_transactions) > 0:
+                    st.session_state.generate_project_balance = True
+                    # Al generar, limpiamos el bolsillo de la nube para el próximo proyecto
+                    if db is not None:
+                        try:
+                            db.collection('usuarios').document(st.session_state.user_id).update({"proyecto_en_curso": []})
+                        except: pass
+                else:
+                    st.warning("Debes ingresar al menos una transacción en el chat.")
+            
+            if st.button("❌ Cancelar Proyecto"):
+                st.session_state.project_mode = False
                 st.session_state.project_transactions = []
-                st.session_state.messages.append({"role": "assistant", "content": "🏢 **¡Modo Proyecto Iniciado!**\n\nVamos a simular un ciclo contable. Escribe tus transacciones una por una en el chat (ej. 'Transacción 1: Inicio de actividades con 50.000 Bs en caja...').\n\nEl sistema las guardará. Cuando termines todas, presiona el botón **'Generar EEFF'** en la barra lateral."})
+                # Si cancela, también limpiamos la nube
+                if db is not None:
+                    try:
+                        db.collection('usuarios').document(st.session_state.user_id).update({"proyecto_en_curso": []})
+                    except: pass
+                st.session_state.messages.append({"role": "assistant", "content": "Proyecto cancelado y borrado de la nube. Volviendo al modo normal."})
                 st.rerun()
         else:
             st.info(f"Transacciones registradas: {len(st.session_state.get('project_transactions', []))}")
@@ -1429,6 +1481,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
