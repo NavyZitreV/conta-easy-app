@@ -1362,10 +1362,10 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         mime="application/pdf",
                         key=f"pdf_proyecto_inmediato_{len(st.session_state.messages)}"
                     )
-                    # --- NUEVO: BOTÓN DE EXCEL ---
+                    # --- BOTÓN DE EXCEL CON ICONO PROFESIONAL ---
                     excel_bytes = generar_excel_ciclo(st.session_state.project_transactions)
                     st.download_button(
-                        label="📊 Descargar Planilla de Trabajo (Excel)",
+                        label=":material/table_view: Descargar Planilla de Trabajo (Excel)",
                         data=excel_bytes,
                         file_name=f"Planilla_Contable_{datetime.now().strftime('%Y%m%d')}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -1376,4 +1376,5 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
