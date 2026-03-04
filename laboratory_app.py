@@ -1024,6 +1024,16 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 elif "# 📊 REPORTE DEL CICLO CONTABLE Y ESTADOS FINANCIEROS FINALES" in message["content"]:
                     pdf_bytes = generar_pdf(message["content"])
                     st.download_button(label="📄 Descargar Balance y EDFF en PDF", data=pdf_bytes, file_name="Proyecto_Ciclo_Contable.pdf", mime="application/pdf", key=f"pdf_chat_hist_{len(st.session_state.messages)}")
+                    
+                    # --- MANTENER EL BOTÓN DE EXCEL EN MEMORIA ---
+                    excel_bytes = generar_excel_ciclo(st.session_state.get('project_transactions', []))
+                    st.download_button(
+                        label="📥 Descargar Planilla de Trabajo (Excel)",
+                        data=excel_bytes,
+                        file_name=f"Planilla_Contable_{datetime.now().strftime('%Y%m%d')}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        key=f"xlsx_chat_hist_{len(st.session_state.messages)}"
+                    )
     
     def should_run_deep_search(prompt, checkbox_state):
         keywords = ['en la web', 'en internet', 'según impuestos', 'en notebooklm', 'busca en todas']
@@ -1398,4 +1408,5 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
