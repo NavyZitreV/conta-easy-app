@@ -1320,13 +1320,20 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     {transacciones_texto}
                     
                     TAREA OBLIGATORIA:
-                    1. Genera un LIBRO DIARIO consolidado usando EXACTAMENTE esta estructura de tabla Markdown. TODAS las filas DEBEN tener exactamente 4 columnas y empezar/terminar con el símbolo "|":
+                    1. Genera el LIBRO DIARIO. Es VITAL que crees una tabla Markdown SEPARADA para cada asiento contable.
+                    - OBLIGATORIO: Escribe la Glosa justo debajo de CADA tabla como texto en cursiva.
+                    - Deja una línea en blanco entre la glosa y el siguiente asiento.
+                    - PROHIBIDO agrupar todos los asientos en una sola tabla.
+                    
+                    Usa EXACTAMENTE esta estructura para CADA transacción individual:
+                    
                     | Fecha | Detalle / Cuenta | Debe (Bs.) | Haber (Bs.) |
                     | :--- | :--- | ---: | ---: |
-                    | 01/01/2026 | **Asiento N° 1** | | |
-                    | | Caja M/N | 100.000,00 | |
-                    | | Capital Social | | 100.000,00 |
-                    REGLA: La glosa va AFUERA de la tabla.
+                    | 01/01/2026 | **Asiento N° X** | | |
+                    | | Cuenta 1 | 100.000,00 | |
+                    | | Cuenta 2 | | 100.000,00 |
+                    
+                    *Glosa: Escribe aquí la explicación de la transacción.*
                     
                     2. Genera un BALANCE DE COMPROBACIÓN DE SUMAS Y SALDOS usando EXACTAMENTE esta estructura:
                     | N° | Cuenta | Sumas Debe | Sumas Haber | Saldo Deudor | Saldo Acreedor |
@@ -1377,10 +1384,10 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         mime="application/pdf",
                         key=f"pdf_proyecto_inmediato_{len(st.session_state.messages)}"
                     )
-                    # --- BOTÓN DE EXCEL CON ICONO PROFESIONAL ---
+                    # --- BOTÓN DE EXCEL CORREGIDO ---
                     excel_bytes = generar_excel_ciclo(st.session_state.project_transactions)
                     st.download_button(
-                        label=":material/spreadsheet: Descargar Planilla de Trabajo (Excel)",
+                        label="📥 Descargar Planilla de Trabajo (Excel)",
                         data=excel_bytes,
                         file_name=f"Planilla_Contable_{datetime.now().strftime('%Y%m%d')}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -1391,3 +1398,4 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
