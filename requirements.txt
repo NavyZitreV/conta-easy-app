@@ -4,3 +4,5 @@ fpdf2>=2.7.0
 markdown>=3.5.0
 duckduckgo-search>=4.0.0
 firebase-admin
+pandas
+xlsxwriter
