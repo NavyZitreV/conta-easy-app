@@ -15,6 +15,7 @@ import google.generativeai as genai
 from fpdf import FPDF
 import markdown
 import re
+import pandas as pd
 
 # --- Configurar Firebase ---
 @st.cache_resource
@@ -200,8 +201,7 @@ def generar_pdf(markdown_content):
 
     return bytes(pdf.output())
     
-import re
-
+# --- NUEVA FUNCIÓN: EXPORTAR A EXCEL ---
 def generar_excel_ciclo(transacciones):
     output = io.BytesIO()
     
@@ -239,51 +239,6 @@ def generar_excel_ciclo(transacciones):
         df_eeff = df_mayores.copy()
         df_eeff.to_excel(writer, sheet_name='Estados Financieros', index=False)
 
-        for sheet in writer.sheets.values():
-            sheet.set_column('A:Z', 30)
-
-    return output.getvalue()
-    # --- CREACIÓN DEL ARCHIVO ESTRUCTURADO ---
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        # Hoja 1: Libro Diario con datos procesados
-        df_diario = pd.DataFrame(datos_diario) if datos_diario else pd.DataFrame({"Glosa/Enunciado": transacciones})
-        df_diario.to_excel(writer, sheet_name='Libro Diario', index=False)
-        
-        # Hoja 2: Mayores con traspaso automático de saldos
-        if totales_cuentas:
-            df_mayores = pd.DataFrame([
-                {"Cuenta": k, "Debe (Bs.)": v, "Haber (Bs.)": 0, "Saldo": v} 
-                for k, v in totales_cuentas.items()
-            ])
-        else:
-            df_mayores = pd.DataFrame(columns=["Cuenta", "Debe (Bs.)", "Haber (Bs.)", "Saldo"])
-        df_mayores.to_excel(writer, sheet_name='Mayores', index=False)
-        
-        # Hoja 3: Estados Financieros (Resumen de saldos)
-        df_eeff = df_mayores.copy()
-        df_eeff.to_excel(writer, sheet_name='Estados Financieros', index=False)
-
-        # Ajuste profesional de columnas
-        for sheet in writer.sheets.values():
-            sheet.set_column('A:Z', 30)
-
-    return output.getvalue()
-        
-        # Hoja 2: Mayores con traspaso automático
-        if totales_cuentas:
-            df_mayores = pd.DataFrame([
-                {"Cuenta": k, "Debe (Bs.)": v, "Haber (Bs.)": 0, "Saldo": v} 
-                for k, v in totales_cuentas.items()
-            ])
-        else:
-            df_mayores = pd.DataFrame(columns=["Cuenta", "Debe (Bs.)", "Haber (Bs.)", "Saldo"])
-        df_mayores.to_excel(writer, sheet_name='Mayores', index=False)
-        
-        # Hoja 3: Estados Financieros (Resumen de Saldos)
-        df_eeff = df_mayores.copy()
-        df_eeff.to_excel(writer, sheet_name='Estados Financieros', index=False)
-
-        # Formato visual de columnas
         for sheet in writer.sheets.values():
             sheet.set_column('A:Z', 30)
 
@@ -1436,8 +1391,3 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
