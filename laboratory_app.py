@@ -1046,8 +1046,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     pdf_bytes = generar_pdf(message["content"])
                     st.download_button(label="📄 Descargar Balance y EDFF en PDF", data=pdf_bytes, file_name="Proyecto_Ciclo_Contable.pdf", mime="application/pdf", key=f"pdf_chat_hist_{len(st.session_state.messages)}")
                     
-                    # --- BOTÓN DE EXCEL CORREGIDO ---
-                    excel_bytes = generar_excel_ciclo(full_response, st.session_state.project_transactions)
+                    # --- MANTENER EL BOTÓN DE EXCEL EN MEMORIA ---
+                    excel_bytes = generar_excel_ciclo(message["content"], st.session_state.get('project_transactions', []))
                     st.download_button(
                         label="📥 Descargar Planilla de Trabajo (Excel)",
                         data=excel_bytes,
@@ -1429,6 +1429,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
