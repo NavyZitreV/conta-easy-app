@@ -203,7 +203,6 @@ def generar_pdf(markdown_content):
 import re
 
 def generar_excel_ciclo(transacciones):
-    # Crear un buffer en memoria para el archivo
     output = io.BytesIO()
     
     # --- MOTOR DE PROCESAMIENTO CONTABLE ---
@@ -213,21 +212,37 @@ def generar_excel_ciclo(transacciones):
     for i, t in enumerate(transacciones):
         lineas = t.split('\n')
         for linea in lineas:
-            # Detectar montos numéricos (ej: 50.000 o 50000.00)
             montos = re.findall(r'\d+(?:[.,]\d+)?', linea)
             if montos:
-                # Limpiar y convertir a formato decimal
                 monto_limpio = montos[0].replace('.', '').replace(',', '.')
                 monto_float = float(monto_limpio)
-                
-                # Extraer nombre de la cuenta (quitando números y símbolos)
                 cuenta = re.sub(r'[^a-zA-Z\s]', '', linea).strip()
                 
                 if len(cuenta) > 3:
                     datos_diario.append({"Asiento": i+1, "Cuenta": cuenta, "Monto (Bs.)": monto_float})
-                    # Acumular importes para la hoja de Mayores
                     totales_cuentas[cuenta] = totales_cuentas.get(cuenta, 0) + monto_float
 
+    # --- CREACIÓN DEL ARCHIVO ESTRUCTURADO ---
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df_diario = pd.DataFrame(datos_diario) if datos_diario else pd.DataFrame({"Glosa/Enunciado": transacciones})
+        df_diario.to_excel(writer, sheet_name='Libro Diario', index=False)
+        
+        if totales_cuentas:
+            df_mayores = pd.DataFrame([
+                {"Cuenta": k, "Debe (Bs.)": v, "Haber (Bs.)": 0, "Saldo": v} 
+                for k, v in totales_cuentas.items()
+            ])
+        else:
+            df_mayores = pd.DataFrame(columns=["Cuenta", "Debe (Bs.)", "Haber (Bs.)", "Saldo"])
+        df_mayores.to_excel(writer, sheet_name='Mayores', index=False)
+        
+        df_eeff = df_mayores.copy()
+        df_eeff.to_excel(writer, sheet_name='Estados Financieros', index=False)
+
+        for sheet in writer.sheets.values():
+            sheet.set_column('A:Z', 30)
+
+    return output.getvalue()
     # --- CREACIÓN DEL ARCHIVO ESTRUCTURADO ---
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         # Hoja 1: Libro Diario con datos procesados
@@ -1421,6 +1436,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
