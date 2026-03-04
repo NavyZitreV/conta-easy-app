@@ -198,6 +198,36 @@ def generar_pdf(markdown_content):
         pdf.set_text_color(0, 0, 0)
 
     return bytes(pdf.output())
+    
+# --- NUEVA FUNCIÓN: EXPORTAR A EXCEL ---
+import pandas as pd
+import io
+
+def generar_excel_ciclo(transacciones):
+    # Crear un buffer en memoria para el archivo
+    output = io.BytesIO()
+    
+    # Usar ExcelWriter con el motor xlsxwriter
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        # 1. Hoja de transacciones (Libro Diario simplificado)
+        df_diario = pd.DataFrame({
+            "N°": range(1, len(transacciones) + 1),
+            "Glosa / Enunciado": transacciones
+        })
+        df_diario.to_excel(writer, sheet_name='Libro Diario', index=False)
+        
+        # 2. Hojas de trabajo (Plantillas para el alumno)
+        df_mayores = pd.DataFrame(columns=["Código", "Cuenta", "Debe (Bs.)", "Haber (Bs.)", "Saldo"])
+        df_mayores.to_excel(writer, sheet_name='Mayores', index=False)
+        
+        df_eeff = pd.DataFrame(columns=["Cuenta", "Balance General", "Estado de Resultados"])
+        df_eeff.to_excel(writer, sheet_name='Estados Financieros', index=False)
+        
+        # Ajustar ancho de columnas automáticamente
+        for sheet in writer.sheets.values():
+            sheet.set_column('A:Z', 25)
+
+    return output.getvalue()
 
 # --- Level 1: Local Search (Strict) ---
 @st.cache_data
@@ -1332,9 +1362,18 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         mime="application/pdf",
                         key=f"pdf_proyecto_inmediato_{len(st.session_state.messages)}"
                     )
-                    
+                    # --- NUEVO: BOTÓN DE EXCEL ---
+                    excel_bytes = generar_excel_ciclo(st.session_state.project_transactions)
+                    st.download_button(
+                        label="📊 Descargar Planilla de Trabajo (Excel)",
+                        data=excel_bytes,
+                        file_name=f"Planilla_Contable_{datetime.now().strftime('%Y%m%d')}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        key=f"xlsx_proyecto_final_{len(st.session_state.messages)}"
+                    )
                 except Exception as e:
                     st.error(f"Error al generar el balance: {e}")
 
 if __name__ == "__main__":
     main()
+
