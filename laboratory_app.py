@@ -497,11 +497,19 @@ def mostrar_login():
                             st.error("Contraseña incorrecta.")
                             
         with tab_register:
-            nuevo_correo = st.text_input("Correo Electrónico", key="reg_correo")
-            nombre_reg = st.text_input("Nombre Completo", key="reg_nombre")
-            carrera_reg = st.selectbox("Carrera", ["Contaduría Pública", "Ingeniería Financiera", "Administración de Empresas", "Otra"], key="reg_carrera")
-            institucion_reg = st.selectbox("Institución", ["UNICEN", "UNIVALLE", "Otra"], key="reg_inst")
-            nuevo_password = st.text_input("Contraseña", type="password", key="reg_pass")
+            n_c = st.text_input("Correo", key="reg_c")
+            n_n = st.text_input("Nombre", key="reg_n")
+            n_car = st.selectbox("Carrera", ["Contaduría Pública", "Ingeniería Financiera", "Administración de Empresas", "Otra"], key="reg_car")
+            
+            # --- MODIFICACIÓN SAAS: Institución Fija y Bloqueada ---
+            try:
+                institucion_fija = st.secrets["general"]["NOMBRE_INSTITUCION"]
+            except:
+                institucion_fija = "UNICEN" # Valor por defecto si falla el secreto
+                
+            n_i = st.text_input("Institución (Asignada automáticamente)", value=institucion_fija, disabled=True, key="reg_i")
+            
+            n_p = st.text_input("Contraseña", type="password", key="reg_p")
             
             if st.button("Crear Cuenta", type="primary", use_container_width=True):
                 if not nuevo_correo or not nuevo_password or not nombre_reg:
@@ -1586,6 +1594,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
