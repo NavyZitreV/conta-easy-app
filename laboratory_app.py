@@ -739,8 +739,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         st.divider()
         st.header("🏢 Proyecto: Ciclo Contable")
         
-        st.header("🏢 Proyecto: Ciclo Contable")
-        
+           
         if not st.session_state.get("project_mode", False):
             # --- NUEVA MEJORA: IMPORTAR PROYECTO BASE ---
             with st.expander("📚 Cargar Plantilla Docente"):
@@ -1564,5 +1563,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
