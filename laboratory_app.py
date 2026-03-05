@@ -1050,7 +1050,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                 if st.button("✅ Activar", key=f"unblock_{user_doc_id}", use_container_width=True):
                                     db.collection('usuarios').document(user_doc_id).update({"estado": "activo"})
                                     st.rerun()
-                            else:
+                             else:
                                 if st.button("🚫 Bloquear", key=f"block_{user_doc_id}", use_container_width=True):
                                     db.collection('usuarios').document(user_doc_id).update({"estado": "bloqueado"})
                                     st.rerun()
@@ -1608,6 +1608,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
