@@ -6,3 +6,4 @@ duckduckgo-search>=4.0.0
 firebase-admin
 pandas
 xlsxwriter
+openpyxl
