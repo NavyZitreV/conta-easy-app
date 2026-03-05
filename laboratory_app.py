@@ -838,18 +838,46 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     examen_seleccionado = st.selectbox("Exámenes disponibles:", opciones_examenes, label_visibility="collapsed")
                     
                     if examen_seleccionado != "-- Selecciona un Examen --":
+                        escudo_anti_copia = st.checkbox("🛡️ Escudo Anti-Copia (Variante Única)", value=True, help="La IA generará montos y nombres diferentes para cada alumno.")
+                        
                         if st.button("⏱️ Iniciar Examen", type="primary"):
+                            st.session_state.pending_sound = "audio/swords.mp3" 
                             st.session_state.exam_mode = True
-                            st.session_state.exam_questions = mapa_examenes[examen_seleccionado]
-                            st.session_state.exam_title = examen_seleccionado  # <-- NUEVO: Guardamos el título del examen
+                            st.session_state.exam_title = examen_seleccionado
                             st.session_state.exam_answers = []
                             
+                            texto_original = mapa_examenes[examen_seleccionado]
+                            
+                            if escudo_anti_copia:
+                                with st.spinner("🎲 La IA está encriptando y generando tu examen único..."):
+                                    try:
+                                        genai.configure(api_key=api_key)
+                                        model = genai.GenerativeModel('gemini-flash-latest')
+                                        prompt_mutacion = f"""Eres un Docente Universitario de Contabilidad. Toma este examen base y crea una variante ÚNICA para evitar copias entre los alumnos.
+                                        REGLAS DE ORO:
+                                        1. Cambia radicalmente los montos monetarios (mantenlos realistas, ej: en vez de 10.000 usa 14.500). Si hay cálculos lógicos que dependen entre sí, mantén la lógica matemática.
+                                        2. Cambia los nombres de las empresas, clientes, proveedores y bancos (inventa nombres locales de Bolivia).
+                                        3. Cambia las fechas (usa fechas del año 2026).
+                                        4. MANTÉN exactamente la misma cantidad de transacciones y la misma dificultad contable.
+                                        5. DEVUELVE ÚNICAMENTE el nuevo texto del examen, con saltos de línea puros por cada transacción. Nada de introducciones ni saludos.
+                                        
+                                        Examen Base:
+                                        {texto_original}
+                                        """
+                                        response = model.generate_content(prompt_mutacion)
+                                        st.session_state.exam_questions = response.text.strip()
+                                    except Exception as e:
+                                        st.error(f"Aviso: Usando examen base por límite de IA ({e})")
+                                        st.session_state.exam_questions = texto_original
+                            else:
+                                st.session_state.exam_questions = texto_original
+                                
                             # --- CORRECCIÓN VISUAL: Forzar viñetas y saltos de línea ---
                             preguntas_formateadas = "* " + st.session_state.exam_questions.replace('\n', '\n\n* ')
                             
                             st.session_state.messages.append({
                                 "role": "assistant", 
-                                "content": f"🎓 **¡EXAMEN INICIADO!**\n\n**ENUNCIADO:**\n{preguntas_formateadas}\n\n---\n**INSTRUCCIONES:**\nEscribe en el chat la resolución (tus asientos contables paso a paso). Cuando termines de registrar TODO, presiona **'✅ Calificar Examen'** en la barra lateral."
+                                "content": f"🎓 **¡EXAMEN INICIADO!**\n\n**ENUNCIADO:**\n{preguntas_formateadas}\n\n---\n**INSTRUCCIONES:**\nEscribe en la barra de chat tus respuestas. Cuando termines de registrar TODO, presiona **'✅ Calificar Examen'** en la barra lateral."
                             })
                             st.rerun()
                 else:
@@ -1556,6 +1584,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
