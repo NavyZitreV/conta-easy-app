@@ -739,8 +739,54 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         st.divider()
         st.header("🏢 Proyecto: Ciclo Contable")
         
+        st.header("🏢 Proyecto: Ciclo Contable")
+        
         if not st.session_state.get("project_mode", False):
-            if st.button("🚀 Iniciar / Retomar Proyecto"):
+            # --- NUEVA MEJORA: IMPORTAR PROYECTO BASE ---
+            with st.expander("📚 Cargar Plantilla Docente"):
+                if lab_cases:
+                    opciones_plantillas = ["-- Selecciona una Plantilla --"]
+                    mapa_plantillas = {}
+                    
+                    for cat, casos in lab_cases.items():
+                        for c in casos:
+                            # Creamos un título limpio y corto para el menú desplegable
+                            titulo_limpio = clean_case_title(c)
+                            titulo_corto = titulo_limpio[:50] + "..." if len(titulo_limpio) > 50 else titulo_limpio
+                            etiqueta = f"[{cat}] {titulo_corto}"
+                            opciones_plantillas.append(etiqueta)
+                            mapa_plantillas[etiqueta] = titulo_limpio
+                            
+                    plantilla_seleccionada = st.selectbox("Proyectos disponibles:", opciones_plantillas, label_visibility="collapsed")
+                    
+                    if plantilla_seleccionada != "-- Selecciona una Plantilla --":
+                        if st.button("📥 Importar y Empezar", type="primary"):
+                            texto_completo = mapa_plantillas[plantilla_seleccionada]
+                            # Separamos por saltos de línea (cada "Enter" del docente será una transacción)
+                            transacciones_importadas = [linea.strip() for linea in texto_completo.split('\n') if linea.strip()]
+                            
+                            st.session_state.pending_sound = "audio/rocket.mp3" 
+                            st.session_state.project_mode = True
+                            st.session_state.project_transactions = transacciones_importadas
+                            
+                            # Guardar el proyecto importado directamente en la nube de Firebase del alumno
+                            if db is not None:
+                                try:
+                                    db.collection('usuarios').document(st.session_state.user_id).update({
+                                        "proyecto_en_curso": transacciones_importadas
+                                    })
+                                except: pass
+                                
+                            st.session_state.messages.append({
+                                "role": "assistant", 
+                                "content": f"📚 **¡Plantilla Importada con Éxito!**\n\nSe han cargado **{len(transacciones_importadas)} transacciones** automáticamente desde la base de datos del docente.\n\nPuedes agregar más transacciones escribiéndolas en el chat, o si el caso está completo, presiona el botón azul **'📊 Generar EEFF'** en la barra lateral."
+                            })
+                            st.rerun()
+                else:
+                    st.caption("No hay casos o plantillas guardadas en la base de datos.")
+
+            # --- BOTÓN ORIGINAL PARA EMPEZAR MANUALMENTE ---
+            if st.button("🚀 Iniciar / Retomar (Manual)"):
                 st.session_state.pending_sound = "audio/rocket.mp3" 
                 st.session_state.project_mode = True
                 
@@ -1518,4 +1564,5 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
