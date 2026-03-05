@@ -837,11 +837,11 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             
                     examen_seleccionado = st.selectbox("Exámenes disponibles:", opciones_examenes, label_visibility="collapsed")
                     
-                    if ex_sel != "-- Selecciona un Examen --":
+                    if examen_seleccionado != "-- Selecciona un Examen --":
                         if st.button("⏱️ Iniciar Examen", type="primary"):
                             st.session_state.exam_mode = True
-                            st.session_state.exam_questions = map_ex[ex_sel]
-                            st.session_state.exam_title = ex_sel  # <-- NUEVO: Guardamos el título del examen
+                            st.session_state.exam_questions = mapa_examenes[examen_seleccionado]
+                            st.session_state.exam_title = examen_seleccionado  # <-- NUEVO: Guardamos el título del examen
                             st.session_state.exam_answers = []
                             
                             # --- CORRECCIÓN VISUAL: Forzar viñetas y saltos de línea ---
@@ -1556,6 +1556,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
