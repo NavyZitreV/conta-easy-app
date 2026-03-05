@@ -1342,6 +1342,78 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     key=f"pdf_chat_gen_{len(st.session_state.messages)}"
                 )
 
+# =======================================================
+    # --- PROCESS EXAM GRADING (EL CALIFICADOR FINAL) ---
+    # =======================================================
+    if st.session_state.get("grade_exam_now", False):
+        st.session_state.grade_exam_now = False 
+        st.session_state.exam_mode = False 
+        
+        with st.chat_message("assistant"):
+            with st.spinner("👩‍🏫 El Evaluador IA está revisando tu examen minuciosamente..."):
+                try:
+                    genai.configure(api_key=api_key)
+                    model = genai.GenerativeModel('gemini-flash-latest')
+                    
+                    enunciado_examen = st.session_state.get("exam_questions", "")
+                    respuestas_alumno = "\n".join([f"Asiento/Respuesta {i+1}: {r}" for i, r in enumerate(st.session_state.exam_answers)])
+                    
+                    reglas_actuales = load_tax_rules() if 'load_tax_rules' in globals() else "Aplica normativa boliviana."
+                    
+                    prompt_calificacion = f"""Eres un Evaluador Contable Estricto Universitario de la UNICEN.
+                    El estudiante acaba de terminar su examen práctico.
+                    
+                    {reglas_actuales}
+                    
+                    ENUNCIADO ORIGINAL DEL DOCENTE:
+                    "{enunciado_examen}"
+                    
+                    LO QUE EL ALUMNO RESPONDIÓ (Sus asientos):
+                    "{respuestas_alumno}"
+                    
+                    TAREA:
+                    1. Analiza cada respuesta del alumno contrastándola con el enunciado. Revisa los cálculos matemáticos (Ej: 87% y 13% del IVA, 3% del IT) y las cuentas usadas.
+                    2. Otorga una calificación final estricta sobre 100 puntos. Si hay errores, descuenta puntos.
+                    3. Genera un reporte detallado para el alumno:
+                       - Qué hizo bien.
+                       - Qué hizo mal (errores de cuenta, de monto, de concepto).
+                       - Cuál era la solución correcta (Muestra los asientos correctos usando ESTRICTAMENTE tablas Markdown).
+                    
+                    FORMATO ESTRICTO DE RESPUESTA:
+                    Empieza obligatoriamente con este título exacto:
+                    # 🎓 RESULTADO DEL EXAMEN
+                    **CALIFICACIÓN FINAL:** [Tu nota]/100
+                    
+                    (Luego continúa con tu retroalimentación).
+                    """
+                    
+                    response = model.generate_content(prompt_calificacion)
+                    full_response = response.text.strip()
+                    
+                    # Actualizar puntos XP si el alumno ganó puntos
+                    match = re.search(r'CALIFICACIÓN FINAL:\*\*?\s*(\d+)/100', full_response, re.IGNORECASE)
+                    if match:
+                        score = int(match.group(1))
+                        st.session_state.user_xp += score
+                        if db is not None:
+                            try:
+                                db.collection('usuarios').document(st.session_state.user_id).update({"xp": st.session_state.user_xp})
+                            except: pass
+                    
+                    st.markdown(full_response)
+                    st.session_state.messages.append({"role": "assistant", "content": full_response})
+                    
+                    pdf_bytes = generar_pdf(full_response)
+                    st.download_button(
+                        label="📄 Descargar Certificado de Examen (PDF)",
+                        data=pdf_bytes,
+                        file_name="Reporte_Examen.pdf",
+                        mime="application/pdf",
+                        key=f"pdf_exam_{len(st.session_state.messages)}"
+                    )
+                except Exception as e:
+                    st.error(f"Error al calificar el examen: {e}")
+
     # --- PROCESS PROJECT BALANCE ---
     if st.session_state.get("generate_project_balance", False):
         st.session_state.generate_project_balance = False 
@@ -1441,6 +1513,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
