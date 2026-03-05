@@ -821,6 +821,61 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         # PESTAÑA 1: ESTUDIANTES Y DOCENTES
         # ==========================================
         with tab_alumnos:
+            # --- NUEVA FUNCIÓN: CARGA MASIVA (SOLO SUPER ADMIN) ---
+            if mi_rol == "admin":
+                with st.expander("📥 Carga Masiva de Usuarios (Excel/CSV)"):
+                    st.markdown("Sube un archivo con los datos de tus estudiantes. Las columnas en la primera fila del Excel deben llamarse **EXACTAMENTE** así:")
+                    st.code("NOMBRE | CARRERA | UNIVERSIDAD | CORREO | PASSWORD")
+                    
+                    archivo_masivo = st.file_uploader("Selecciona tu archivo Excel o CSV", type=['csv', 'xlsx'])
+                    
+                    if archivo_masivo is not None:
+                        if st.button("🚀 Procesar y Subir Usuarios", type="primary"):
+                            with st.spinner("Leyendo archivo y subiendo a la nube..."):
+                                try:
+                                    if archivo_masivo.name.endswith('.csv'):
+                                        df_masivo = pd.read_csv(archivo_masivo)
+                                    else:
+                                        df_masivo = pd.read_excel(archivo_masivo)
+                                    
+                                    # Normalizar nombres de columnas
+                                    df_masivo.columns = df_masivo.columns.str.strip().str.upper()
+                                    esperadas = ["NOMBRE", "CARRERA", "UNIVERSIDAD", "CORREO", "PASSWORD"]
+                                    
+                                    if not all(col in df_masivo.columns for col in esperadas):
+                                        st.error("⚠️ Error: Faltan columnas obligatorias. Revisa que diga: NOMBRE, CARRERA, UNIVERSIDAD, CORREO, PASSWORD.")
+                                    else:
+                                        agregados = 0
+                                        duplicados = 0
+                                        usuarios_actuales = db.collection('usuarios').get()
+                                        correos_existentes = [doc.to_dict().get('correo', '') for doc in usuarios_actuales]
+                                        
+                                        for index, row in df_masivo.iterrows():
+                                            correo_nuevo = str(row['CORREO']).strip()
+                                            if pd.isna(row['CORREO']) or correo_nuevo == "" or correo_nuevo == "nan": continue
+                                            
+                                            if correo_nuevo in correos_existentes:
+                                                duplicados += 1
+                                                continue
+                                                
+                                            db.collection('usuarios').add({
+                                                "nombre": str(row['NOMBRE']).strip(),
+                                                "carrera": str(row['CARRERA']).strip(),
+                                                "institucion": str(row['UNIVERSIDAD']).strip(),
+                                                "correo": correo_nuevo,
+                                                "password": str(row['PASSWORD']).strip(),
+                                                "xp": 0, "racha": 0, "rol": "estudiante", "estado": "activo", "acceso_analiticas": False
+                                            })
+                                            correos_existentes.append(correo_nuevo)
+                                            agregados += 1
+                                        
+                                        st.success(f"✅ Carga masiva completada: {agregados} alumnos creados | {duplicados} omitidos (ya existían).")
+                                        time.sleep(3)
+                                        st.rerun()
+                                except Exception as e:
+                                    st.error(f"❌ Error al procesar el archivo: {e}")
+
+            # --- CODIGO ORIGINAL DE LA TABLA ---
             csv_data = "Nombre Completo;Rol;Carrera;Institucion;Correo Electronico;Experiencia (XP);Racha (Dias)\n"
             st.write(f"**Total de usuarios encontrados:** {len(usuarios_lista)}")
             
@@ -1465,6 +1520,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
