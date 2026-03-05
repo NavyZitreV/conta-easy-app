@@ -801,7 +801,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         
         if not st.session_state.get("exam_mode", False):
             with st.expander("📝 Cargar Examen / Plantilla"):
-                # --- MAGIA: SOLO LEER DE LA NUBE (FIREBASE), IGNORAR CASOS LOCALES ---
                 examenes_disponibles = {}
                 if db is not None:
                     try:
@@ -817,9 +816,12 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             data = doc.to_dict()
                             cat = data.get('categoria', 'Examen')
                             enunciado = data.get('enunciado', '')
+                            anticopia = data.get('usa_anticopia', True) # Leemos la configuración secreta del docente
+                            
                             if cat not in examenes_disponibles:
                                 examenes_disponibles[cat] = []
-                            examenes_disponibles[cat].append(enunciado)
+                            # Guardamos texto y configuración
+                            examenes_disponibles[cat].append({"texto": enunciado, "anticopia": anticopia})
                     except Exception:
                         pass
 
@@ -829,37 +831,37 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     
                     for cat, casos in examenes_disponibles.items():
                         for c in casos:
-                            titulo_limpio = clean_case_title(c)
+                            titulo_limpio = clean_case_title(c["texto"])
                             titulo_corto = titulo_limpio[:50] + "..." if len(titulo_limpio) > 50 else titulo_limpio
                             etiqueta = f"[{cat}] {titulo_corto}"
                             opciones_examenes.append(etiqueta)
-                            mapa_examenes[etiqueta] = titulo_limpio
+                            mapa_examenes[etiqueta] = c  # Mapeamos el diccionario completo
                             
                     examen_seleccionado = st.selectbox("Exámenes disponibles:", opciones_examenes, label_visibility="collapsed")
                     
                     if examen_seleccionado != "-- Selecciona un Examen --":
-                        escudo_anti_copia = st.checkbox("🛡️ Escudo Anti-Copia (Variante Única)", value=True, help="La IA generará montos y nombres diferentes para cada alumno.")
-                        
+                        # ¡Desaparece el checkbox para el alumno! El sistema lee la orden silenciosa
                         if st.button("⏱️ Iniciar Examen", type="primary"):
                             st.session_state.pending_sound = "audio/swords.mp3" 
                             st.session_state.exam_mode = True
                             st.session_state.exam_title = examen_seleccionado
                             st.session_state.exam_answers = []
                             
-                            texto_original = mapa_examenes[examen_seleccionado]
+                            datos_examen = mapa_examenes[examen_seleccionado]
+                            texto_original = datos_examen["texto"]
                             
-                            if escudo_anti_copia:
-                                with st.spinner("🎲 La IA está encriptando y generando tu examen único..."):
+                            if datos_examen["anticopia"]:
+                                with st.spinner("🎲 La IA está generando tu examen único (Anti-Copia)..."):
                                     try:
                                         genai.configure(api_key=api_key)
                                         model = genai.GenerativeModel('gemini-flash-latest')
                                         prompt_mutacion = f"""Eres un Docente Universitario de Contabilidad. Toma este examen base y crea una variante ÚNICA para evitar copias entre los alumnos.
                                         REGLAS DE ORO:
-                                        1. Cambia radicalmente los montos monetarios (mantenlos realistas, ej: en vez de 10.000 usa 14.500). Si hay cálculos lógicos que dependen entre sí, mantén la lógica matemática.
-                                        2. Cambia los nombres de las empresas, clientes, proveedores y bancos (inventa nombres locales de Bolivia).
-                                        3. Cambia las fechas (usa fechas del año 2026).
-                                        4. MANTÉN exactamente la misma cantidad de transacciones y la misma dificultad contable.
-                                        5. DEVUELVE ÚNICAMENTE el nuevo texto del examen, con saltos de línea puros por cada transacción. Nada de introducciones ni saludos.
+                                        1. Cambia radicalmente los montos monetarios (mantenlos realistas). Mantén la lógica matemática.
+                                        2. Cambia los nombres de las empresas, clientes, proveedores y bancos.
+                                        3. Cambia las fechas (año 2026).
+                                        4. MANTÉN la misma cantidad de transacciones y dificultad contable.
+                                        5. DEVUELVE ÚNICAMENTE el nuevo texto del examen, con saltos de línea por transacción. Nada de introducciones.
                                         
                                         Examen Base:
                                         {texto_original}
@@ -867,12 +869,10 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                         response = model.generate_content(prompt_mutacion)
                                         st.session_state.exam_questions = response.text.strip()
                                     except Exception as e:
-                                        st.error(f"Aviso: Usando examen base por límite de IA ({e})")
                                         st.session_state.exam_questions = texto_original
                             else:
                                 st.session_state.exam_questions = texto_original
                                 
-                            # --- CORRECCIÓN VISUAL: Forzar viñetas y saltos de línea ---
                             preguntas_formateadas = "* " + st.session_state.exam_questions.replace('\n', '\n\n* ')
                             
                             st.session_state.messages.append({
@@ -1056,13 +1056,17 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 nivel_dificultad = st.selectbox("Nivel de Dificultad", ["[BÁSICO]", "[INTERMEDIO]", "[AVANZADO]"])
                 nuevo_enunciado = st.text_area("Enunciado del Caso Práctico")
                 
+                # --- NUEVA OPCIÓN: EL DOCENTE DECIDE SI ES ANTI-COPIA ---
+                activar_anticopia = st.checkbox("🛡️ Activar Escudo Anti-Copia para este ejercicio", value=True, help="La IA generará valores distintos para cada alumno.")
+                
                 if st.form_submit_button("💾 Guardar Caso", type="primary"):
                     if nueva_categoria and nuevo_enunciado:
                         nuevo_documento = {
                             "categoria": nueva_categoria,
                             "enunciado": f"{nivel_dificultad} {nuevo_enunciado}",
                             "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                            "institucion": mi_institucion
+                            "institucion": mi_institucion,
+                            "usa_anticopia": activar_anticopia  # <-- GUARDAMOS LA DECISIÓN EN LA NUBE
                         }
                         db.collection('casos_practicos').add(nuevo_documento)
                         st.success("¡Caso guardado!")
@@ -1070,8 +1074,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         st.rerun()
                     else:
                         st.error("Por favor completa la categoría y el enunciado.")
-                        
-            st.divider()
             st.markdown("### 📚 Casos Subidos en la Nube")
             try:
                 if mi_rol == "admin":
@@ -1584,6 +1586,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
