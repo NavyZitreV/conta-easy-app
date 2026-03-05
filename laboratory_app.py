@@ -491,29 +491,36 @@ def mostrar_login():
                             st.session_state.user_streak = user_data.get("racha", 0)
                             st.session_state.user_rol = user_data.get("rol", "estudiante")
                             st.session_state.user_institucion = user_data.get("institucion", "UNICEN") 
+                            
+                            # --- NUEVO: RECUPERAR EL CÓDIGO DE CLASE AL ENTRAR ---
+                            st.session_state.user_codigo_clase = user_data.get("codigo_clase", "GENERAL")
+                            
                             st.success("¡Sesión iniciada exitosamente!")
                             st.rerun()
                         else:
                             st.error("Contraseña incorrecta.")
                             
         with tab_register:
-            n_c = st.text_input("Correo", key="reg_c")
-            n_n = st.text_input("Nombre", key="reg_n")
-            n_car = st.selectbox("Carrera", ["Contaduría Pública", "Ingeniería Financiera", "Administración de Empresas", "Otra"], key="reg_car")
+            nuevo_correo = st.text_input("Correo Electrónico", key="reg_correo")
+            nombre_reg = st.text_input("Nombre Completo", key="reg_nombre")
+            carrera_reg = st.selectbox("Carrera", ["Contaduría Pública", "Ingeniería Financiera", "Administración de Empresas", "Otra"], key="reg_carrera")
             
             # --- MODIFICACIÓN SAAS: Institución Fija y Bloqueada ---
             try:
                 institucion_fija = st.secrets["general"]["NOMBRE_INSTITUCION"]
             except:
-                institucion_fija = "UNICEN" # Valor por defecto si falla el secreto
+                institucion_fija = "UNICEN" # Valor por defecto
                 
-            n_i = st.text_input("Institución (Asignada automáticamente)", value=institucion_fija, disabled=True, key="reg_i")
+            institucion_reg = st.text_input("Institución (Asignada automáticamente)", value=institucion_fija, disabled=True, key="reg_inst")
             
-            n_p = st.text_input("Contraseña", type="password", key="reg_p")
+            # --- NUEVO: CAMPO DE CÓDIGO DE CLASE ---
+            codigo_clase_reg = st.text_input("Código de Clase (Pídeselo a tu docente)", help="Ejemplo: VERTIZ-101. Si eres docente independiente, inventa uno.", key="reg_codigo")
+            
+            nuevo_password = st.text_input("Contraseña", type="password", key="reg_pass")
             
             if st.button("Crear Cuenta", type="primary", use_container_width=True):
-                if not nuevo_correo or not nuevo_password or not nombre_reg:
-                    st.error("Por favor llena todos los campos, incluyendo tu nombre.")
+                if not nuevo_correo or not nuevo_password or not nombre_reg or not codigo_clase_reg:
+                    st.error("Por favor llena todos los campos, incluyendo tu Código de Clase.")
                 elif db is None:
                     st.error("Base de datos no disponible.")
                 else:
@@ -522,11 +529,13 @@ def mostrar_login():
                     if len(query) > 0:
                         st.error("Ese correo ya está registrado.")
                     else:
+                        codigo_limpio = codigo_clase_reg.strip().upper() # Lo forzamos a mayúsculas para evitar errores
                         nuevo_usuario = {
                             "correo": nuevo_correo,
                             "nombre": nombre_reg,
                             "carrera": carrera_reg,
-                            "institucion": institucion_reg,
+                            "institucion": institucion_fija,
+                            "codigo_clase": codigo_limpio, # <-- GUARDAMOS EL CÓDIGO EN FIREBASE
                             "password": nuevo_password,
                             "xp": 0,
                             "racha": 0,
@@ -538,7 +547,8 @@ def mostrar_login():
                         st.session_state.user_xp = 0
                         st.session_state.user_streak = 0
                         st.session_state.user_rol = "estudiante"
-                        st.session_state.user_institucion = institucion_reg
+                        st.session_state.user_institucion = institucion_fija
+                        st.session_state.user_codigo_clase = codigo_limpio # <-- LO GUARDAMOS EN LA SESIÓN
                         st.success("Cuenta creada exitosamente. ¡Bienvenido!")
                         st.rerun()
 
@@ -1594,6 +1604,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
