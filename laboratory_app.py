@@ -926,13 +926,33 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         
         mi_institucion = st.session_state.get("user_institucion", "UNICEN")
         mi_rol = st.session_state.get("user_rol", "docente")
+        mi_codigo_clase = st.session_state.get("user_codigo_clase", "GENERAL")
+        
+        # --- NUEVO: CAJA DE SALÓN VIRTUAL PARA DOCENTES Y ADMINS ---
+        with st.container():
+            st.markdown("### 🔑 Tu Salón Virtual")
+            st.caption("Escribe el código de tu clase (Ej: VERTIZ-101) para subir exámenes a ese grupo específico.")
+            col_c1, col_c2 = st.columns([2, 1])
+            with col_c1:
+                nuevo_codigo_docente = st.text_input("Código de Clase Actual:", value=mi_codigo_clase)
+            with col_c2:
+                st.markdown("<br>", unsafe_allow_html=True)
+                if st.button("💾 Guardar Código", use_container_width=True):
+                    codigo_limpio = nuevo_codigo_docente.strip().upper()
+                    if db is not None:
+                        db.collection('usuarios').document(st.session_state.user_id).update({"codigo_clase": codigo_limpio})
+                        st.session_state.user_codigo_clase = codigo_limpio
+                        st.success(f"¡Código actualizado a {codigo_limpio}!")
+                        time.sleep(1)
+                        st.rerun()
+        st.divider()
         
         if mi_rol == "admin":
-            st.success("👑 MODO SUPER ADMIN: Viendo datos globales de TODAS las instituciones.")
+            st.success("👑 MODO SUPER ADMIN: Viendo lista de alumnos global.")
             usuarios_ref = db.collection('usuarios').get()
         else:
-            st.info(f"👨‍🏫 MODO DOCENTE: Viendo datos exclusivos de {mi_institucion}.")
-            usuarios_ref = db.collection('usuarios').where('rol', '==', 'estudiante').where('institucion', '==', mi_institucion).get()
+            st.info(f"👨‍🏫 MODO DOCENTE: Viendo lista de alumnos de tu salón ({mi_codigo_clase}).")
+            usuarios_ref = db.collection('usuarios').where('rol', '==', 'estudiante').where('institucion', '==', mi_institucion).where('codigo_clase', '==', mi_codigo_clase).get()
             
         usuarios_lista = [u for u in usuarios_ref if u.to_dict().get('rol') != 'admin']
 
@@ -1610,3 +1630,4 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
