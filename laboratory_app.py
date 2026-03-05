@@ -801,11 +801,33 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         
         if not st.session_state.get("exam_mode", False):
             with st.expander("📝 Cargar Examen / Plantilla"):
-                if lab_cases:
+                # --- MAGIA: SOLO LEER DE LA NUBE (FIREBASE), IGNORAR CASOS LOCALES ---
+                examenes_disponibles = {}
+                if db is not None:
+                    try:
+                        mi_institucion = st.session_state.get("user_institucion", "UNICEN")
+                        mi_rol = st.session_state.get("user_rol", "estudiante")
+                        
+                        if mi_rol == "admin":
+                            casos_ref = db.collection('casos_practicos').get()
+                        else:
+                            casos_ref = db.collection('casos_practicos').where('institucion', '==', mi_institucion).get()
+                            
+                        for doc in casos_ref:
+                            data = doc.to_dict()
+                            cat = data.get('categoria', 'Examen')
+                            enunciado = data.get('enunciado', '')
+                            if cat not in examenes_disponibles:
+                                examenes_disponibles[cat] = []
+                            examenes_disponibles[cat].append(enunciado)
+                    except Exception:
+                        pass
+
+                if examenes_disponibles:
                     opciones_examenes = ["-- Selecciona un Examen --"]
                     mapa_examenes = {}
                     
-                    for cat, casos in lab_cases.items():
+                    for cat, casos in examenes_disponibles.items():
                         for c in casos:
                             titulo_limpio = clean_case_title(c)
                             titulo_corto = titulo_limpio[:50] + "..." if len(titulo_limpio) > 50 else titulo_limpio
@@ -828,7 +850,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             })
                             st.rerun()
                 else:
-                    st.caption("No hay exámenes creados en la base de datos.")
+                    st.caption("No hay exámenes o plantillas subidas por el docente en la nube.")
         else:
             st.warning("⏱️ Examen en curso...")
             st.info(f"Asientos / Respuestas enviadas: {len(st.session_state.get('exam_answers', []))}")
@@ -1568,6 +1590,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
