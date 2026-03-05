@@ -739,53 +739,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         st.divider()
         st.header("🏢 Proyecto: Ciclo Contable")
         
-           
         if not st.session_state.get("project_mode", False):
-            # --- NUEVA MEJORA: IMPORTAR PROYECTO BASE ---
-            with st.expander("📚 Cargar Plantilla Docente"):
-                if lab_cases:
-                    opciones_plantillas = ["-- Selecciona una Plantilla --"]
-                    mapa_plantillas = {}
-                    
-                    for cat, casos in lab_cases.items():
-                        for c in casos:
-                            # Creamos un título limpio y corto para el menú desplegable
-                            titulo_limpio = clean_case_title(c)
-                            titulo_corto = titulo_limpio[:50] + "..." if len(titulo_limpio) > 50 else titulo_limpio
-                            etiqueta = f"[{cat}] {titulo_corto}"
-                            opciones_plantillas.append(etiqueta)
-                            mapa_plantillas[etiqueta] = titulo_limpio
-                            
-                    plantilla_seleccionada = st.selectbox("Proyectos disponibles:", opciones_plantillas, label_visibility="collapsed")
-                    
-                    if plantilla_seleccionada != "-- Selecciona una Plantilla --":
-                        if st.button("📥 Importar y Empezar", type="primary"):
-                            texto_completo = mapa_plantillas[plantilla_seleccionada]
-                            # Separamos por saltos de línea (cada "Enter" del docente será una transacción)
-                            transacciones_importadas = [linea.strip() for linea in texto_completo.split('\n') if linea.strip()]
-                            
-                            st.session_state.pending_sound = "audio/rocket.mp3" 
-                            st.session_state.project_mode = True
-                            st.session_state.project_transactions = transacciones_importadas
-                            
-                            # Guardar el proyecto importado directamente en la nube de Firebase del alumno
-                            if db is not None:
-                                try:
-                                    db.collection('usuarios').document(st.session_state.user_id).update({
-                                        "proyecto_en_curso": transacciones_importadas
-                                    })
-                                except: pass
-                                
-                            st.session_state.messages.append({
-                                "role": "assistant", 
-                                "content": f"📚 **¡Plantilla Importada con Éxito!**\n\nSe han cargado **{len(transacciones_importadas)} transacciones** automáticamente desde la base de datos del docente.\n\nPuedes agregar más transacciones escribiéndolas en el chat, o si el caso está completo, presiona el botón azul **'📊 Generar EEFF'** en la barra lateral."
-                            })
-                            st.rerun()
-                else:
-                    st.caption("No hay casos o plantillas guardadas en la base de datos.")
-
-            # --- BOTÓN ORIGINAL PARA EMPEZAR MANUALMENTE ---
-            if st.button("🚀 Iniciar / Retomar (Manual)"):
+            if st.button("🚀 Iniciar / Retomar Proyecto"):
                 st.session_state.pending_sound = "audio/rocket.mp3" 
                 st.session_state.project_mode = True
                 
@@ -803,12 +758,11 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 if len(transacciones_guardadas) > 0:
                     st.session_state.messages.append({"role": "assistant", "content": f"☁️ **¡Proyecto Retomado!**\n\nHe recuperado **{len(transacciones_guardadas)} transacciones** de la nube. Puedes continuar ingresando la siguiente."})
                 else:
-                    st.session_state.messages.append({"role": "assistant", "content": "🏢 **¡Modo Proyecto Iniciado!**\n\nVamos a simular un ciclo contable. Escribe tus transacciones una por una en el chat.\n\nEl sistema las guardará. Recuerda usar el botón **'💾 Guardar Avance'** de la barra lateral periódicamente para no perder tu progreso."})
+                    st.session_state.messages.append({"role": "assistant", "content": "🏢 **¡Modo Proyecto Iniciado!**\n\nVamos a simular un ciclo contable libre. Escribe tus transacciones una por una en el chat."})
                 st.rerun()
         else:
             st.info(f"Transacciones registradas: {len(st.session_state.get('project_transactions', []))}")
             
-            # --- NUEVO BOTÓN: GUARDAR AVANCE ---
             if st.button("💾 Guardar Avance"):
                 if db is not None:
                     try:
@@ -822,23 +776,74 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             if st.button("📊 Generar EEFF", type="primary"):
                 if len(st.session_state.project_transactions) > 0:
                     st.session_state.generate_project_balance = True
-                    # Limpiamos Firebase al terminar
                     if db is not None:
                         try:
                             db.collection('usuarios').document(st.session_state.user_id).update({"proyecto_en_curso": []})
                         except: pass
                 else:
-                    st.warning("Debes ingresar al menos una transacción en el chat.")
+                    st.warning("Debes ingresar al menos una transacción.")
             
             if st.button("❌ Cancelar Proyecto"):
                 st.session_state.project_mode = False
                 st.session_state.project_transactions = []
-                # Limpiamos Firebase al cancelar
                 if db is not None:
                     try:
                         db.collection('usuarios').document(st.session_state.user_id).update({"proyecto_en_curso": []})
                     except: pass
-                st.session_state.messages.append({"role": "assistant", "content": "Proyecto cancelado y borrado de la nube. Volviendo al modo normal."})
+                st.session_state.messages.append({"role": "assistant", "content": "Proyecto cancelado y borrado de la nube."})
+                st.rerun()
+
+        # ==========================================
+        # NUEVO MÓDULO: EVALUACIÓN (EXÁMENES)
+        # ==========================================
+        st.divider()
+        st.header("🎓 Módulo de Evaluación")
+        
+        if not st.session_state.get("exam_mode", False):
+            with st.expander("📝 Cargar Examen / Plantilla"):
+                if lab_cases:
+                    opciones_examenes = ["-- Selecciona un Examen --"]
+                    mapa_examenes = {}
+                    
+                    for cat, casos in lab_cases.items():
+                        for c in casos:
+                            titulo_limpio = clean_case_title(c)
+                            titulo_corto = titulo_limpio[:50] + "..." if len(titulo_limpio) > 50 else titulo_limpio
+                            etiqueta = f"[{cat}] {titulo_corto}"
+                            opciones_examenes.append(etiqueta)
+                            mapa_examenes[etiqueta] = titulo_limpio
+                            
+                    examen_seleccionado = st.selectbox("Exámenes disponibles:", opciones_examenes, label_visibility="collapsed")
+                    
+                    if examen_seleccionado != "-- Selecciona un Examen --":
+                        if st.button("⏱️ Iniciar Examen", type="primary"):
+                            st.session_state.pending_sound = "audio/swords.mp3" 
+                            st.session_state.exam_mode = True
+                            st.session_state.exam_questions = mapa_examenes[examen_seleccionado]
+                            st.session_state.exam_answers = []
+                            
+                            st.session_state.messages.append({
+                                "role": "assistant", 
+                                "content": f"🎓 **¡EXAMEN INICIADO!**\n\n**ENUNCIADO:**\n*{st.session_state.exam_questions}*\n\n---\n**INSTRUCCIONES:**\nEscribe en el chat la resolución (tus asientos contables paso a paso). Cuando termines de registrar TODO, presiona **'✅ Calificar Examen'** en la barra lateral."
+                            })
+                            st.rerun()
+                else:
+                    st.caption("No hay exámenes creados en la base de datos.")
+        else:
+            st.warning("⏱️ Examen en curso...")
+            st.info(f"Asientos / Respuestas enviadas: {len(st.session_state.get('exam_answers', []))}")
+            
+            if st.button("✅ Calificar Examen", type="primary"):
+                if len(st.session_state.exam_answers) > 0:
+                    st.session_state.grade_exam_now = True
+                    st.rerun()
+                else:
+                    st.error("Debes enviar al menos una respuesta en el chat antes de calificar.")
+                    
+            if st.button("❌ Abandonar Examen"):
+                st.session_state.exam_mode = False
+                st.session_state.exam_answers = []
+                st.session_state.messages.append({"role": "assistant", "content": "Examen abandonado. Se ha borrado tu progreso."})
                 st.rerun()
 
     # --- Lógica para mostrar el Panel de Administración ---
@@ -1563,6 +1568,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
