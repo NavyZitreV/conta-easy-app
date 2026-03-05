@@ -837,11 +837,11 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             
                     examen_seleccionado = st.selectbox("Exámenes disponibles:", opciones_examenes, label_visibility="collapsed")
                     
-                    if examen_seleccionado != "-- Selecciona un Examen --":
+                    if ex_sel != "-- Selecciona un Examen --":
                         if st.button("⏱️ Iniciar Examen", type="primary"):
-                            st.session_state.pending_sound = "audio/swords.mp3" 
                             st.session_state.exam_mode = True
-                            st.session_state.exam_questions = mapa_examenes[examen_seleccionado]
+                            st.session_state.exam_questions = map_ex[ex_sel]
+                            st.session_state.exam_title = ex_sel  # <-- NUEVO: Guardamos el título del examen
                             st.session_state.exam_answers = []
                             
                             # --- CORRECCIÓN VISUAL: Forzar viñetas y saltos de línea ---
@@ -888,7 +888,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             
         usuarios_lista = [u for u in usuarios_ref if u.to_dict().get('rol') != 'admin']
 
-        tab_alumnos, tab_casos, tab_analiticas = st.tabs(["👥 Gestión de Estudiantes", "📚 Gestor de Casos Prácticos", "🧠 Analíticas"])
+        tab_alumnos, tab_casos, tab_analiticas, tab_notas = st.tabs(["👥 Gestión de Estudiantes", "📚 Gestor de Casos Prácticos", "🧠 Analíticas", "📊 Libro de Notas"])
         
         # ==========================================
         # PESTAÑA 1: ESTUDIANTES Y DOCENTES (CON CARGA MASIVA)
@@ -1158,6 +1158,35 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         st.bar_chart(rendimiento_global)
                     else:
                         st.info("Aún no hay datos de rendimiento. Los alumnos deben ganar XP resolviendo casos para que el termómetro se active.")
+          
+        # ==========================================
+        # PESTAÑA 4: LIBRO DE NOTAS
+        # ==========================================
+        with tab_notas:
+            st.subheader("📊 Registro Oficial de Calificaciones")
+            if db is not None:
+                try:
+                    if mi_rol == "admin":
+                        notas_ref = db.collection('calificaciones').order_by('fecha', direction=firestore.Query.DESCENDING).get()
+                    else:
+                        notas_ref = db.collection('calificaciones').where('institucion', '==', mi_institucion).get()
+                        
+                    lista_notas = [n.to_dict() for n in notas_ref]
+                    
+                    if not lista_notas:
+                        st.info("Aún no hay exámenes calificados en tu institución.")
+                    else:
+                        df_notas = pd.DataFrame(lista_notas)
+                        if "fecha" in df_notas.columns:
+                            df_notas = df_notas[["fecha", "nombre_alumno", "examen_titulo", "nota"]]
+                            df_notas.columns = ["Fecha y Hora", "Estudiante", "Examen Evaluado", "Calificación (/100)"]
+                            
+                        st.dataframe(df_notas, use_container_width=True)
+                        
+                        csv_notas = df_notas.to_csv(index=False).encode('utf-8-sig')
+                        st.download_button("📥 Descargar Libro de Notas (Excel/CSV)", data=csv_notas, file_name=f"Notas_{datetime.now().strftime('%Y%m%d')}.csv", mime="text/csv", use_container_width=True)
+                except Exception as e:
+                    st.error(f"Error al cargar las calificaciones: {e}") 
                         
     # --- Inicializar memoria del chat ---
     if "messages" not in st.session_state:
@@ -1390,14 +1419,28 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     response = model.generate_content(prompt_calificacion)
                     full_response = response.text.strip()
                     
-                    # Actualizar puntos XP si el alumno ganó puntos
+                    # Actualizar puntos XP y registrar nota oficial en la base de datos
                     match = re.search(r'CALIFICACIÓN FINAL:\*\*?\s*(\d+)/100', full_response, re.IGNORECASE)
                     if match:
-                        score = int(match.group(1))
-                        st.session_state.user_xp += score
+                        nota_final = int(match.group(1))
+                        st.session_state.user_xp += nota_final
                         if db is not None:
                             try:
-                                db.collection('usuarios').document(st.session_state.user_id).update({"xp": st.session_state.user_xp})
+                                # 1. Actualizar XP del alumno
+                                usuario_ref = db.collection('usuarios').document(st.session_state.user_id)
+                                usuario_ref.update({"xp": st.session_state.user_xp})
+                                
+                                # 2. Enviar la calificación al Libro de Notas
+                                user_data = usuario_ref.get().to_dict()
+                                registro_nota = {
+                                    "alumno_id": st.session_state.user_id,
+                                    "nombre_alumno": user_data.get("nombre", "Desconocido"),
+                                    "institucion": user_data.get("institucion", "Desconocida"),
+                                    "examen_titulo": st.session_state.get("exam_title", "Examen Genérico"),
+                                    "nota": nota_final,
+                                    "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                }
+                                db.collection('calificaciones').add(registro_nota)
                             except: pass
                     
                     st.markdown(full_response)
@@ -1513,6 +1556,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
