@@ -844,9 +844,12 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             st.session_state.exam_questions = mapa_examenes[examen_seleccionado]
                             st.session_state.exam_answers = []
                             
+                            # Forzar saltos de línea para que no se vea como un solo párrafo
+                            preguntas_formateadas = st.session_state.exam_questions.replace('\n', '\n\n* ')
+                            
                             st.session_state.messages.append({
                                 "role": "assistant", 
-                                "content": f"🎓 **¡EXAMEN INICIADO!**\n\n**ENUNCIADO:**\n*{st.session_state.exam_questions}*\n\n---\n**INSTRUCCIONES:**\nEscribe en el chat la resolución (tus asientos contables paso a paso). Cuando termines de registrar TODO, presiona **'✅ Calificar Examen'** en la barra lateral."
+                                "content": f"🎓 **¡EXAMEN INICIADO!**\n\n**ENUNCIADO:**\n* {preguntas_formateadas}\n\n---\n**INSTRUCCIONES:**\nEscribe en la barra de abajo la resolución de los asientos. Cuando termines de registrar TODO, presiona **'✅ Calificar Examen'** en la barra lateral."
                             })
                             st.rerun()
                 else:
@@ -1590,6 +1593,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
