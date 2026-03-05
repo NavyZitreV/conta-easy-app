@@ -200,17 +200,17 @@ def generar_pdf(markdown_content):
         pdf.set_text_color(0, 0, 0)
 
     return bytes(pdf.output())
-    
+
 # --- NUEVA FUNCIÓN: EXPORTAR A EXCEL (LECTURA INTELIGENTE DE TABLAS) ---
 def generar_excel_ciclo(markdown_text, transacciones):
     output = io.BytesIO()
     
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        # 1. Hoja de Enunciados (Lo que el alumno escribió)
+        # 1. Hoja de Enunciados
         df_enunciados = pd.DataFrame({"N°": range(1, len(transacciones)+1), "Transacción": transacciones})
         df_enunciados.to_excel(writer, sheet_name='Enunciados', index=False)
         
-        # 2. Escanear el texto de la IA buscando tablas Markdown
+        # 2. Escanear el texto buscando tablas Markdown
         lineas = markdown_text.split('\n')
         tablas = []
         tabla_actual = []
@@ -228,9 +228,9 @@ def generar_excel_ciclo(markdown_text, transacciones):
         diario_filas = []
         diario_headers = ["Fecha", "Detalle / Cuenta", "Debe (Bs.)", "Haber (Bs.)"]
         
-        # 3. Clasificar cada tabla encontrada y enviarla a su pestaña
+        # 3. Clasificar cada tabla encontrada
         for tabla in tablas:
-            if len(tabla) < 3: continue # Ignorar tablas incompletas
+            if len(tabla) < 3: continue
             
             encabezados = [c.strip() for c in tabla[0].split('|')[1:-1]]
             str_headers = " ".join(encabezados).upper()
@@ -241,10 +241,9 @@ def generar_excel_ciclo(markdown_text, transacciones):
                 while len(celdas) < len(encabezados): celdas.append("")
                 datos.append(celdas[:len(encabezados)])
                 
-            # Clasificador Automático
             if "FECHA" in str_headers and "DEBE" in str_headers:
                 diario_filas.extend(datos)
-                diario_filas.append(["", "---", "", ""]) # Separador visual entre asientos
+                diario_filas.append(["", "---", "", ""])
             elif "SUMAS DEBE" in str_headers or "SALDO DEUDOR" in str_headers:
                 pd.DataFrame(datos, columns=encabezados).to_excel(writer, sheet_name='Balance Comprobación', index=False)
             elif "CONCEPTO" in str_headers and "MONTO" in str_headers:
@@ -259,7 +258,6 @@ def generar_excel_ciclo(markdown_text, transacciones):
         else:
             pd.DataFrame(columns=diario_headers).to_excel(writer, sheet_name='Libro Diario', index=False)
         
-        # Ajuste profesional de ancho de columnas
         for sheet in writer.sheets.values():
             sheet.set_column('A:Z', 22)
 
@@ -548,6 +546,7 @@ def main():
         reproducir_sonido(st.session_state.pending_sound)
         del st.session_state.pending_sound
 
+    # --- BARRA LATERAL ---
     with st.sidebar:
         st.header("Configuración")
         
@@ -559,7 +558,6 @@ def main():
             st.metric(label="Racha 🔥", value=f"{st.session_state.user_streak}")
         st.divider()
         
-        # --- RANKING PÚBLICO (LEADERBOARD) ---
         with st.sidebar.expander("🏆 Ranking de mi Universidad", expanded=False):
             if db is not None:
                 try:
@@ -587,7 +585,6 @@ def main():
                     st.caption("No se pudo cargar el ranking en este momento.")
         st.sidebar.divider()
         
-        # --- PANEL DE CONTROL (SOLO PARA ADMIN Y DOCENTES) ---
         user_ref = db.collection('usuarios').document(st.session_state.user_id).get()
         if user_ref.exists and user_ref.to_dict().get("rol") in ["admin", "docente"]:
             st.markdown("### 🛠️ Administración")
@@ -652,12 +649,12 @@ def main():
                         prompt_mutacion = f"""Eres un Docente de Contabilidad Universitario. 
                         Toma el siguiente caso práctico base y crea una variante ÚNICA para un examen anti-copia.
                         REGLAS:
-                        1. Cambia radicalmente los montos monetarios (hazlos realistas).
-                        2. Cambia los nombres de las empresas, bancos o personas involucradas.
-                        3. Cambia la fecha (usa fechas del año 2026).
-                        4. Puedes agregar un pequeño detalle extra (ej. 'se incluye un descuento del 2%' o 'se paga con cheque del Banco Nacional').
-                        5. MANTÉN exactamente el mismo nivel de complejidad contable y las cuentas principales que se evaluarían.
-                        6. DEVUELVE ÚNICAMENTE EL TEXTO DEL NUEVO ENUNCIADO. No lo resuelvas, no uses introducciones, no uses markdown extra.
+                        1. Cambia radicalmente los montos monetarios.
+                        2. Cambia los nombres de las empresas, bancos o personas.
+                        3. Cambia la fecha.
+                        4. Puedes agregar un pequeño detalle extra.
+                        5. MANTÉN exactamente el mismo nivel de complejidad contable.
+                        6. DEVUELVE ÚNICAMENTE EL TEXTO DEL NUEVO ENUNCIADO.
                         
                         Caso Base: "{caso_limpio}"
                         """
@@ -680,46 +677,12 @@ def main():
                         model = genai.GenerativeModel('gemini-flash-latest')
                         
                         nombre_uni = st.secrets["general"].get("NOMBRE_INSTITUCION", "Institución Educativa")
-            
                         reglas_actuales = load_tax_rules()
                         prompt_lab = f"""Eres un Tutor de Contabilidad Senior de la {nombre_uni}. El alumno necesita resolver este caso práctico: "{st.session_state.current_active_case}". 
-PROHIBIDO usar formato LaTeX, signos de dólar ($) o etiquetas como \\mathbf para fórmulas matemáticas. Escribe los cálculos en texto plano normal.
-DEBES dejar obligatoriamente una línea en blanco (un Enter) justo ANTES de empezar la tabla del asiento contable.
-
-{reglas_actuales}
-REGLA DE ORO TRIBUTARIA: Aplica las normativas de impuestos SOLO si la transacción lo requiere explícitamente. ESTÁ ESTRICTAMENTE PROHIBIDO añadir "Notas", consejos o recordatorios al final de tu respuesta sobre retenciones (como el D.S. 4850) si el ejercicio no trata sobre pagos de servicios sin factura. Limítate a resolver el caso.
-TAREA: 
-1. Crea el asiento contable usando ESTRICTAMENTE esta estructura Markdown. NO fusiones columnas. Usa este modelo exacto para garantizar la alineación:
-| Código | Detalle / Cuenta | Debe (Bs.) | Haber (Bs.) |
-| :--- | :--- | ---: | ---: |
-| 1.1.1 | Caja | 1.000,00 | |
-| 2.1.1 | Cuentas por Pagar | | 1.000,00 |
-REGLA DE ORO: ESCRIBE LA GLOSA COMPLETAMENTE AFUERA Y DEBAJO DE LA TABLA como texto normal. NUNCA incluyas la glosa como una fila o celda dentro de la tabla.
-2. Explica breve y pedagógicamente por qué se debita o acredita cada cuenta basándote en la ley de movimiento de cuentas. 
-3. Menciona qué documento de respaldo (factura, recibo, etc.) se necesitaría.
-
-Después de la explicación del asiento, DEBES agregar dos secciones nuevas obligatorias:
-4. LIBRO MAYOR (CUENTAS T): Genera el mayor de cada cuenta importante que intervino en el asiento usando ESTRICTAMENTE tablas individuales de Markdown. Suma las columnas y muestra el saldo final (Deudor o Acreedor). ¡NUNCA omitas la fila separadora | ---: | ---: | debajo de los encabezados! Usa EXACTAMENTE este formato para cada cuenta:
-
-#### Cuenta: [Nombre de la Cuenta]
-| DEBE (Bs.) | HABER (Bs.) |
-| ---: | ---: |
-| 1.000,00 | |
-| | 500,00 |
-| **Total: 1.000,00** | **Total: 500,00** |
-| **Saldo Deudor:** | **500,00** |
-
-DEBES dejar una línea en blanco entre la cuenta T de una cuenta y la siguiente.
-
-5. IMPACTO EN ESTADOS FINANCIEROS: Crea una pequeña tabla con las columnas | Cuenta | Grupo | Estado Financiero |. Indica exactamente a dónde va cada cuenta (Ej. Activo Corriente -> Balance General; Gasto Operativo -> Estado de Resultados).
-| Cuenta | Grupo | Estado Financiero |
-| :--- | :--- | :--- |
-
-REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar obligatoriamente con el símbolo | y terminar con el símbolo |. ¡Cero excepciones! El separador de las Cuentas T debe ser SIEMPRE EXACTAMENTE | ---: | ---: |."""
-
+                        {reglas_actuales}
+                        TAREA: Resuelve el caso generando Libro Diario, explicación, Mayor en T, e impacto en EEFF con tablas Markdown perfectas."""
                         response = model.generate_content(prompt_lab)
                         lab_response = response.text.strip()
-                        
                         st.session_state.messages.append({"role": "assistant", "content": lab_response})
                         st.session_state.last_lab_response = lab_response 
                         st.rerun()
@@ -731,13 +694,12 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 st.session_state.pending_sound = "audio/swords.mp3" 
                 st.session_state.auditor_mode = True
                 st.session_state.auditor_case = st.session_state.current_active_case
-                st.session_state.messages.append({"role": "assistant", "content": f"⚔️ **¡Reto Aceptado!**\n\nCaso: *{st.session_state.current_active_case}*\n\nEscribe en el chat tu asiento contable propuesto (Cuentas y Montos). Yo actuaré como un Auditor estricto y calificaré tu respuesta."})
+                st.session_state.messages.append({"role": "assistant", "content": f"⚔️ **¡Reto Aceptado!**\n\nCaso: *{st.session_state.current_active_case}*\n\nEscribe tu asiento contable propuesto. Actuaré como un Auditor estricto."})
                 st.rerun()
                 
         else:
-            st.warning("⚠️ No se encontraron casos de laboratorio. Verifica data/laboratory_cases.json")
+            st.warning("⚠️ No se encontraron casos de laboratorio.")
 
-           
         st.divider()
         st.header("🏢 Proyecto: Ciclo Contable")
         
@@ -758,9 +720,9 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 st.session_state.project_transactions = transacciones_guardadas
                 
                 if len(transacciones_guardadas) > 0:
-                    st.session_state.messages.append({"role": "assistant", "content": f"☁️ **¡Proyecto Retomado!**\n\nHe recuperado **{len(transacciones_guardadas)} transacciones** de la nube. Puedes continuar ingresando la siguiente."})
+                    st.session_state.messages.append({"role": "assistant", "content": f"☁️ **¡Proyecto Retomado!**\n\nHe recuperado **{len(transacciones_guardadas)} transacciones** de la nube."})
                 else:
-                    st.session_state.messages.append({"role": "assistant", "content": "🏢 **¡Modo Proyecto Iniciado!**\n\nVamos a simular un ciclo contable. Escribe tus transacciones una por una en el chat.\n\nEl sistema las guardará. Recuerda usar el botón **'💾 Guardar Avance'** de la barra lateral periódicamente para no perder tu progreso."})
+                    st.session_state.messages.append({"role": "assistant", "content": "🏢 **¡Modo Proyecto Iniciado!**\n\nEscribe tus transacciones una por una. Usa **'💾 Guardar Avance'** para no perder el progreso."})
                 st.rerun()
         else:
             st.info(f"Transacciones registradas: {len(st.session_state.get('project_transactions', []))}")
@@ -779,23 +741,21 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             if st.button("📊 Generar EEFF", type="primary"):
                 if len(st.session_state.project_transactions) > 0:
                     st.session_state.generate_project_balance = True
-                    # Limpiamos Firebase al terminar
                     if db is not None:
                         try:
                             db.collection('usuarios').document(st.session_state.user_id).update({"proyecto_en_curso": []})
                         except: pass
                 else:
-                    st.warning("Debes ingresar al menos una transacción en el chat.")
+                    st.warning("Debes ingresar al menos una transacción.")
             
             if st.button("❌ Cancelar Proyecto"):
                 st.session_state.project_mode = False
                 st.session_state.project_transactions = []
-                # Limpiamos Firebase al cancelar
                 if db is not None:
                     try:
                         db.collection('usuarios').document(st.session_state.user_id).update({"proyecto_en_curso": []})
                     except: pass
-                st.session_state.messages.append({"role": "assistant", "content": "Proyecto cancelado y borrado de la nube. Volviendo al modo normal."})
+                st.session_state.messages.append({"role": "assistant", "content": "Proyecto cancelado y borrado de la nube."})
                 st.rerun()
 
     # --- Lógica para mostrar el Panel de Administración ---
@@ -807,27 +767,26 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         mi_rol = st.session_state.get("user_rol", "docente")
         
         if mi_rol == "admin":
-            st.success("👑 MODO SUPER ADMIN: Viendo datos globales de TODAS las instituciones.")
+            st.success("👑 MODO SUPER ADMIN: Viendo datos globales.")
             usuarios_ref = db.collection('usuarios').get()
         else:
-            st.info(f"👨‍🏫 MODO DOCENTE: Viendo datos exclusivos de {mi_institucion}.")
+            st.info(f"👨‍🏫 MODO DOCENTE: Viendo datos de {mi_institucion}.")
             usuarios_ref = db.collection('usuarios').where('rol', '==', 'estudiante').where('institucion', '==', mi_institucion).get()
             
         usuarios_lista = [u for u in usuarios_ref if u.to_dict().get('rol') != 'admin']
 
-        tab_alumnos, tab_casos, tab_analiticas = st.tabs(["👥 Gestión de Estudiantes", "📚 Gestor de Casos Prácticos", "🧠 Analíticas"])
+        tab_alumnos, tab_casos, tab_analiticas = st.tabs(["👥 Gestión de Estudiantes", "📚 Gestor de Casos", "🧠 Analíticas"])
         
         # ==========================================
-        # PESTAÑA 1: ESTUDIANTES Y DOCENTES
+        # PESTAÑA 1: ESTUDIANTES Y DOCENTES (CARGA MASIVA)
         # ==========================================
         with tab_alumnos:
-            # --- NUEVA FUNCIÓN: CARGA MASIVA (SOLO SUPER ADMIN) ---
             if mi_rol == "admin":
                 with st.expander("📥 Carga Masiva de Usuarios (Excel/CSV)"):
-                    st.markdown("Sube un archivo con los datos de tus estudiantes. Las columnas en la primera fila del Excel deben llamarse **EXACTAMENTE** así:")
+                    st.markdown("Las columnas en la primera fila del Excel deben llamarse **EXACTAMENTE** así:")
                     st.code("NOMBRE | CARRERA | UNIVERSIDAD | CORREO | PASSWORD")
                     
-                    archivo_masivo = st.file_uploader("Selecciona tu archivo Excel o CSV", type=['csv', 'xlsx'])
+                    archivo_masivo = st.file_uploader("Selecciona tu archivo Excel", type=['csv', 'xlsx'])
                     
                     if archivo_masivo is not None:
                         if st.button("🚀 Procesar y Subir Usuarios", type="primary"):
@@ -838,12 +797,11 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                     else:
                                         df_masivo = pd.read_excel(archivo_masivo)
                                     
-                                    # Normalizar nombres de columnas
                                     df_masivo.columns = df_masivo.columns.str.strip().str.upper()
                                     esperadas = ["NOMBRE", "CARRERA", "UNIVERSIDAD", "CORREO", "PASSWORD"]
                                     
                                     if not all(col in df_masivo.columns for col in esperadas):
-                                        st.error("⚠️ Error: Faltan columnas obligatorias. Revisa que diga: NOMBRE, CARRERA, UNIVERSIDAD, CORREO, PASSWORD.")
+                                        st.error("⚠️ Error: Faltan columnas. Revisa que diga: NOMBRE, CARRERA, UNIVERSIDAD, CORREO, PASSWORD.")
                                     else:
                                         agregados = 0
                                         duplicados = 0
@@ -869,13 +827,12 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                             correos_existentes.append(correo_nuevo)
                                             agregados += 1
                                         
-                                        st.success(f"✅ Carga masiva completada: {agregados} alumnos creados | {duplicados} omitidos (ya existían).")
+                                        st.success(f"✅ Carga completada: {agregados} alumnos creados | {duplicados} omitidos.")
                                         time.sleep(3)
                                         st.rerun()
                                 except Exception as e:
                                     st.error(f"❌ Error al procesar el archivo: {e}")
 
-            # --- CODIGO ORIGINAL DE LA TABLA ---
             csv_data = "Nombre Completo;Rol;Carrera;Institucion;Correo Electronico;Experiencia (XP);Racha (Dias)\n"
             st.write(f"**Total de usuarios encontrados:** {len(usuarios_lista)}")
             
@@ -951,7 +908,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         with tab_casos:
             st.subheader("Subir Nuevo Ejercicio a la Nube")
             with st.form("form_nuevo_caso", clear_on_submit=True):
-                nueva_categoria = st.text_input("Categoría (Ej. 'Ajustes Contables', 'Pasivos', etc.)")
+                nueva_categoria = st.text_input("Categoría (Ej. 'Ajustes Contables')")
                 nivel_dificultad = st.selectbox("Nivel de Dificultad", ["[BÁSICO]", "[INTERMEDIO]", "[AVANZADO]"])
                 nuevo_enunciado = st.text_area("Enunciado del Caso Práctico")
                 
@@ -967,8 +924,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         st.success("¡Caso guardado!")
                         time.sleep(1.5)
                         st.rerun()
-                    else:
-                        st.error("Por favor completa la categoría y el enunciado.")
                         
             st.divider()
             st.markdown("### 📚 Casos Subidos en la Nube")
@@ -1005,14 +960,14 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             tiene_permiso = (mi_rol == "admin") or (mi_rol == "docente" and mi_usuario_db.get("acceso_analiticas", False) == True)
             
             if not tiene_permiso:
-                st.warning("🔒 No tienes acceso al módulo de analíticas. Solicita la habilitación al Administrador General.")
+                st.warning("🔒 No tienes acceso al módulo de analíticas.")
             else:
                 st.subheader(f"🧠 Inteligencia Académica - {mi_institucion if mi_rol != 'admin' else 'Global'}")
                 
                 estudiantes = [u.to_dict() for u in usuarios_lista if u.to_dict().get('rol') == 'estudiante']
                 
                 if len(estudiantes) == 0:
-                    st.info("No hay suficientes datos de estudiantes para generar analíticas.")
+                    st.info("No hay suficientes datos de estudiantes.")
                 else:
                     total_estudiantes = len(estudiantes)
                     xp_total = sum(e.get('xp', 0) for e in estudiantes)
@@ -1025,67 +980,43 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     c3.metric("🔥 Alumnos en Racha", alumnos_en_racha)
                     
                     st.divider()
-                    
-                    # --- FILA 1: TOP 5 Y RIESGO ---
                     col_top, col_riesgo = st.columns(2)
-                    
                     with col_top:
                         st.markdown("### 🏆 Top 5 - Cuadro de Honor")
                         estudiantes_ordenados = sorted(estudiantes, key=lambda x: x.get('xp', 0), reverse=True)[:5]
                         datos_grafico = {e.get('nombre', 'Anónimo'): e.get('xp', 0) for e in estudiantes_ordenados if e.get('xp', 0) > 0}
-                        if datos_grafico:
-                            st.bar_chart(datos_grafico)
-                        else:
-                            st.caption("Aún no hay alumnos con Experiencia (XP) para mostrar.")
+                        if datos_grafico: st.bar_chart(datos_grafico)
                             
                     with col_riesgo:
                         st.markdown("### 🚨 Radar de Alerta Temprana")
-                        st.caption("Alumnos inactivos (0 XP). Intervención sugerida.")
                         alumnos_riesgo = [e for e in estudiantes if e.get('xp', 0) == 0]
                         if len(alumnos_riesgo) > 0:
                             for ar in alumnos_riesgo:
-                                nombre_ar = ar.get('nombre', 'Sin Nombre')
-                                correo_ar = ar.get('correo', 'Sin Correo')
-                                st.error(f"⚠️ **{nombre_ar}** \n\n ✉️ {correo_ar}")
+                                st.error(f"⚠️ **{ar.get('nombre')}** \n\n ✉️ {ar.get('correo')}")
                         else:
                             st.success("¡Excelente! Todos los alumnos tienen participación activa.")
                             
-                    # --- FILA 2: NUEVO COMPORTAMIENTO IA ---
                     st.divider()
                     st.markdown("### 🤖 Comportamiento de Aprendizaje (Uso de IA)")
-                    st.caption("Mide la confianza del grupo: ¿Buscan ayuda o se ponen a prueba?")
                     
                     total_tutor = sum(e.get('uso_tutor', 0) for e in estudiantes)
                     total_auditor = sum(e.get('uso_auditor', 0) for e in estudiantes)
                     
                     col_t1, col_t2 = st.columns(2)
-                    with col_t1:
-                        st.info(f"🧑‍🏫 **Tutor Analista (Fase Aprendizaje):** {total_tutor} consultas")
-                    with col_t2:
-                        st.success(f"🕵️ **Reto Auditor (Fase Evaluación):** {total_auditor} intentos")
+                    with col_t1: st.info(f"🧑‍🏫 **Tutor Analista:** {total_tutor} consultas")
+                    with col_t2: st.success(f"🕵️ **Reto Auditor:** {total_auditor} intentos")
                         
                     if total_tutor > 0 or total_auditor > 0:
-                        datos_ia = {"Tutor Analista": total_tutor, "Reto Auditor": total_auditor}
-                        st.bar_chart(datos_ia)
-                    else:
-                        st.caption("Aún no hay suficientes datos de interacción con la IA para graficar.")
+                        st.bar_chart({"Tutor Analista": total_tutor, "Reto Auditor": total_auditor})
                         
-                    # --- FILA 3: TERMÓMETRO POR CATEGORÍA ---
                     st.divider()
                     st.markdown("### 🌡️ Termómetro de Rendimiento por Temas")
-                    st.caption("Mide el dominio del curso en cada categoría contable según la Experiencia (XP) ganada.")
-                    
                     rendimiento_global = {}
                     for e in estudiantes:
-                        rendimiento_usuario = e.get('rendimiento_categorias', {})
-                        for cat, xp_ganada in rendimiento_usuario.items():
+                        for cat, xp_ganada in e.get('rendimiento_categorias', {}).items():
                             rendimiento_global[cat] = rendimiento_global.get(cat, 0) + xp_ganada
-                            
-                    if rendimiento_global:
-                        st.bar_chart(rendimiento_global)
-                    else:
-                        st.info("Aún no hay datos de rendimiento. Los alumnos deben ganar XP resolviendo casos para que el termómetro se active.")
-                        
+                    if rendimiento_global: st.bar_chart(rendimiento_global)
+
     # --- Inicializar memoria del chat ---
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -1098,20 +1029,9 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 <div style='text-align: center; padding: 2rem; background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);'>
                     <h2 style='color: #003366; margin-bottom: 0;'>¡Bienvenido a CONTA-EASY! 🚀</h2>
                     <p style='color: #6c757d; font-size: 1.1rem; margin-top: 10px;'>Tu simulador de auditoría y laboratorio contable inteligente.</p>
-                    <hr style='opacity: 0.2;'>
-                    <div style='text-align: left; color: #495057;'>
-                        <p><b>¿Cómo empezar?</b></p>
-                        <ul>
-                            <li><b>📝 Laboratorio:</b> Selecciona un caso en el menú izquierdo y reta al Auditor.</li>
-                            <li><b>🏢 Proyecto:</b> Inicia un ciclo contable completo y genera tus Estados Financieros.</li>
-                            <li><b>💬 Consultas:</b> Pregunta sobre normativas tributarias en la barra inferior.</li>
-                        </ul>
-                    </div>
                 </div>
-                """, 
-                unsafe_allow_html=True
+                """, unsafe_allow_html=True
             )
-        st.markdown("<br><br>", unsafe_allow_html=True)
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
@@ -1123,106 +1043,50 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.download_button(label="📄 Descargar PDF", data=pdf_bytes, file_name="Resolucion_Laboratorio.pdf", mime="application/pdf", key=f"pdf_{len(st.session_state.messages)}")
                 elif "last_auditor_response" in st.session_state and st.session_state.last_auditor_response in message["content"]:
                     pdf_bytes = generar_pdf(message["content"])
-                    st.download_button(label="📄 Descargar Evaluación en PDF", data=pdf_bytes, file_name="Evaluacion_Auditor_UNICEN.pdf", mime="application/pdf", key=f"pdf_aud_{len(st.session_state.messages)}")
+                    st.download_button(label="📄 Descargar Evaluación PDF", data=pdf_bytes, file_name="Evaluacion_Auditor.pdf", mime="application/pdf", key=f"pdf_aud_{len(st.session_state.messages)}")
                 elif "**👨‍🏫 Tutor UNICEN (Resolución Libre):**" in message["content"]:
                     pdf_bytes = generar_pdf(message["content"])
-                    st.download_button(
-                        label="📄 Descargar Resolución en PDF", 
-                        data=pdf_bytes, 
-                        file_name="Resolucion_Caso_Libre.pdf", 
-                        mime="application/pdf", 
-                        key=f"pdf_chat_hist_{len(st.session_state.messages)}"
-                    )
+                    st.download_button(label="📄 Descargar Resolución PDF", data=pdf_bytes, file_name="Resolucion_Libre.pdf", mime="application/pdf", key=f"pdf_chat_hist_{len(st.session_state.messages)}")
                 elif "# 📊 REPORTE DEL CICLO CONTABLE Y ESTADOS FINANCIEROS FINALES" in message["content"]:
                     pdf_bytes = generar_pdf(message["content"])
-                    st.download_button(label="📄 Descargar Balance y EDFF en PDF", data=pdf_bytes, file_name="Proyecto_Ciclo_Contable.pdf", mime="application/pdf", key=f"pdf_chat_hist_{len(st.session_state.messages)}")
-                    
-                    # --- MANTENER EL BOTÓN DE EXCEL EN MEMORIA ---
+                    st.download_button(label="📄 Descargar Balance PDF", data=pdf_bytes, file_name="Proyecto_Ciclo.pdf", mime="application/pdf", key=f"pdf_chat_hist_{len(st.session_state.messages)}")
                     excel_bytes = generar_excel_ciclo(message["content"], st.session_state.get('project_transactions', []))
-                    st.download_button(
-                        label="📥 Descargar Planilla de Trabajo (Excel)",
-                        data=excel_bytes,
-                        file_name=f"Planilla_Contable_{datetime.now().strftime('%Y%m%d')}.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        key=f"xlsx_proyecto_final_{len(st.session_state.messages)}"
-                    )
+                    st.download_button(label="📥 Descargar Planilla Excel", data=excel_bytes, file_name=f"Planilla_Contable.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_chat_hist_{len(st.session_state.messages)}")
     
     def should_run_deep_search(prompt, checkbox_state):
         keywords = ['en la web', 'en internet', 'según impuestos', 'en notebooklm', 'busca en todas']
         return checkbox_state or any(k in prompt.lower() for k in keywords)
 
-    # Input
     if prompt := st.chat_input("Escribe tu consulta o transacción aquí..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+        with st.chat_message("user"): st.markdown(prompt)
             
-        # --- RASTREADOR DE IA PARA ANALÍTICAS ---
         if st.session_state.get("user_id"):
             try:
                 user_ref = db.collection('usuarios').document(st.session_state.user_id)
                 user_data = user_ref.get().to_dict()
-                
-                es_auditor = st.session_state.get("auditor_mode", False) 
-                
-                if es_auditor:
+                if st.session_state.get("auditor_mode", False):
                     user_ref.update({"uso_auditor": user_data.get("uso_auditor", 0) + 1})
                 else:
                     user_ref.update({"uso_tutor": user_data.get("uso_tutor", 0) + 1})
-            except Exception as e:
-                pass
-        # ----------------------------------------
+            except Exception: pass
         
         with st.chat_message("assistant"):
             response_container = st.empty()
             full_response = ""
             
-            # --- PROJECT MODE INTERCEPTION ---
             if st.session_state.get("project_mode", False) and not st.session_state.get("generate_project_balance", False):
                 st.session_state.project_transactions.append(prompt)
-                full_response = f"✅ Transacción #{len(st.session_state.project_transactions)} guardada. Escribe la siguiente o presiona **'Generar EEFF'** en la barra lateral."
+                full_response = f"✅ Transacción #{len(st.session_state.project_transactions)} guardada. Escribe la siguiente o presiona **'Generar EEFF'**."
                 response_container.markdown(full_response)
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
             
-            # --- CHALLENGE MODE INTERCEPTION ---
             elif st.session_state.get("auditor_mode", False):
-                 with st.spinner("🧐 El Auditor está revisando tu asiento..."):
+                 with st.spinner("🧐 El Auditor está revisando..."):
                     try:
                         genai.configure(api_key=api_key)
                         model = genai.GenerativeModel('gemini-flash-latest')
-                        
-                        reglas_actuales = load_tax_rules()
-                        case_ref = st.session_state.get("auditor_case", "Caso desconocido")
-                        
-                        frases_auditor = [
-                            "SEÑOR ESTUDIANTE, recuerde que la contabilidad es el lenguaje de los negocios y una ciencia exacta, no un simple juego de sumas y restas.",
-                            "FUTURO COLEGA, la precisión contable es innegociable. Un asiento mal registrado altera el destino financiero y tributario de toda una empresa.",
-                            "ESTIMADO UNIVERSITARIO, el auditor no asume, verifica. Evaluemos con rigor técnico si su análisis cumple con la normativa vigente.",
-                            "LA CONTABILIDAD exige criterio profesional, no adivinanzas. Procederé a auditar su registro bajo la lupa estricta de la normativa boliviana.",
-                            "COLEGA EN FORMACIÓN, detrás de cada cuenta hay una gran responsabilidad legal y penal. Revisemos su propuesta contable paso a paso."
-                        ]
-                        frase_apertura = random.choice(frases_auditor)
-                        nombre_uni = st.secrets["general"].get("NOMBRE_INSTITUCION", "Institución Educativa")
-
-                        prompt_audit = f"""Eres un Auditor Contable y Docente Universitario en la {nombre_uni}. Evalúas a un estudiante. Tu tono es ESTRICTAMENTE PROFESIONAL, OBJETIVO y TÉCNICO.
-                        
-                        {reglas_actuales}
-                    REGLA 1 (APERTURA OBLIGATORIA): Inicia tu respuesta EXACTAMENTE con este párrafo, sin agregar nada antes:
-                    "{frase_apertura}"
-                    
-                    REGLA 2 (ESTRUCTURA VISUAL): Usa OBLIGATORIAMENTE un solo numeral (#) seguido de un espacio para crear títulos grandes. Debes generar exactamente estos títulos:
-                    # 1. CALIFICACIÓN: X/100
-                    # 2. OBSERVACIONES Y ERRORES DETECTADOS:
-                    (Aquí tu lista numerada de puntos citando Código de Comercio, Ley 843, PCGA, etc.)
-                    # 3. SOLUCIÓN CORRECTA:
-                    (Aquí la tabla)
-                    
-                    REGLA 3 (GLOSA AFUERA): Genera la tabla Markdown del asiento. DEBES cerrar la tabla después de la fila de TOTALES. La GLOSA debe ir AFUERA de la tabla, abajo, como un párrafo de texto normal.
-                    
-                    REGLA 4: Cierra con una frase de aliento profesional.
-                    
-                    El caso es: "{case_ref}". Su respuesta fue: "{prompt}"."""
-                        
+                        prompt_audit = f"""Eres un Auditor Contable. Evalúas al estudiante. Tono TÉCNICO. Caso: "{st.session_state.get('auditor_case')}". Respuesta alumno: "{prompt}". Califica sobre 100 y da formato Markdown."""
                         response = model.generate_content(prompt_audit)
                         full_response = response.text.strip()
                         
@@ -1230,39 +1094,26 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         if match:
                             score = int(match.group(1))
                             st.session_state.user_xp += score 
-                            
                             if score >= 80:
                                 st.session_state.user_streak += 1
                                 st.balloons() 
-                                reproducir_sonido("audio/success.mp3") 
-                                st.toast(f"¡Excelente! Ganaste {score} XP. Racha aumentada a {st.session_state.user_streak} 🔥", icon="🔥")
+                                st.toast(f"¡Excelente! +{score} XP. Racha 🔥", icon="🔥")
                             else:
                                 st.session_state.user_streak = 0
-                                reproducir_sonido("audio/error.mp3") 
-                                st.toast(f"Obtuviste {score} XP. La racha ha vuelto a cero. ¡Revisa la norma y recupera tu fuego!", icon="🧊")
-                            
-                            # Update gamification to Firebase
+                                st.toast(f"+{score} XP. Racha a cero.", icon="🧊")
+                                
                             if db is not None:
                                 try:
                                     user_ref = db.collection('usuarios').document(st.session_state.user_id)
-                                    categoria_actual = st.session_state.get("categoria", "Práctica General")
+                                    cat = st.session_state.get("categoria", "General")
                                     user_data = user_ref.get().to_dict()
-                                    rendimiento = user_data.get("rendimiento_categorias", {})
-                                    
-                                    rendimiento[categoria_actual] = rendimiento.get(categoria_actual, 0) + score
-                                    
-                                    user_ref.update({
-                                        "xp": st.session_state.user_xp,
-                                        "racha": st.session_state.user_streak,
-                                        "rendimiento_categorias": rendimiento
-                                    })
-                                except Exception as e:
-                                    st.warning(f"No se pudo guardar la métrica en la nube: {e}")
+                                    rend = user_data.get("rendimiento_categorias", {})
+                                    rend[cat] = rend.get(cat, 0) + score
+                                    user_ref.update({"xp": st.session_state.user_xp, "racha": st.session_state.user_streak, "rendimiento_categorias": rend})
+                                except: pass
 
                         st.session_state.auditor_mode = False 
                         st.session_state.last_auditor_response = full_response
-                        st.success("Evaluación Completada.")
-                        
                     except Exception as e:
                         full_response = f"Error del Auditor: {e}"
                         st.session_state.auditor_mode = False
@@ -1271,262 +1122,96 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 is_deep_search = should_run_deep_search(prompt, deep_search_active)
                 
                 if is_deep_search:
-                    with st.spinner('Consultando todas las bases de datos (Local, NLM, Web)...'):
-                        topics_data = load_local_data()
-                        local_candidates = search_local(prompt, topics_data)
-                        local_text = ""
-                        if local_candidates:
-                            for idx, cand in enumerate(local_candidates):
-                                local_text += f"\n--- EXTRACTO LOCAL {idx+1} ({cand['topic']}) ---\n{cand['snippet']}"
-                        else:
-                            local_text = "Sin resultados locales relevantes."
-
+                    with st.spinner('Consultando todas las bases...'):
+                        local_candidates = search_local(prompt, load_local_data())
+                        local_text = "".join([f"\n--- EXTRACTO {idx+1} ---\n{c['snippet']}" for idx, c in enumerate(local_candidates)]) if local_candidates else "Sin resultados locales."
                         nlm_text = search_notebooklm(prompt) or "Sin resultados en NotebookLM."
                         web_text = search_web(prompt) or "Sin resultados en la Web."
                         
-                        master_context = f"""
-                        [RESULTADOS LOCALES]:
-                        {local_text}
-                        
-                        [RESULTADOS NOTEBOOKLM]:
-                        {nlm_text}
-                        
-                        [RESULTADOS WEB]:
-                        {web_text}
-                        """
-                        
+                        master_context = f"[LOCAL]:\n{local_text}\n[NOTEBOOKLM]:\n{nlm_text}\n[WEB]:\n{web_text}"
                         try:
                             genai.configure(api_key=api_key)
                             model = genai.GenerativeModel('gemini-flash-latest')
-                            
-                            system_prompt = f"""El alumno preguntó: "{prompt}". 
-                            Aquí tienes información de 3 fuentes distintas: {master_context}. 
-                            TAREA: Redacta una respuesta exhaustiva integrando los apuntes teóricos, la base legal (NLM) y la normativa web oficial. 
-                            Cita de qué fuente sacas cada dato."""
-                            
-                            response = model.generate_content(system_prompt)
+                            response = model.generate_content(f"Alumno preguntó: '{prompt}'. Contexto: {master_context}. TAREA: Integra teórica, legal y normativa oficial.")
                             full_response = response.text.strip()
-                            st.success("✅ Respuesta Generada en Modo Profundo (3 Fuentes).")
-                            
                         except Exception as e:
-                            full_response = f"Error al sintetizar respuesta profunda: {e}\n\nDetalles de fuentes:\n{master_context}"
-                
+                            full_response = f"Error IA: {e}"
                 else:
-                    topics_data = load_local_data()
-                    local_candidates = search_local(prompt, topics_data)
-                    
+                    local_candidates = search_local(prompt, load_local_data())
                     should_escalate = True
                     
                     if local_candidates:
                         combined_snippets = ""
-                        
                         with st.expander(f"📄 Documentos encontrados ({len(local_candidates)})"):
                             for idx, cand in enumerate(local_candidates):
                                 st.markdown(f"**{idx+1}. {cand['topic']}** (Score: {cand['score']})")
-                                st.caption(cand['snippet'])
-                                combined_snippets += f"\n\n--- EXTRACTO {idx+1} ({cand['topic']}) ---\n{cand['snippet']}"
+                                combined_snippets += f"\n{cand['snippet']}"
 
-                        with st.spinner("👩‍🏫 Analizando material del curso (El Juez)..."):
+                        with st.spinner("👩‍🏫 Analizando material..."):
                             try:
                                 llm_verdict = evaluate_snippet_with_llm(prompt, combined_snippets, api_key)
-                                
                                 if llm_verdict != "INSUFICIENTE":
                                     full_response = f"**Tutor UNICEN:**\n\n{llm_verdict}"
-                                    st.success("✅ Respuesta validada por Juez IA (Contexto Combinado).")
                                     should_escalate = False 
-                                    
                             except Exception as e:
-                                st.error(f"Error de API (El Juez): {e}")
+                                st.error(f"Error IA: {e}")
                                 should_escalate = False 
-                                full_response = "⚠️ Ocurrió un error al contactar con la IA para validar la respuesta local. Por favor verifica tu API Key."
 
                     if should_escalate:
-                        with st.spinner("🤖 Consultando base de conocimiento extendida (NotebookLM)..."):
-                            if not local_candidates:
-                                 st.info("Búsqueda local sin coincidencias fuertes (Score < 3). Escalando...")
-                            else:
-                                 st.warning("El Juez IA determinó que la info local era insuficiente. Escalando...")
-                                 
+                        with st.spinner("🤖 Consultando base extendida (NotebookLM)..."):
                             nlm_result = search_notebooklm(prompt)
-                        
                         if nlm_result:
-                            full_response = f"**Respuesta de NotebookLM:**\n\n{nlm_result}"
-                            st.success("✅ Respuesta recuperada de NotebookLM.")
+                            full_response = f"**Respuesta NotebookLM:**\n\n{nlm_result}"
                         else:
-                            with st.spinner("🌐 Buscando normativa oficial en la web (Nivel 3)..."):
-                                st.warning("NotebookLM no tiene datos. Escalando a Nivel 3...")
+                            with st.spinner("🌐 Buscando web..."):
                                 web_result = search_web(prompt)
-                            
                             if web_result:
-                                full_response = f"**Búsqueda Web (Normativa Bolivia):**\n\n{web_result}"
+                                full_response = f"**Web (Bolivia):**\n\n{web_result}"
                             else:
-                                with st.spinner("👨‍🏫 Parece un caso práctico. Generando resolución estructurada..."):
+                                with st.spinner("👨‍🏫 Resolviendo caso práctico libre..."):
                                     try:
                                         genai.configure(api_key=api_key)
                                         model = genai.GenerativeModel('gemini-flash-latest')
-                                        
-                                        reglas_actuales = load_tax_rules()
-                                        prompt_resolucion_libre = f"""Eres un Tutor de Contabilidad Senior de la UNICEN. El alumno te ha planteado el siguiente caso o ejercicio práctico de forma libre: "{prompt}".
-                                        PROHIBIDO usar formato LaTeX o etiquetas matemáticas. Escribe en texto plano normal.
-                                        
-                                        {reglas_actuales}
-                                        
-                                        TAREA: 
-                                        1. Crea el asiento contable usando ESTRICTAMENTE esta estructura Markdown:
-                                        | Código | Detalle / Cuenta | Debe (Bs.) | Haber (Bs.) |
-                                        | :--- | :--- | ---: | ---: |
-                                        REGLA: La GLOSA debe ir COMPLETAMENTE AFUERA y debajo de la tabla.
-                                        
-                                        2. Explica pedagógicamente la ley de movimiento de cuentas aplicada y el documento de respaldo necesario.
-                                        
-                                        3. LIBRO MAYOR (CUENTAS T): Genera el mayor usando ESTRICTAMENTE tablas individuales. ¡NUNCA omitas la fila separadora | ---: | ---: |!
-                                        #### Cuenta: [Nombre]
-                                        | DEBE (Bs.) | HABER (Bs.) |
-                                        | ---: | ---: |
-                                        
-                                        4. IMPACTO EN ESTADOS FINANCIEROS:
-                                        | Cuenta | Grupo | Estado Financiero |
-                                        | :--- | :--- | :--- |
-                                        
-                                        REGLA DE ORO: TODAS las tablas DEBEN empezar y terminar con |.
-                                        """
-                                        
-                                        response_libre = model.generate_content(prompt_resolucion_libre)
+                                        response_libre = model.generate_content(f"Tutor UNICEN. Alumno plantea: '{prompt}'. Resuelve con tablas Markdown (Diario, Mayores, EEFF).")
                                         full_response = "**👨‍🏫 Tutor UNICEN (Resolución Libre):**\n\n" + response_libre.text.strip()
-                                        
-                                        st.success("✅ Caso resuelto exitosamente.")
-                                        
                                     except Exception as e:
-                                        full_response = f"❌ Error al intentar resolver el caso: {e}"
+                                        full_response = f"❌ Error IA: {e}"
             
             response_container.markdown(full_response)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
 
             if st.session_state.get("last_auditor_response") == full_response:
                 pdf_bytes = generar_pdf(full_response)
-                st.download_button(
-                    label="📄 Descargar Evaluación en PDF",
-                    data=pdf_bytes,
-                    file_name="Evaluacion_Auditor_UNICEN.pdf",
-                    mime="application/pdf",
-                    key=f"pdf_aud_gen_{len(st.session_state.messages)}"
-                )
+                st.download_button(label="📄 Descargar Evaluación PDF", data=pdf_bytes, file_name="Evaluacion.pdf", mime="application/pdf", key=f"pdf_aud_gen_{len(st.session_state.messages)}")
             elif "**👨‍🏫 Tutor UNICEN (Resolución Libre):**" in full_response:
                 pdf_bytes = generar_pdf(full_response)
-                st.download_button(
-                    label="📄 Descargar Resolución en PDF",
-                    data=pdf_bytes,
-                    file_name="Resolucion_Caso_Libre.pdf",
-                    mime="application/pdf",
-                    key=f"pdf_chat_gen_{len(st.session_state.messages)}"
-                )
+                st.download_button(label="📄 Descargar Resolución PDF", data=pdf_bytes, file_name="Resolucion_Libre.pdf", mime="application/pdf", key=f"pdf_chat_gen_{len(st.session_state.messages)}")
 
-    # --- PROCESS PROJECT BALANCE ---
     if st.session_state.get("generate_project_balance", False):
         st.session_state.generate_project_balance = False 
         st.session_state.project_mode = False 
         
         with st.chat_message("assistant"):
-            with st.spinner("📊 Analizando el ciclo completo y estructurando el Balance de Comprobación..."):
+            with st.spinner("📊 Analizando el ciclo completo y estructurando..."):
                 try:
                     genai.configure(api_key=api_key)
                     model = genai.GenerativeModel('gemini-flash-latest')
-                    
-                    reglas_actuales = load_tax_rules() if 'load_tax_rules' in globals() else "Aplica normativa contable boliviana vigente."
-                    transacciones_texto = "\n".join([f"{i+1}. {t}" for i, t in enumerate(st.session_state.project_transactions)])
-                    
-                    prompt_proyecto = f"""Eres un Tutor Senior de Contabilidad en Bolivia.
-                    {reglas_actuales}
-                    REGLA DE ORO TRIBUTARIA: Aplica las normativas de impuestos SOLO si la transacción lo requiere explícitamente. ESTÁ ESTRICTAMENTE PROHIBIDO añadir "Notas", consejos o recordatorios al final de tu respuesta sobre retenciones (como el D.S. 4850) si el ejercicio no trata sobre pagos de servicios sin factura. Limítate a resolver el caso.
-                    El estudiante ha registrado este ciclo de transacciones:
-                    {transacciones_texto}
-                    
-                    TAREA OBLIGATORIA:
-                    1. Genera el LIBRO DIARIO. Es VITAL que crees una tabla Markdown SEPARADA para cada asiento contable.
-                    - OBLIGATORIO: Escribe la Glosa justo debajo de CADA tabla como texto en cursiva.
-                    - Deja una línea en blanco entre la glosa y el siguiente asiento.
-                    - PROHIBIDO agrupar todos los asientos en una sola tabla.
-                    
-                    Usa EXACTAMENTE esta estructura para CADA transacción individual:
-                    
-                    | Fecha | Detalle / Cuenta | Debe (Bs.) | Haber (Bs.) |
-                    | :--- | :--- | ---: | ---: |
-                    | 01/01/2026 | **Asiento N° X** | | |
-                    | | Cuenta 1 | 100.000,00 | |
-                    | | Cuenta 2 | | 100.000,00 |
-                    
-                    *Glosa: Escribe aquí la explicación de la transacción.*
-                    
-                    2. Genera un BALANCE DE COMPROBACIÓN DE SUMAS Y SALDOS usando EXACTAMENTE esta estructura:
-                    | N° | Cuenta | Sumas Debe | Sumas Haber | Saldo Deudor | Saldo Acreedor |
-                    | :--- | :--- | ---: | ---: | ---: | ---: |
-                    
-                    3. Genera el ESTADO DE RESULTADOS usando esta estructura:
-                    | Concepto | Monto (Bs.) |
-                    | :--- | ---: |
-                    | **INGRESOS OPERATIVOS** | |
-                    | Ventas (Neto de IT y devoluciones) | 0.00 |
-                    | **COSTO DE VENTAS** | |
-                    | Costo de Mercadería Vendida | (0.00) |
-                    | **UTILIDAD BRUTA EN VENTAS** | **0.00** |
-                    | **GASTOS OPERATIVOS** | |
-                    | (Desglosar gastos) | (0.00) |
-                    | **UTILIDAD (O PÉRDIDA) DE LA GESTIÓN** | **0.00** |
-                    
-                    4. Genera el BALANCE GENERAL usando esta estructura:
-                    | ACTIVO | Monto (Bs.) | PASIVO Y PATRIMONIO | Monto (Bs.) |
-                    | :--- | ---: | :--- | ---: |
-                    | **ACTIVO CORRIENTE** | | **PASIVO CORRIENTE** | |
-                    | (Desglosar) | 0.00 | (Desglosar) | 0.00 |
-                    | **ACTIVO NO CORRIENTE** | | **PATRIMONIO** | |
-                    | (Desglosar) | 0.00 | Capital Social | 0.00 |
-                    | | | Utilidad (o Pérdida) de la Gestión | 0.00 |
-                    | **TOTAL ACTIVO** | **0.00** | **TOTAL PASIVO Y PATRIMONIO** | **0.00** |
-                    
-                    REGLAS DE ORO ABSOLUTAS: 
-                    - ¡PROHIBIDO omitir símbolos "|" en celdas vacías! Todas las filas de todas las tablas DEBEN empezar y terminar con "|".
-                    - La Utilidad/Pérdida del Estado de Resultados DEBE trasladarse exactamente al Patrimonio en el Balance General.
-                    - El Balance General DEBE cuadrar perfectamente (Total Activo = Total Pasivo + Patrimonio).
-                    
-                    Inicia tu respuesta con este título H1 exacto:
-                    # 📊 REPORTE DEL CICLO CONTABLE Y ESTADOS FINANCIEROS FINALES
-                    """
+                    trans_text = "\n".join([f"{i+1}. {t}" for i, t in enumerate(st.session_state.project_transactions)])
+                    prompt_proyecto = f"""Eres Tutor Contable Bolivia. Transacciones: {trans_text}.
+                    Genera: 1. Libro Diario 2. Balance Comprobación 3. Estado Resultados 4. Balance General.
+                    Todo en tablas Markdown perfectas. Título H1: # 📊 REPORTE DEL CICLO CONTABLE Y ESTADOS FINANCIEROS FINALES"""
                     
                     response = model.generate_content(prompt_proyecto)
                     full_response = response.text.strip()
-                    
                     st.markdown(full_response)
                     st.session_state.messages.append({"role": "assistant", "content": full_response})
                     
                     pdf_bytes = generar_pdf(full_response)
-                    st.download_button(
-                        label="📄 Descargar Balance en PDF",
-                        data=pdf_bytes,
-                        file_name="Proyecto_Ciclo_Contable.pdf",
-                        mime="application/pdf",
-                        key=f"pdf_proyecto_inmediato_{len(st.session_state.messages)}"
-                    )
-                    # --- BOTÓN DE EXCEL CON ICONO PROFESIONAL ---
+                    st.download_button(label="📄 Descargar Balance PDF", data=pdf_bytes, file_name="Proyecto_Ciclo.pdf", mime="application/pdf", key=f"pdf_proyecto_{len(st.session_state.messages)}")
                     excel_bytes = generar_excel_ciclo(full_response, st.session_state.project_transactions)
-                    st.download_button(
-                        label="📥 Descargar Planilla de Trabajo (Excel)",
-                        data=excel_bytes,
-                        file_name=f"Planilla_Contable_{datetime.now().strftime('%Y%m%d')}.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        key=f"xlsx_proyecto_final_{len(st.session_state.messages)}"
-                    )
+                    st.download_button(label="📥 Descargar Planilla Excel", data=excel_bytes, file_name=f"Planilla_Contable.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=f"xlsx_proyecto_{len(st.session_state.messages)}")
                 except Exception as e:
-                    st.error(f"Error al generar el balance: {e}")
+                    st.error(f"Error generando balance: {e}")
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
