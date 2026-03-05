@@ -1250,14 +1250,21 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             response_container = st.empty()
             full_response = ""
             
-            # --- PROJECT MODE INTERCEPTION ---
+            # 1. --- PROJECT MODE INTERCEPTION ---
             if st.session_state.get("project_mode", False) and not st.session_state.get("generate_project_balance", False):
                 st.session_state.project_transactions.append(prompt)
                 full_response = f"✅ Transacción #{len(st.session_state.project_transactions)} guardada. Escribe la siguiente o presiona **'Generar EEFF'** en la barra lateral."
                 response_container.markdown(full_response)
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
             
-            # --- CHALLENGE MODE INTERCEPTION ---
+            # 2. --- EXAM MODE INTERCEPTION (AQUÍ CAPTURAMOS EL EXAMEN SILENCIOSAMENTE) ---
+            elif st.session_state.get("exam_mode", False) and not st.session_state.get("grade_exam_now", False):
+                st.session_state.exam_answers.append(prompt)
+                full_response = f"✅ Asiento registrado (Respuesta #{len(st.session_state.exam_answers)}). Ingresa el siguiente asiento, o si ya terminaste presiona el botón rojo **'✅ Calificar Examen'** en la barra lateral."
+                response_container.markdown(full_response)
+                st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+            # 3. --- CHALLENGE MODE INTERCEPTION (RETO AUDITOR) ---
             elif st.session_state.get("auditor_mode", False):
                  with st.spinner("🧐 El Auditor está revisando tu asiento..."):
                     try:
@@ -1267,34 +1274,11 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         reglas_actuales = load_tax_rules()
                         case_ref = st.session_state.get("auditor_case", "Caso desconocido")
                         
-                        frases_auditor = [
-                            "SEÑOR ESTUDIANTE, recuerde que la contabilidad es el lenguaje de los negocios y una ciencia exacta, no un simple juego de sumas y restas.",
-                            "FUTURO COLEGA, la precisión contable es innegociable. Un asiento mal registrado altera el destino financiero y tributario de toda una empresa.",
-                            "ESTIMADO UNIVERSITARIO, el auditor no asume, verifica. Evaluemos con rigor técnico si su análisis cumple con la normativa vigente.",
-                            "LA CONTABILIDAD exige criterio profesional, no adivinanzas. Procederé a auditar su registro bajo la lupa estricta de la normativa boliviana.",
-                            "COLEGA EN FORMACIÓN, detrás de cada cuenta hay una gran responsabilidad legal y penal. Revisemos su propuesta contable paso a paso."
-                        ]
-                        frase_apertura = random.choice(frases_auditor)
-                        nombre_uni = st.secrets["general"].get("NOMBRE_INSTITUCION", "Institución Educativa")
-
-                        prompt_audit = f"""Eres un Auditor Contable y Docente Universitario en la {nombre_uni}. Evalúas a un estudiante. Tu tono es ESTRICTAMENTE PROFESIONAL, OBJETIVO y TÉCNICO.
-                        
+                        prompt_audit = f"""Eres un Auditor Contable y Docente Universitario. Evalúas a un estudiante. Tu tono es ESTRICTAMENTE PROFESIONAL, OBJETIVO y TÉCNICO.
                         {reglas_actuales}
-                    REGLA 1 (APERTURA OBLIGATORIA): Inicia tu respuesta EXACTAMENTE con este párrafo, sin agregar nada antes:
-                    "{frase_apertura}"
-                    
-                    REGLA 2 (ESTRUCTURA VISUAL): Usa OBLIGATORIAMENTE un solo numeral (#) seguido de un espacio para crear títulos grandes. Debes generar exactamente estos títulos:
-                    # 1. CALIFICACIÓN: X/100
-                    # 2. OBSERVACIONES Y ERRORES DETECTADOS:
-                    (Aquí tu lista numerada de puntos citando Código de Comercio, Ley 843, PCGA, etc.)
-                    # 3. SOLUCIÓN CORRECTA:
-                    (Aquí la tabla)
-                    
-                    REGLA 3 (GLOSA AFUERA): Genera la tabla Markdown del asiento. DEBES cerrar la tabla después de la fila de TOTALES. La GLOSA debe ir AFUERA de la tabla, abajo, como un párrafo de texto normal.
-                    
-                    REGLA 4: Cierra con una frase de aliento profesional.
-                    
-                    El caso es: "{case_ref}". Su respuesta fue: "{prompt}"."""
+                        Genera este título exacto: # 1. CALIFICACIÓN: X/100
+                        Luego detalla observaciones y errores. Luego muestra la solución correcta en tabla Markdown.
+                        El caso es: "{case_ref}". Su respuesta fue: "{prompt}"."""
                         
                         response = model.generate_content(prompt_audit)
                         full_response = response.text.strip()
@@ -1303,187 +1287,51 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         if match:
                             score = int(match.group(1))
                             st.session_state.user_xp += score 
-                            
-                            if score >= 80:
-                                st.session_state.user_streak += 1
-                                st.balloons() 
-                                reproducir_sonido("audio/success.mp3") 
-                                st.toast(f"¡Excelente! Ganaste {score} XP. Racha aumentada a {st.session_state.user_streak} 🔥", icon="🔥")
-                            else:
-                                st.session_state.user_streak = 0
-                                reproducir_sonido("audio/error.mp3") 
-                                st.toast(f"Obtuviste {score} XP. La racha ha vuelto a cero. ¡Revisa la norma y recupera tu fuego!", icon="🧊")
-                            
-                            # Update gamification to Firebase
                             if db is not None:
                                 try:
-                                    user_ref = db.collection('usuarios').document(st.session_state.user_id)
-                                    categoria_actual = st.session_state.get("categoria", "Práctica General")
-                                    user_data = user_ref.get().to_dict()
-                                    rendimiento = user_data.get("rendimiento_categorias", {})
-                                    
-                                    rendimiento[categoria_actual] = rendimiento.get(categoria_actual, 0) + score
-                                    
-                                    user_ref.update({
-                                        "xp": st.session_state.user_xp,
-                                        "racha": st.session_state.user_streak,
-                                        "rendimiento_categorias": rendimiento
-                                    })
-                                except Exception as e:
-                                    st.warning(f"No se pudo guardar la métrica en la nube: {e}")
+                                    db.collection('usuarios').document(st.session_state.user_id).update({"xp": st.session_state.user_xp})
+                                except: pass
 
                         st.session_state.auditor_mode = False 
                         st.session_state.last_auditor_response = full_response
                         st.success("Evaluación Completada.")
-                        
                     except Exception as e:
                         full_response = f"Error del Auditor: {e}"
                         st.session_state.auditor_mode = False
 
+            # 4. --- TUTOR IA / BÚSQUEDA (MODO NORMAL) ---
             else:
                 is_deep_search = should_run_deep_search(prompt, deep_search_active)
                 
                 if is_deep_search:
-                    with st.spinner('Consultando todas las bases de datos (Local, NLM, Web)...'):
-                        topics_data = load_local_data()
-                        local_candidates = search_local(prompt, topics_data)
-                        local_text = ""
-                        if local_candidates:
-                            for idx, cand in enumerate(local_candidates):
-                                local_text += f"\n--- EXTRACTO LOCAL {idx+1} ({cand['topic']}) ---\n{cand['snippet']}"
-                        else:
-                            local_text = "Sin resultados locales relevantes."
-
-                        nlm_text = search_notebooklm(prompt) or "Sin resultados en NotebookLM."
-                        web_text = search_web(prompt) or "Sin resultados en la Web."
-                        
-                        master_context = f"""
-                        [RESULTADOS LOCALES]:
-                        {local_text}
-                        
-                        [RESULTADOS NOTEBOOKLM]:
-                        {nlm_text}
-                        
-                        [RESULTADOS WEB]:
-                        {web_text}
-                        """
-                        
+                    with st.spinner('Consultando bases de datos...'):
+                        nlm_text = search_notebooklm(prompt) or "Sin resultados."
                         try:
                             genai.configure(api_key=api_key)
                             model = genai.GenerativeModel('gemini-flash-latest')
-                            
-                            system_prompt = f"""El alumno preguntó: "{prompt}". 
-                            Aquí tienes información de 3 fuentes distintas: {master_context}. 
-                            TAREA: Redacta una respuesta exhaustiva integrando los apuntes teóricos, la base legal (NLM) y la normativa web oficial. 
-                            Cita de qué fuente sacas cada dato."""
-                            
-                            response = model.generate_content(system_prompt)
+                            response = model.generate_content(f"Alumno pregunta: '{prompt}'. Usa esto: {nlm_text}.")
                             full_response = response.text.strip()
-                            st.success("✅ Respuesta Generada en Modo Profundo (3 Fuentes).")
-                            
                         except Exception as e:
-                            full_response = f"Error al sintetizar respuesta profunda: {e}\n\nDetalles de fuentes:\n{master_context}"
-                
+                            full_response = f"Error: {e}"
                 else:
-                    topics_data = load_local_data()
-                    local_candidates = search_local(prompt, topics_data)
-                    
-                    should_escalate = True
-                    
-                    if local_candidates:
-                        combined_snippets = ""
-                        
-                        with st.expander(f"📄 Documentos encontrados ({len(local_candidates)})"):
-                            for idx, cand in enumerate(local_candidates):
-                                st.markdown(f"**{idx+1}. {cand['topic']}** (Score: {cand['score']})")
-                                st.caption(cand['snippet'])
-                                combined_snippets += f"\n\n--- EXTRACTO {idx+1} ({cand['topic']}) ---\n{cand['snippet']}"
-
-                        with st.spinner("👩‍🏫 Analizando material del curso (El Juez)..."):
-                            try:
-                                llm_verdict = evaluate_snippet_with_llm(prompt, combined_snippets, api_key)
-                                
-                                if llm_verdict != "INSUFICIENTE":
-                                    full_response = f"**Tutor UNICEN:**\n\n{llm_verdict}"
-                                    st.success("✅ Respuesta validada por Juez IA (Contexto Combinado).")
-                                    should_escalate = False 
-                                    
-                            except Exception as e:
-                                st.error(f"Error de API (El Juez): {e}")
-                                should_escalate = False 
-                                full_response = "⚠️ Ocurrió un error al contactar con la IA para validar la respuesta local. Por favor verifica tu API Key."
-
-                    if should_escalate:
-                        with st.spinner("🤖 Consultando base de conocimiento extendida (NotebookLM)..."):
-                            if not local_candidates:
-                                 st.info("Búsqueda local sin coincidencias fuertes (Score < 3). Escalando...")
-                            else:
-                                 st.warning("El Juez IA determinó que la info local era insuficiente. Escalando...")
-                                 
-                            nlm_result = search_notebooklm(prompt)
-                        
-                        if nlm_result:
-                            full_response = f"**Respuesta de NotebookLM:**\n\n{nlm_result}"
-                            st.success("✅ Respuesta recuperada de NotebookLM.")
-                        else:
-                            with st.spinner("🌐 Buscando normativa oficial en la web (Nivel 3)..."):
-                                st.warning("NotebookLM no tiene datos. Escalando a Nivel 3...")
-                                web_result = search_web(prompt)
-                            
-                            if web_result:
-                                full_response = f"**Búsqueda Web (Normativa Bolivia):**\n\n{web_result}"
-                            else:
-                                with st.spinner("👨‍🏫 Parece un caso práctico. Generando resolución estructurada..."):
-                                    try:
-                                        genai.configure(api_key=api_key)
-                                        model = genai.GenerativeModel('gemini-flash-latest')
-                                        
-                                        reglas_actuales = load_tax_rules()
-                                        prompt_resolucion_libre = f"""Eres un Tutor de Contabilidad Senior de la UNICEN. El alumno te ha planteado el siguiente caso o ejercicio práctico de forma libre: "{prompt}".
-                                        PROHIBIDO usar formato LaTeX o etiquetas matemáticas. Escribe en texto plano normal.
-                                        
-                                        {reglas_actuales}
-                                        
-                                        TAREA: 
-                                        1. Crea el asiento contable usando ESTRICTAMENTE esta estructura Markdown:
-                                        | Código | Detalle / Cuenta | Debe (Bs.) | Haber (Bs.) |
-                                        | :--- | :--- | ---: | ---: |
-                                        REGLA: La GLOSA debe ir COMPLETAMENTE AFUERA y debajo de la tabla.
-                                        
-                                        2. Explica pedagógicamente la ley de movimiento de cuentas aplicada y el documento de respaldo necesario.
-                                        
-                                        3. LIBRO MAYOR (CUENTAS T): Genera el mayor usando ESTRICTAMENTE tablas individuales. ¡NUNCA omitas la fila separadora | ---: | ---: |!
-                                        #### Cuenta: [Nombre]
-                                        | DEBE (Bs.) | HABER (Bs.) |
-                                        | ---: | ---: |
-                                        
-                                        4. IMPACTO EN ESTADOS FINANCIEROS:
-                                        | Cuenta | Grupo | Estado Financiero |
-                                        | :--- | :--- | :--- |
-                                        
-                                        REGLA DE ORO: TODAS las tablas DEBEN empezar y terminar con |.
-                                        """
-                                        
-                                        response_libre = model.generate_content(prompt_resolucion_libre)
-                                        full_response = "**👨‍🏫 Tutor UNICEN (Resolución Libre):**\n\n" + response_libre.text.strip()
-                                        
-                                        st.success("✅ Caso resuelto exitosamente.")
-                                        
-                                    except Exception as e:
-                                        full_response = f"❌ Error al intentar resolver el caso: {e}"
+                    with st.spinner("👨‍🏫 Resolviendo o buscando..."):
+                        try:
+                            genai.configure(api_key=api_key)
+                            model = genai.GenerativeModel('gemini-flash-latest')
+                            reglas_actuales = load_tax_rules() if 'load_tax_rules' in globals() else ""
+                            response_libre = model.generate_content(f"Eres Tutor de UNICEN. Alumno pregunta: '{prompt}'. Aplica norma boliviana. {reglas_actuales}. Crea asiento en tabla Markdown si corresponde.")
+                            full_response = "**👨‍🏫 Tutor UNICEN (Resolución Libre):**\n\n" + response_libre.text.strip()
+                        except Exception as e:
+                            full_response = f"❌ Error: {e}"
             
+            # --- IMPRIMIR LA RESPUESTA DE CUALQUIERA DE LOS 4 MODOS ---
             response_container.markdown(full_response)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
 
+            # --- BOTONES DE DESCARGA PDF SI CORRESPONDE ---
             if st.session_state.get("last_auditor_response") == full_response:
                 pdf_bytes = generar_pdf(full_response)
-                st.download_button(
-                    label="📄 Descargar Evaluación en PDF",
-                    data=pdf_bytes,
-                    file_name="Evaluacion_Auditor_UNICEN.pdf",
-                    mime="application/pdf",
-                    key=f"pdf_aud_gen_{len(st.session_state.messages)}"
-                )
+                st.download_button(label="📄 Descargar Evaluación", data=pdf_bytes, file_name="Evaluacion.pdf", mime="application/pdf", key=f"pdf_aud_gen_{len(st.session_state.messages)}")
             elif "**👨‍🏫 Tutor UNICEN (Resolución Libre):**" in full_response:
                 pdf_bytes = generar_pdf(full_response)
                 st.download_button(
@@ -1593,6 +1441,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
