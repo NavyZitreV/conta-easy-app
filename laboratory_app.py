@@ -944,7 +944,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             if mi_rol == "admin":
                 with st.expander("📥 Carga Masiva de Usuarios (Excel/CSV)"):
                     st.markdown("Sube un archivo con los datos de tus estudiantes. Las columnas en la primera fila del Excel deben llamarse **EXACTAMENTE** así:")
-                    st.code("NOMBRE | CARRERA | UNIVERSIDAD | CORREO | PASSWORD")
+                    st.code("NOMBRE | CARRERA | UNIVERSIDAD | CORREO | PASSWORD | CODIGO_CLASE")
                     
                     archivo_masivo = st.file_uploader("Selecciona tu archivo Excel o CSV", type=['csv', 'xlsx'])
                     
@@ -959,10 +959,10 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                     
                                     # Normalizar nombres de columnas
                                     df_masivo.columns = df_masivo.columns.str.strip().str.upper()
-                                    esperadas = ["NOMBRE", "CARRERA", "UNIVERSIDAD", "CORREO", "PASSWORD"]
+                                    esperadas = ["NOMBRE", "CARRERA", "UNIVERSIDAD", "CORREO", "PASSWORD", "CODIGO_CLASE"]
                                     
                                     if not all(col in df_masivo.columns for col in esperadas):
-                                        st.error("⚠️ Error: Faltan columnas obligatorias. Revisa que diga: NOMBRE, CARRERA, UNIVERSIDAD, CORREO, PASSWORD.")
+                                        st.error("⚠️ Error: Faltan columnas. Deben ser exactamente: NOMBRE, CARRERA, UNIVERSIDAD, CORREO, PASSWORD, CODIGO_CLASE.")
                                     else:
                                         agregados = 0
                                         duplicados = 0
@@ -983,18 +983,19 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                                 "institucion": str(row['UNIVERSIDAD']).strip(),
                                                 "correo": correo_nuevo,
                                                 "password": str(row['PASSWORD']).strip(),
+                                                "codigo_clase": str(row['CODIGO_CLASE']).strip().upper(),
                                                 "xp": 0, "racha": 0, "rol": "estudiante", "estado": "activo", "acceso_analiticas": False
                                             })
                                             correos_existentes.append(correo_nuevo)
                                             agregados += 1
                                         
-                                        st.success(f"✅ Carga masiva completada: {agregados} alumnos creados | {duplicados} omitidos (ya existían).")
+                                        st.success(f"✅ Carga masiva completada: {agregados} alumnos creados | {duplicados} omitidos.")
                                         time.sleep(3)
                                         st.rerun()
                                 except Exception as e:
                                     st.error(f"❌ Error al procesar el archivo: {e}")
 
-            # --- LISTA DE ESTUDIANTES (AHORA EN UN EXPANDER) ---
+            # --- LISTA DE ESTUDIANTES ---
             csv_data = "Nombre Completo;Rol;Carrera;Institucion;Correo Electronico;Experiencia (XP);Racha (Dias)\n"
             
             with st.expander(f"📋 Ver Lista de Usuarios Registrados ({len(usuarios_lista)})"):
@@ -1607,6 +1608,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
