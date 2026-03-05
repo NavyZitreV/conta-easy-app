@@ -1084,7 +1084,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             "enunciado": f"{nivel_dificultad} {nuevo_enunciado}",
                             "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                             "institucion": mi_institucion,
-                            "usa_anticopia": activar_anticopia  # <-- GUARDAMOS LA DECISIÓN EN LA NUBE
+                            "codigo_clase": st.session_state.get("user_codigo_clase", "GENERAL") # <-- NUEVO
                         }
                         db.collection('casos_practicos').add(nuevo_documento)
                         st.success("¡Caso guardado!")
@@ -1095,9 +1095,11 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             st.markdown("### 📚 Casos Subidos en la Nube")
             try:
                 if mi_rol == "admin":
-                    casos_db = db.collection('casos_practicos').get()
-                else:
-                    casos_db = db.collection('casos_practicos').where('institucion', '==', mi_institucion).get()
+                            casos_ref = db.collection('casos_practicos').get()
+                        else:
+                            # EL ALUMNO SOLO VE LOS EXÁMENES DE SU CLASE
+                            mi_codigo = st.session_state.get("user_codigo_clase", "GENERAL")
+                            casos_ref = db.collection('casos_practicos').where('institucion', '==', mi_institucion).where('codigo_clase', '==', mi_codigo).get()
                     
                 if len(casos_db) == 0:
                     st.info("Aún no hay casos personalizados en la nube.")
@@ -1217,7 +1219,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     if mi_rol == "admin":
                         notas_ref = db.collection('calificaciones').order_by('fecha', direction=firestore.Query.DESCENDING).get()
                     else:
-                        notas_ref = db.collection('calificaciones').where('institucion', '==', mi_institucion).get()
+                        mi_codigo = st.session_state.get("user_codigo_clase", "GENERAL")
+                        notas_ref = db.collection('calificaciones').where('institucion', '==', mi_institucion).where('codigo_clase', '==', mi_codigo).get()
                         
                     lista_notas = [n.to_dict() for n in notas_ref]
                     
@@ -1604,6 +1607,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
