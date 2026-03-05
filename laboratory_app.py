@@ -828,7 +828,9 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         if mi_rol == "admin":
                             casos_ref = db.collection('casos_practicos').get()
                         else:
-                            casos_ref = db.collection('casos_practicos').where('institucion', '==', mi_institucion).get()
+                            # EL ALUMNO SOLO VE LOS EXÁMENES DE SU CLASE
+                            mi_codigo = st.session_state.get("user_codigo_clase", "GENERAL")
+                            casos_ref = db.collection('casos_practicos').where('institucion', '==', mi_institucion).where('codigo_clase', '==', mi_codigo).get()
                             
                         for doc in casos_ref:
                             data = doc.to_dict()
@@ -914,7 +916,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             if st.button("❌ Abandonar Examen"):
                 st.session_state.exam_mode = False
                 st.session_state.exam_answers = []
-                st.session_state.messages.append({"role": "assistant", "content": "Examen abandonado. Se ha borrado tu progreso."})
+                st.session_state.messages.append({"role": "assistant", "content": "Examen abandoned. Se ha borrado tu progreso."})
                 st.rerun()
 
     # --- Lógica para mostrar el Panel de Administración ---
@@ -1050,7 +1052,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                 if st.button("✅ Activar", key=f"unblock_{user_doc_id}", use_container_width=True):
                                     db.collection('usuarios').document(user_doc_id).update({"estado": "activo"})
                                     st.rerun()
-                             else:
+                            else:
                                 if st.button("🚫 Bloquear", key=f"block_{user_doc_id}", use_container_width=True):
                                     db.collection('usuarios').document(user_doc_id).update({"estado": "bloqueado"})
                                     st.rerun()
@@ -1096,11 +1098,11 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             st.markdown("### 📚 Casos Subidos en la Nube")
             try:
                 if mi_rol == "admin":
-                            casos_ref = db.collection('casos_practicos').get()
-                        else:
-                            # EL ALUMNO SOLO VE LOS EXÁMENES DE SU CLASE
-                            mi_codigo = st.session_state.get("user_codigo_clase", "GENERAL")
-                            casos_ref = db.collection('casos_practicos').where('institucion', '==', mi_institucion).where('codigo_clase', '==', mi_codigo).get()
+                    casos_db = db.collection('casos_practicos').get()
+                else:
+                    # EL ALUMNO SOLO VE LOS EXÁMENES DE SU CLASE
+                    mi_codigo = st.session_state.get("user_codigo_clase", "GENERAL")
+                    casos_db = db.collection('casos_practicos').where('institucion', '==', mi_institucion).where('codigo_clase', '==', mi_codigo).get()
                     
                 if len(casos_db) == 0:
                     st.info("Aún no hay casos personalizados en la nube.")
@@ -1608,21 +1610,3 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
