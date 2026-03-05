@@ -74,7 +74,7 @@ st.markdown("""
     }
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    header {visibility: hidden;}
+    /* ELIMINAMOS header {visibility: hidden;} PARA QUE LA FLECHA DEL PANEL NUNCA DESAPAREZCA */
 
     .stChatMessage {
         background-color: #ffffff;
@@ -206,11 +206,11 @@ def generar_excel_ciclo(markdown_text, transacciones):
     output = io.BytesIO()
     
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        # 1. Hoja de Enunciados (Lo que el alumno escribió)
+        # 1. Hoja de Enunciados
         df_enunciados = pd.DataFrame({"N°": range(1, len(transacciones)+1), "Transacción": transacciones})
         df_enunciados.to_excel(writer, sheet_name='Enunciados', index=False)
         
-        # 2. Escanear el texto de la IA buscando tablas Markdown
+        # 2. Escanear el texto de la IA
         lineas = markdown_text.split('\n')
         tablas = []
         tabla_actual = []
@@ -228,9 +228,9 @@ def generar_excel_ciclo(markdown_text, transacciones):
         diario_filas = []
         diario_headers = ["Fecha", "Detalle / Cuenta", "Debe (Bs.)", "Haber (Bs.)"]
         
-        # 3. Clasificar cada tabla encontrada y enviarla a su pestaña
+        # 3. Clasificar cada tabla
         for tabla in tablas:
-            if len(tabla) < 3: continue # Ignorar tablas incompletas
+            if len(tabla) < 3: continue
             
             encabezados = [c.strip() for c in tabla[0].split('|')[1:-1]]
             str_headers = " ".join(encabezados).upper()
@@ -241,10 +241,9 @@ def generar_excel_ciclo(markdown_text, transacciones):
                 while len(celdas) < len(encabezados): celdas.append("")
                 datos.append(celdas[:len(encabezados)])
                 
-            # Clasificador Automático
             if "FECHA" in str_headers and "DEBE" in str_headers:
                 diario_filas.extend(datos)
-                diario_filas.append(["", "---", "", ""]) # Separador visual entre asientos
+                diario_filas.append(["", "---", "", ""]) 
             elif "SUMAS DEBE" in str_headers or "SALDO DEUDOR" in str_headers:
                 pd.DataFrame(datos, columns=encabezados).to_excel(writer, sheet_name='Balance Comprobación', index=False)
             elif "CONCEPTO" in str_headers and "MONTO" in str_headers:
@@ -259,7 +258,6 @@ def generar_excel_ciclo(markdown_text, transacciones):
         else:
             pd.DataFrame(columns=diario_headers).to_excel(writer, sheet_name='Libro Diario', index=False)
         
-        # Ajuste profesional de ancho de columnas
         for sheet in writer.sheets.values():
             sheet.set_column('A:Z', 22)
 
@@ -737,7 +735,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         else:
             st.warning("⚠️ No se encontraron casos de laboratorio. Verifica data/laboratory_cases.json")
 
-           
+            
         st.divider()
         st.header("🏢 Proyecto: Ciclo Contable")
         
@@ -818,9 +816,63 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         tab_alumnos, tab_casos, tab_analiticas = st.tabs(["👥 Gestión de Estudiantes", "📚 Gestor de Casos Prácticos", "🧠 Analíticas"])
         
         # ==========================================
-        # PESTAÑA 1: ESTUDIANTES Y DOCENTES
+        # PESTAÑA 1: ESTUDIANTES Y DOCENTES (CON CARGA MASIVA)
         # ==========================================
         with tab_alumnos:
+            # --- NUEVA FUNCIÓN: CARGA MASIVA (SOLO SUPER ADMIN) ---
+            if mi_rol == "admin":
+                with st.expander("📥 Carga Masiva de Usuarios (Excel/CSV)"):
+                    st.markdown("Sube un archivo con los datos de tus estudiantes. Las columnas en la primera fila del Excel deben llamarse **EXACTAMENTE** así:")
+                    st.code("NOMBRE | CARRERA | UNIVERSIDAD | CORREO | PASSWORD")
+                    
+                    archivo_masivo = st.file_uploader("Selecciona tu archivo Excel o CSV", type=['csv', 'xlsx'])
+                    
+                    if archivo_masivo is not None:
+                        if st.button("🚀 Procesar y Subir Usuarios", type="primary"):
+                            with st.spinner("Leyendo archivo y subiendo a la nube..."):
+                                try:
+                                    if archivo_masivo.name.endswith('.csv'):
+                                        df_masivo = pd.read_csv(archivo_masivo)
+                                    else:
+                                        df_masivo = pd.read_excel(archivo_masivo)
+                                    
+                                    # Normalizar nombres de columnas
+                                    df_masivo.columns = df_masivo.columns.str.strip().str.upper()
+                                    esperadas = ["NOMBRE", "CARRERA", "UNIVERSIDAD", "CORREO", "PASSWORD"]
+                                    
+                                    if not all(col in df_masivo.columns for col in esperadas):
+                                        st.error("⚠️ Error: Faltan columnas obligatorias. Revisa que diga: NOMBRE, CARRERA, UNIVERSIDAD, CORREO, PASSWORD.")
+                                    else:
+                                        agregados = 0
+                                        duplicados = 0
+                                        usuarios_actuales = db.collection('usuarios').get()
+                                        correos_existentes = [doc.to_dict().get('correo', '') for doc in usuarios_actuales]
+                                        
+                                        for index, row in df_masivo.iterrows():
+                                            correo_nuevo = str(row['CORREO']).strip()
+                                            if pd.isna(row['CORREO']) or correo_nuevo == "" or correo_nuevo == "nan": continue
+                                            
+                                            if correo_nuevo in correos_existentes:
+                                                duplicados += 1
+                                                continue
+                                                
+                                            db.collection('usuarios').add({
+                                                "nombre": str(row['NOMBRE']).strip(),
+                                                "carrera": str(row['CARRERA']).strip(),
+                                                "institucion": str(row['UNIVERSIDAD']).strip(),
+                                                "correo": correo_nuevo,
+                                                "password": str(row['PASSWORD']).strip(),
+                                                "xp": 0, "racha": 0, "rol": "estudiante", "estado": "activo", "acceso_analiticas": False
+                                            })
+                                            correos_existentes.append(correo_nuevo)
+                                            agregados += 1
+                                        
+                                        st.success(f"✅ Carga masiva completada: {agregados} alumnos creados | {duplicados} omitidos (ya existían).")
+                                        time.sleep(3)
+                                        st.rerun()
+                                except Exception as e:
+                                    st.error(f"❌ Error al procesar el archivo: {e}")
+
             csv_data = "Nombre Completo;Rol;Carrera;Institucion;Correo Electronico;Experiencia (XP);Racha (Dias)\n"
             st.write(f"**Total de usuarios encontrados:** {len(usuarios_lista)}")
             
@@ -1465,13 +1517,3 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
