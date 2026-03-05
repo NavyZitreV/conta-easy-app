@@ -873,66 +873,67 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                 except Exception as e:
                                     st.error(f"❌ Error al procesar el archivo: {e}")
 
+            # --- LISTA DE ESTUDIANTES (AHORA EN UN EXPANDER) ---
             csv_data = "Nombre Completo;Rol;Carrera;Institucion;Correo Electronico;Experiencia (XP);Racha (Dias)\n"
-            st.write(f"**Total de usuarios encontrados:** {len(usuarios_lista)}")
             
-            for u in usuarios_lista:
-                data = u.to_dict()
-                user_doc_id = u.id
-                rol_usuario = data.get('rol', 'estudiante')
-                correo = data.get('correo', 'Desconocido')
-                nombre = data.get('nombre', 'Sin Nombre Registrado')
-                carrera = data.get('carrera', 'Sin Carrera')
-                inst_alumno = data.get('institucion', 'Desconocida')
-                xp = data.get('xp', 0)
-                racha = data.get('racha', 0)
-                estado = data.get('estado', 'activo')
-                acceso_ana = data.get('acceso_analiticas', False)
-                
-                with st.container():
-                    col_info, col_btn1, col_btn2, col_btn3 = st.columns([3, 1, 1, 1])
-                    with col_info:
-                        estado_icono = "🔴 BLOQUEADO" if estado == "bloqueado" else "🟢 ACTIVO"
-                        if mi_rol == "admin":
-                            etiqueta_rol = "👨‍🏫 DOCENTE" if rol_usuario == "docente" else "🧑‍🎓 ESTUDIANTE"
-                            st.info(f"👤 **{nombre}** | 🏛️ {inst_alumno} | {etiqueta_rol} | {estado_icono}")
-                        else:
-                            st.info(f"👤 **{nombre}** | {carrera} | XP: {xp} | {estado_icono}")
-                            
-                    with col_btn1:
-                        if st.button("🔑 Reset", key=f"pass_{user_doc_id}", use_container_width=True):
-                            db.collection('usuarios').document(user_doc_id).update({"password": "123456"})
-                            st.toast("✅ Contraseña cambiada a 123456")
-                            time.sleep(1)
-                            st.rerun()
-                    with col_btn2:
-                        if mi_rol == "admin" and rol_usuario == "docente":
-                            if acceso_ana:
-                                if st.button("🚫 Ocultar Analíticas", key=f"ana_{user_doc_id}", use_container_width=True):
-                                    db.collection('usuarios').document(user_doc_id).update({"acceso_analiticas": False})
-                                    st.rerun()
+            with st.expander(f"📋 Ver Lista de Usuarios Registrados ({len(usuarios_lista)})"):
+                for u in usuarios_lista:
+                    data = u.to_dict()
+                    user_doc_id = u.id
+                    rol_usuario = data.get('rol', 'estudiante')
+                    correo = data.get('correo', 'Desconocido')
+                    nombre = data.get('nombre', 'Sin Nombre Registrado')
+                    carrera = data.get('carrera', 'Sin Carrera')
+                    inst_alumno = data.get('institucion', 'Desconocida')
+                    xp = data.get('xp', 0)
+                    racha = data.get('racha', 0)
+                    estado = data.get('estado', 'activo')
+                    acceso_ana = data.get('acceso_analiticas', False)
+                    
+                    with st.container():
+                        col_info, col_btn1, col_btn2, col_btn3 = st.columns([3, 1, 1, 1])
+                        with col_info:
+                            estado_icono = "🔴 BLOQUEADO" if estado == "bloqueado" else "🟢 ACTIVO"
+                            if mi_rol == "admin":
+                                etiqueta_rol = "👨‍🏫 DOCENTE" if rol_usuario == "docente" else "🧑‍🎓 ESTUDIANTE"
+                                st.info(f"👤 **{nombre}** | 🏛️ {inst_alumno} | {etiqueta_rol} | {estado_icono}")
                             else:
-                                if st.button("📊 Dar Analíticas", key=f"ana_{user_doc_id}", use_container_width=True):
-                                    db.collection('usuarios').document(user_doc_id).update({"acceso_analiticas": True})
-                                    st.rerun()
-                        else:
-                            if st.button("🔄 XP", key=f"xp_{user_doc_id}", use_container_width=True):
-                                db.collection('usuarios').document(user_doc_id).update({"xp": 0, "racha": 0})
-                                st.toast("✅ Progreso reiniciado")
+                                st.info(f"👤 **{nombre}** | {carrera} | XP: {xp} | {estado_icono}")
+                                
+                        with col_btn1:
+                            if st.button("🔑 Reset", key=f"pass_{user_doc_id}", use_container_width=True):
+                                db.collection('usuarios').document(user_doc_id).update({"password": "123456"})
+                                st.toast("✅ Contraseña cambiada a 123456")
                                 time.sleep(1)
                                 st.rerun()
-                                
-                    with col_btn3:
-                        if estado == "bloqueado":
-                            if st.button("✅ Activar", key=f"unblock_{user_doc_id}", use_container_width=True):
-                                db.collection('usuarios').document(user_doc_id).update({"estado": "activo"})
-                                st.rerun()
-                        else:
-                            if st.button("🚫 Bloquear", key=f"block_{user_doc_id}", use_container_width=True):
-                                db.collection('usuarios').document(user_doc_id).update({"estado": "bloqueado"})
-                                st.rerun()
+                        with col_btn2:
+                            if mi_rol == "admin" and rol_usuario == "docente":
+                                if acceso_ana:
+                                    if st.button("🚫 Ocultar Analíticas", key=f"ana_{user_doc_id}", use_container_width=True):
+                                        db.collection('usuarios').document(user_doc_id).update({"acceso_analiticas": False})
+                                        st.rerun()
+                                else:
+                                    if st.button("📊 Dar Analíticas", key=f"ana_{user_doc_id}", use_container_width=True):
+                                        db.collection('usuarios').document(user_doc_id).update({"acceso_analiticas": True})
+                                        st.rerun()
+                            else:
+                                if st.button("🔄 XP", key=f"xp_{user_doc_id}", use_container_width=True):
+                                    db.collection('usuarios').document(user_doc_id).update({"xp": 0, "racha": 0})
+                                    st.toast("✅ Progreso reiniciado")
+                                    time.sleep(1)
+                                    st.rerun()
+                                    
+                        with col_btn3:
+                            if estado == "bloqueado":
+                                if st.button("✅ Activar", key=f"unblock_{user_doc_id}", use_container_width=True):
+                                    db.collection('usuarios').document(user_doc_id).update({"estado": "activo"})
+                                    st.rerun()
+                            else:
+                                if st.button("🚫 Bloquear", key=f"block_{user_doc_id}", use_container_width=True):
+                                    db.collection('usuarios').document(user_doc_id).update({"estado": "bloqueado"})
+                                    st.rerun()
 
-                csv_data += f"{nombre};{rol_usuario};{carrera};{inst_alumno};{correo};{xp};{racha}\n"
+                    csv_data += f"{nombre};{rol_usuario};{carrera};{inst_alumno};{correo};{xp};{racha}\n"
                 
             col1, col2 = st.columns(2)
             with col1:
@@ -1517,3 +1518,4 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
