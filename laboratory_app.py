@@ -1503,17 +1503,20 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     4. Presenta la solución correcta (asientos modelo).
                     
                     REGLAS DE ORO DE FORMATO PARA TABLAS (¡CRÍTICO PARA EXPORTAR A PDF!):
-                    1. Crea el asiento contable usando ESTRICTAMENTE tablas Markdown individuales. 
-                    2. Usa EXACTAMENTE esta estructura sin fusionar celdas:
+                    1. Crea el asiento contable usando ESTRICTAMENTE tablas Markdown individuales.
+                    2. ¡VITAL! DEBES dejar una línea en blanco (un Enter) ANTES de empezar cada tabla.
+                    3. ¡VITAL! CADA fila de la tabla DEBE ir en una NUEVA LÍNEA. PROHIBIDO escribir toda la tabla de corrido en una sola línea.
+                    4. Usa EXACTAMENTE esta estructura:
+                    
                     | Código | Cuenta | Debe (Bs.) | Haber (Bs.) |
                     | :--- | :--- | ---: | ---: |
                     | 1.1 | Caja | 1.000 | - |
                     | 2.1 | Cuentas por Pagar | - | 1.000 |
                     | - | TOTAL | 1.000 | 1.000 |
                     
-                    3. REGLA DE ORO: ESCRIBE LA GLOSA COMPLETAMENTE AFUERA Y DEBAJO DE LA TABLA como texto normal. NUNCA incluyas la glosa como una fila o celda dentro de la tabla.
-                    4. PROHIBIDO usar formato LaTeX, signos de dólar ($), negritas dentro de la tabla o etiquetas HTML. 
-                    5. OBLIGATORIO: Si una columna no tiene valor numérico, DEBES escribir un guion (-). NO dejes celdas vacías como ||.
+                    5. REGLA DE ORO: ESCRIBE LA GLOSA COMPLETAMENTE AFUERA Y DEBAJO DE LA TABLA como texto normal. 
+                    6. PROHIBIDO usar formato LaTeX, signos de dólar ($) o etiquetas HTML. 
+                    7. OBLIGATORIO: Si una columna no tiene valor numérico, DEBES escribir un guion (-). NO dejes celdas vacías.
                     
                     FORMATO ESTRICTO DE RESPUESTA:
                     Empieza obligatoriamente con este título exacto:
@@ -1663,6 +1666,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
