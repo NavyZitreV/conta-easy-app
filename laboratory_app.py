@@ -1478,9 +1478,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     
                     {reglas_actuales}
                     {texto_rubrica}
-                    El estudiante acaba de terminar su examen práctico.
-                    
-                    {reglas_actuales}
                     
                     ENUNCIADO ORIGINAL DEL DOCENTE:
                     "{enunciado_examen}"
@@ -1489,12 +1486,22 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     "{respuestas_alumno}"
                     
                     TAREA:
-                    1. Analiza cada respuesta del alumno contrastándola con el enunciado. Revisa los cálculos matemáticos (Ej: 87% y 13% del IVA, 3% del IT) y las cuentas usadas.
+                    1. Analiza cada respuesta del alumno contrastándola con el enunciado. Revisa los cálculos matemáticos y las cuentas usadas.
                     2. Otorga una calificación final estricta sobre 100 puntos. Si hay errores, descuenta puntos.
                     3. Genera un reporte detallado para el alumno:
                        - Qué hizo bien.
                        - Qué hizo mal (errores de cuenta, de monto, de concepto).
                        - Cuál era la solución correcta (Muestra los asientos correctos usando ESTRICTAMENTE tablas Markdown).
+                    
+                    REGLAS DE ORO DE FORMATO PARA TABLAS (¡OBLIGATORIAS!):
+                    - PROHIBIDO usar formato LaTeX, signos de dólar ($) o etiquetas HTML. Escribe los números y textos en texto plano normal.
+                    - NO uses celdas vacías con múltiples palitos verticales (como ||). 
+                    - Usa EXACTAMENTE esta estructura simple para CADA asiento, sin fusionar celdas:
+                    | Código | Cuenta | Debe (Bs.) | Haber (Bs.) |
+                    | :--- | :--- | ---: | ---: |
+                    | 1.1 | Caja | 1.000 | |
+                    | 2.1 | Cuentas por Pagar | | 1.000 |
+                    | | TOTAL | 1.000 | 1.000 |
                     
                     FORMATO ESTRICTO DE RESPUESTA:
                     Empieza obligatoriamente con este título exacto:
@@ -1644,6 +1651,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
