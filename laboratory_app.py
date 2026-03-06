@@ -1107,7 +1107,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             "enunciado": f"{nivel_dificultad} {nuevo_enunciado}",
                             "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                             "institucion": mi_institucion,
-                            "codigo_clase": st.session_state.get("user_codigo_clase", "GENERAL") # <-- NUEVO
+                            "codigo_clase": st.session_state.get("user_codigo_clase", "GENERAL"),
+                            "usa_anticopia": activar_anticopia  # <-- ¡AQUÍ ESTÁ LA LÍNEA QUE FALTABA!
                         }
                         db.collection('casos_practicos').add(nuevo_documento)
                         st.success("¡Caso guardado!")
@@ -1630,5 +1631,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
