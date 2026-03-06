@@ -1556,13 +1556,25 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                     segundos = int(diferencia.total_seconds() % 60)
                                     tiempo_texto = f"{minutos}m {segundos}s"
 
+                                # 2. Calcular el tiempo y enviar al Libro de Notas
+                                user_data = usuario_ref.get().to_dict()
+                                
+                                tiempo_texto = "No registrado"
+                                if "exam_start_time" in st.session_state:
+                                    tiempo_fin = datetime.now()
+                                    diferencia = tiempo_fin - st.session_state.exam_start_time
+                                    minutos = int(diferencia.total_seconds() // 60)
+                                    segundos = int(diferencia.total_seconds() % 60)
+                                    tiempo_texto = f"{minutos}m {segundos}s"
+
                                 registro_nota = {
                                     "alumno_id": st.session_state.user_id,
                                     "nombre_alumno": user_data.get("nombre", "Desconocido"),
                                     "institucion": user_data.get("institucion", "Desconocida"),
+                                    "codigo_clase": user_data.get("codigo_clase", "GENERAL"), # <-- ¡AQUÍ ESTÁ EL SELLO QUE FALTABA!
                                     "examen_titulo": st.session_state.get("exam_title", "Examen Genérico"),
                                     "nota": nota_final,
-                                    "tiempo_empleado": tiempo_texto, # <-- GUARDAMOS EL TIEMPO
+                                    "tiempo_empleado": tiempo_texto, 
                                     "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                                 }
                                 db.collection('calificaciones').add(registro_nota)
@@ -1681,3 +1693,4 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
