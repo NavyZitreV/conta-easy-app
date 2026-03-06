@@ -962,8 +962,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         # PESTAÑA 1: ESTUDIANTES Y DOCENTES (CON CARGA MASIVA)
         # ==========================================
         with tab_alumnos:
-            # --- NUEVA FUNCIÓN: CARGA MASIVA (SOLO SUPER ADMIN) ---
-            if mi_rol == "admin":
+            # --- NUEVA FUNCIÓN: CARGA MASIVA (PARA ADMINS Y DOCENTES) ---
+            if mi_rol in ["admin", "docente"]:
                 with st.expander("📥 Carga Masiva de Usuarios (Excel/CSV)"):
                     st.markdown("Sube un archivo con los datos de tus estudiantes. Las columnas en la primera fila del Excel deben llamarse **EXACTAMENTE** así:")
                     st.code("NOMBRE | CARRERA | UNIVERSIDAD | CORREO | PASSWORD | CODIGO_CLASE")
@@ -1630,4 +1630,5 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
