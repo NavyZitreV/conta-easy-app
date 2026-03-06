@@ -644,7 +644,7 @@ def main():
             for key in ["user_id", "user_xp", "user_streak", "messages", "project_mode", "auditor_mode", "show_admin_panel", "exam_mode"]:
                 if key in st.session_state:
                     del st.session_state[key]
-            st.rerun())
+            st.rerun()
 
         st.divider()
         st.header("📝 Laboratorio de Casos")
@@ -1683,4 +1683,5 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
