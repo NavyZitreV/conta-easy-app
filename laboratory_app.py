@@ -1488,29 +1488,28 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     TAREA:
                     1. Analiza cada respuesta del alumno contrastándola con el enunciado. Revisa los cálculos matemáticos y las cuentas usadas.
                     2. Otorga una calificación final estricta sobre 100 puntos. Si hay errores, descuenta puntos.
-                    3. Genera un reporte detallado para el alumno:
-                       - Qué hizo bien.
-                       - Qué hizo mal (errores de cuenta, de monto, de concepto).
-                       - Cuál era la solución correcta (Muestra los asientos correctos usando ESTRICTAMENTE tablas Markdown).
+                    3. Genera un reporte detallado para el alumno indicando sus aciertos y errores.
+                    4. Presenta la solución correcta (asientos modelo).
                     
-                    REGLAS DE ORO DE FORMATO PARA TABLAS (¡CRÍTICO PARA EL SISTEMA!):
-                    1. PROHIBIDO usar formato LaTeX, signos de dólar ($), negritas dentro de la tabla o etiquetas HTML. 
-                    2. NUNCA dejes celdas vacías ni pegues dos barras verticales juntas (como ||). 
-                    3. OBLIGATORIO: Si una columna no tiene valor numérico o texto, DEBES escribir un guion (-).
-                    4. Usa EXACTAMENTE esta estructura para CADA asiento, sin fusionar celdas:
-                    
+                    REGLAS DE ORO DE FORMATO PARA TABLAS (¡CRÍTICO PARA EXPORTAR A PDF!):
+                    1. Crea el asiento contable usando ESTRICTAMENTE tablas Markdown individuales. 
+                    2. Usa EXACTAMENTE esta estructura sin fusionar celdas:
                     | Código | Cuenta | Debe (Bs.) | Haber (Bs.) |
                     | :--- | :--- | ---: | ---: |
                     | 1.1 | Caja | 1.000 | - |
                     | 2.1 | Cuentas por Pagar | - | 1.000 |
                     | - | TOTAL | 1.000 | 1.000 |
                     
+                    3. REGLA DE ORO: ESCRIBE LA GLOSA COMPLETAMENTE AFUERA Y DEBAJO DE LA TABLA como texto normal. NUNCA incluyas la glosa como una fila o celda dentro de la tabla.
+                    4. PROHIBIDO usar formato LaTeX, signos de dólar ($), negritas dentro de la tabla o etiquetas HTML. 
+                    5. OBLIGATORIO: Si una columna no tiene valor numérico, DEBES escribir un guion (-). NO dejes celdas vacías como ||.
+                    
                     FORMATO ESTRICTO DE RESPUESTA:
                     Empieza obligatoriamente con este título exacto:
                     # 🎓 RESULTADO DEL EXAMEN
                     **CALIFICACIÓN FINAL:** [Tu nota]/100
                     
-                    (Luego continúa con tu retroalimentación).
+                    (Luego continúa con tu retroalimentación y la resolución).
                     """
                     
                     response = model.generate_content(prompt_calificacion)
@@ -1653,6 +1652,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
