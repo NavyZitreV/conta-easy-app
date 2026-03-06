@@ -878,6 +878,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             st.session_state.exam_mode = True
                             st.session_state.exam_title = examen_seleccionado
                             st.session_state.exam_answers = []
+                            st.session_state.exam_start_time = datetime.now() # <-- CRONÓMETRO INICIADO
                             
                             datos_examen = mapa_examenes[examen_seleccionado]
                             texto_original = datos_examen["texto"]
@@ -1270,8 +1271,12 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     else:
                         df_notas = pd.DataFrame(lista_notas)
                         if "fecha" in df_notas.columns:
-                            df_notas = df_notas[["fecha", "nombre_alumno", "examen_titulo", "nota"]]
-                            df_notas.columns = ["Fecha y Hora", "Estudiante", "Examen Evaluado", "Calificación (/100)"]
+                            # Prevenir error si hay exámenes antiguos sin registro de tiempo
+                            if "tiempo_empleado" not in df_notas.columns:
+                                df_notas["tiempo_empleado"] = "N/A"
+                                
+                            df_notas = df_notas[["fecha", "nombre_alumno", "examen_titulo", "tiempo_empleado", "nota"]]
+                            df_notas.columns = ["Fecha y Hora", "Estudiante", "Examen Evaluado", "Tiempo Usado", "Calificación (/100)"]
                             
                         st.dataframe(df_notas, use_container_width=True)
                         
@@ -1540,14 +1545,24 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                 usuario_ref = db.collection('usuarios').document(st.session_state.user_id)
                                 usuario_ref.update({"xp": st.session_state.user_xp})
                                 
-                                # 2. Enviar la calificación al Libro de Notas
+                                # 2. Calcular el tiempo y enviar al Libro de Notas
                                 user_data = usuario_ref.get().to_dict()
+                                
+                                tiempo_texto = "No registrado"
+                                if "exam_start_time" in st.session_state:
+                                    tiempo_fin = datetime.now()
+                                    diferencia = tiempo_fin - st.session_state.exam_start_time
+                                    minutos = int(diferencia.total_seconds() // 60)
+                                    segundos = int(diferencia.total_seconds() % 60)
+                                    tiempo_texto = f"{minutos}m {segundos}s"
+
                                 registro_nota = {
                                     "alumno_id": st.session_state.user_id,
                                     "nombre_alumno": user_data.get("nombre", "Desconocido"),
                                     "institucion": user_data.get("institucion", "Desconocida"),
                                     "examen_titulo": st.session_state.get("exam_title", "Examen Genérico"),
                                     "nota": nota_final,
+                                    "tiempo_empleado": tiempo_texto, # <-- GUARDAMOS EL TIEMPO
                                     "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                                 }
                                 db.collection('calificaciones').add(registro_nota)
@@ -1666,13 +1681,3 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
