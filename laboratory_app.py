@@ -1058,7 +1058,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     acceso_ana = data.get('acceso_analiticas', False)
                     
                     with st.container():
-                        col_info, col_btn1, col_btn2, col_btn3 = st.columns([3, 1, 1, 1])
+                        col_info, col_btn1, col_btn2, col_btn3, col_btn4 = st.columns([3, 1, 1, 1, 1])
                         with col_info:
                             estado_icono = "🔴 BLOQUEADO" if estado == "bloqueado" else "🟢 ACTIVO"
                             if mi_rol == "admin":
@@ -1098,6 +1098,14 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             else:
                                 if st.button("🚫 Bloquear", key=f"block_{user_doc_id}", use_container_width=True):
                                     db.collection('usuarios').document(user_doc_id).update({"estado": "bloqueado"})
+                                    st.rerun()
+                                    
+                        with col_btn4:
+                            if mi_rol == "admin":
+                                if st.button("🗑️ Borrar", key=f"del_user_{user_doc_id}", use_container_width=True):
+                                    db.collection('usuarios').document(user_doc_id).delete()
+                                    st.toast("🗑️ Usuario eliminado de la base de datos")
+                                    time.sleep(1)
                                     st.rerun()
 
                     csv_data += f"{nombre};{rol_usuario};{carrera};{inst_alumno};{correo};{xp};{racha}\n"
@@ -1691,6 +1699,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
