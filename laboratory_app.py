@@ -498,6 +498,7 @@ def mostrar_login():
                             st.error("🚫 Tu cuenta ha sido suspendida. Comunícate con Coordinación.")
                         elif user_data.get("password") == password:
                             st.session_state.user_id = user_doc.id
+                            st.session_state.user_nombre = user_data.get("nombre", "Usuario") # <-- NUEVO: Guardar nombre
                             st.session_state.user_xp = user_data.get("xp", 0)
                             st.session_state.user_streak = user_data.get("racha", 0)
                             st.session_state.user_rol = user_data.get("rol", "estudiante")
@@ -555,6 +556,7 @@ def mostrar_login():
                         }
                         _, doc_ref = usuarios_ref.add(nuevo_usuario)
                         st.session_state.user_id = doc_ref.id
+                        st.session_state.user_nombre = nombre_reg # <-- NUEVO: Guardar nombre
                         st.session_state.user_xp = 0
                         st.session_state.user_streak = 0
                         st.session_state.user_rol = "estudiante"
@@ -576,6 +578,12 @@ def main():
         del st.session_state.pending_sound
 
     with st.sidebar:
+        # --- NUEVO: SALUDO DE BIENVENIDA PERSONALIZADO ---
+        nombre_completo = st.session_state.get("user_nombre", "Usuario")
+        primer_nombre = nombre_completo.split()[0] if nombre_completo else "Usuario"
+        st.markdown(f"### 👋 ¡Bienvenid@, {primer_nombre}!")
+        st.divider()
+
         st.header("Configuración")
         
         st.markdown("### 🏆 Tu Progreso")
@@ -641,7 +649,7 @@ def main():
             
         st.divider()
         if st.button("🚪 Cerrar Sesión", use_container_width=True):
-            for key in ["user_id", "user_xp", "user_streak", "messages", "project_mode", "auditor_mode", "show_admin_panel", "exam_mode"]:
+            for key in ["user_id", "user_nombre", "user_xp", "user_streak", "messages", "project_mode", "auditor_mode", "show_admin_panel", "exam_mode"]:
                 if key in st.session_state:
                     del st.session_state[key]
             st.rerun()
@@ -1683,5 +1691,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
