@@ -641,10 +641,10 @@ def main():
             
         st.divider()
         if st.button("🚪 Cerrar Sesión", use_container_width=True):
-            for key in ["user_id", "user_xp", "user_streak", "messages", "project_mode", "auditor_mode"]:
+            for key in ["user_id", "user_xp", "user_streak", "messages", "project_mode", "auditor_mode", "show_admin_panel", "exam_mode"]:
                 if key in st.session_state:
                     del st.session_state[key]
-            st.rerun()
+            st.rerun())
 
         st.divider()
         st.header("📝 Laboratorio de Casos")
@@ -934,7 +934,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 st.rerun()
 
     # --- Lógica para mostrar el Panel de Administración ---
-    if st.session_state.get("show_admin_panel", False):
+    mi_rol_actual = st.session_state.get("user_rol", "estudiante")
+    if st.session_state.get("show_admin_panel", False) and mi_rol_actual in ["admin", "docente"]:
         st.markdown("---")
         st.header("🛠️ Panel de Administración y Analíticas")
         
@@ -1682,3 +1683,4 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
