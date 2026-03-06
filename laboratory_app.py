@@ -836,12 +836,13 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             data = doc.to_dict()
                             cat = data.get('categoria', 'Examen')
                             enunciado = data.get('enunciado', '')
-                            anticopia = data.get('usa_anticopia', True) # Leemos la configuración secreta del docente
+                            anticopia = data.get('usa_anticopia', True) 
+                            rubrica = data.get('rubrica_secreta', '') # <-- LEEMOS LA RÚBRICA DE FIREBASE
                             
                             if cat not in examenes_disponibles:
                                 examenes_disponibles[cat] = []
-                            # Guardamos texto y configuración
-                            examenes_disponibles[cat].append({"texto": enunciado, "anticopia": anticopia})
+                            # Guardamos texto, configuración y rúbrica
+                            examenes_disponibles[cat].append({"texto": enunciado, "anticopia": anticopia, "rubrica": rubrica})
                     except Exception:
                         pass
 
@@ -869,6 +870,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             
                             datos_examen = mapa_examenes[examen_seleccionado]
                             texto_original = datos_examen["texto"]
+                            st.session_state.exam_rubric = datos_examen.get("rubrica", "") # <-- GUARDAMOS LA RÚBRICA EN MEMORIA DURANTE EL EXAMEN
                             
                             if datos_examen["anticopia"]:
                                 with st.spinner("🎲 La IA está generando tu examen único (Anti-Copia)..."):
@@ -1097,6 +1099,9 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 nivel_dificultad = st.selectbox("Nivel de Dificultad", ["[BÁSICO]", "[INTERMEDIO]", "[AVANZADO]"])
                 nuevo_enunciado = st.text_area("Enunciado del Caso Práctico")
                 
+                # --- NUEVO: RÚBRICA SECRETA DEL DOCENTE ---
+                rubrica_secreta = st.text_area("🕵️ Rúbrica Secreta de Calificación (Solo para la IA)", help="Ej: 'Resta 10 pts si olvidan la glosa', 'El IT es 3%, sé muy estricto con los decimales'. El alumno NO verá esto.")
+                
                 # --- NUEVA OPCIÓN: EL DOCENTE DECIDE SI ES ANTI-COPIA ---
                 activar_anticopia = st.checkbox("🛡️ Activar Escudo Anti-Copia para este ejercicio", value=True, help="La IA generará valores distintos para cada alumno.")
                 
@@ -1105,10 +1110,11 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         nuevo_documento = {
                             "categoria": nueva_categoria,
                             "enunciado": f"{nivel_dificultad} {nuevo_enunciado}",
+                            "rubrica_secreta": rubrica_secreta, 
                             "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                             "institucion": mi_institucion,
                             "codigo_clase": st.session_state.get("user_codigo_clase", "GENERAL"),
-                            "usa_anticopia": activar_anticopia  # <-- ¡AQUÍ ESTÁ LA LÍNEA QUE FALTABA!
+                            "usa_anticopia": activar_anticopia
                         }
                         db.collection('casos_practicos').add(nuevo_documento)
                         st.success("¡Caso guardado!")
@@ -1461,10 +1467,17 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     
                     enunciado_examen = st.session_state.get("exam_questions", "")
                     respuestas_alumno = "\n".join([f"Asiento/Respuesta {i+1}: {r}" for i, r in enumerate(st.session_state.exam_answers)])
+                    rubrica_docente = st.session_state.get("exam_rubric", "")
+                    
+                    texto_rubrica = f"\nINSTRUCCIONES SECRETAS DEL DOCENTE (RÚBRICA DE EVALUACIÓN):\n{rubrica_docente}\nDEBES acatar estas instrucciones estrictamente al momento de calificar.\n" if rubrica_docente else ""
                     
                     reglas_actuales = load_tax_rules() if 'load_tax_rules' in globals() else "Aplica normativa boliviana."
                     
                     prompt_calificacion = f"""Eres un Evaluador Contable Estricto Universitario de la UNICEN.
+                    El estudiante acaba de terminar su examen práctico.
+                    
+                    {reglas_actuales}
+                    {texto_rubrica}
                     El estudiante acaba de terminar su examen práctico.
                     
                     {reglas_actuales}
@@ -1631,6 +1644,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
