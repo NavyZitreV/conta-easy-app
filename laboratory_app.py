@@ -1437,16 +1437,18 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 
                 st.markdown("<br>", unsafe_allow_html=True)
                 
-                # LA GRILLA DE CUENTAS
+                # LA GRILLA DE CUENTAS (Con anchos ajustados)
                 edited_df = st.data_editor(
                     asiento["df"],
                     num_rows="dynamic",
                     use_container_width=True,
                     key=f"grid_{i}",
                     column_config={
-                        "PARCIALES": st.column_config.NumberColumn("PARCIALES", format="%.2f"),
-                        "DEBE": st.column_config.NumberColumn("DEBE", format="%.2f", min_value=0.0),
-                        "HABER": st.column_config.NumberColumn("HABER", format="%.2f", min_value=0.0),
+                        "CÓDIGO": st.column_config.TextColumn("CÓDIGO", width="small"),
+                        "DESCRIPCIÓN": st.column_config.TextColumn("DESCRIPCIÓN", width="large"), # <--- Columna ancha
+                        "PARCIALES": st.column_config.NumberColumn("PARCIALES", format="%.2f", width="small"), # <--- Columna corta
+                        "DEBE": st.column_config.NumberColumn("DEBE", format="%.2f", min_value=0.0, width="small"),
+                        "HABER": st.column_config.NumberColumn("HABER", format="%.2f", min_value=0.0, width="small"),
                     }
                 )
                 
@@ -1832,6 +1834,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
