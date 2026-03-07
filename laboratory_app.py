@@ -886,9 +886,16 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             st.session_state.exam_mode = True
                             st.session_state.exam_title = examen_seleccionado
                             
-                            # --- NUEVA ESTRUCTURA: ASIENTOS DINÁMICOS (ESTILO SOFTWARE CONTABLE) ---
+                            # --- NUEVA ESTRUCTURA DE ASIENTOS PROFESIONALES (TIPO IMAGEN) ---
                             st.session_state.exam_asientos = [
-                                {"fecha": "", "df": pd.DataFrame(columns=["Código", "Cuenta", "Debe (Bs.)", "Haber (Bs.)"], data=[["", "", 0.0, 0.0] for _ in range(4)]), "glosa": ""}
+                                {
+                                    "numero": 1,
+                                    "fecha": "", 
+                                    "df": pd.DataFrame(columns=["CÓDIGO CUENTA", "CUENTA CONTABLE", "DEBE (Bs.)", "HABER (Bs.)"], data=[["", "", 0.0, 0.0] for _ in range(3)]), 
+                                    "glosa": "",
+                                    "total_debe": 0.0,
+                                    "total_haber": 0.0
+                                }
                             ]
                             
                             st.session_state.exam_start_time = datetime.now() # <-- CRONÓMETRO INICIADO
@@ -1375,49 +1382,99 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
     if not st.session_state.get("exam_mode", False):
         prompt = st.chat_input("Escribe tu consulta o transacción aquí...")
         
-    # --- MODO CAJA FUERTE (SOFTWARE CONTABLE) ---
+    # --- MODO CAJA FUERTE (SOFTWARE CONTABLE TIPO IMAGEN) ---
     if st.session_state.get("exam_mode", False) and not st.session_state.get("grade_exam_now", False):
         st.markdown("---")
-        st.markdown("### 📊 Libro Diario (Examen en Curso)")
-        st.info("🔒 **Modo Caja Fuerte Activado:** Chat de IA deshabilitado. Llena tus asientos y presiona '✅ Calificar Examen' al terminar.")
+        st.markdown("### 📚 Libro Diario - Examen en Curso")
+        st.info("🔒 **Modo Caja Fuerte Activado:** Chat de IA deshabilitado. Llena tus asientos tal como se muestra en el formulario profesional.")
         
-        # --- PARCHE DE SEGURIDAD: SI SE RECARGA LA PÁGINA, CREAR ASIENTO VACÍO ---
+        # --- PARCHE DE SEGURIDAD ---
         if "exam_asientos" not in st.session_state:
-            st.session_state.exam_asientos = [
-                {"fecha": "", "df": pd.DataFrame(columns=["Código", "Cuenta", "Debe (Bs.)", "Haber (Bs.)"], data=[["", "", 0.0, 0.0] for _ in range(4)]), "glosa": ""}
-            ]
+            st.session_state.exam_asientos = [{
+                "numero": 1, "fecha": "", "df": pd.DataFrame(columns=["CÓDIGO CUENTA", "CUENTA CONTABLE", "DEBE (Bs.)", "HABER (Bs.)"], data=[["", "", 0.0, 0.0] for _ in range(3)]), "glosa": "", "total_debe": 0.0, "total_haber": 0.0
+            }]
         
-        # Renderizar cada asiento como un bloque individual
+        # Renderizar cada asiento como un bloque profesional (tipo imagen)
         for i, asiento in enumerate(st.session_state.exam_asientos):
+            # Usamos CSS para enmarcar el asiento como un bloque individual profesional
+            st.markdown(f"""
+                <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+                    <h4 style="margin-top: 0px; color: #003366;">FORMULARIO DE ASIENTO PROFESIONAL (N° {asiento['numero']})</h4>
+                </div>
+            """, unsafe_allow_html=True)
+            
             with st.container():
-                st.markdown(f"**📝 Asiento N° {i+1}**")
-                
-                col_fecha, col_espacio = st.columns([1, 4])
-                with col_fecha:
+                # HEADER DEL ASIENTO (Nº y FECHA)
+                col_n, col_f, col_esp = st.columns([1, 1, 3])
+                with col_n:
+                    st.text_input("Nº de Asiento", value=f"{asiento['numero']:04d}", key=f"num_{i}", disabled=True)
+                with col_f:
                     nueva_fecha = st.text_input("Fecha", value=asiento["fecha"], key=f"fecha_{i}")
                     st.session_state.exam_asientos[i]["fecha"] = nueva_fecha
-                    
-                # La tabla solo para las cuentas
+                
+                st.markdown("<br>", unsafe_allow_html=True)
+                
+                # GRID DE CUENTAS (Estilo Excel)
+                # Opciones para que el st.data_editor sea idéntico a una grilla profesional
                 edited_df = st.data_editor(
                     asiento["df"],
                     num_rows="dynamic",
                     use_container_width=True,
-                    key=f"grid_{i}"
+                    key=f"grid_{i}",
+                    column_config={
+                        "DEBE (Bs.)": st.column_config.NumberColumn("DEBE (Bs.)", format="%.2f", min_value=0.0),
+                        "HABER (Bs.)": st.column_config.NumberColumn("HABER (Bs.)", format="%.2f", min_value=0.0),
+                    }
                 )
+                
+                # --- CÁLCULO AUTOMÁTICO DE TOTALES ---
+                # Esto es genial para el alumno, ve en tiempo real si su asiento cuadra
+                t_debe = edited_df["DEBE (Bs.)"].sum()
+                t_haber = edited_df["HABER (Bs.)"].sum()
+                
+                # Guardamos los cambios
                 st.session_state.exam_asientos[i]["df"] = edited_df
+                st.session_state.exam_asientos[i]["total_debe"] = t_debe
+                st.session_state.exam_asientos[i]["total_haber"] = t_haber
                 
-                # La Glosa gigante abajo
-                nueva_glosa = st.text_area("Glosa / Concepto de la Operación", value=asiento["glosa"], key=f"glosa_{i}", height=68)
-                st.session_state.exam_asientos[i]["glosa"] = nueva_glosa
+                # --- BARRA DE TOTALES ABAJO DE LA GRILLA (COMO LA IMAGEN) ---
+                st.markdown(f"""
+                    <div style="background-color: #e9ecef; color: #003366; font-weight: bold; padding: 8px 15px; border-radius: 4px; text-align: right; margin-top: -10px; margin-bottom: 15px;">
+                        TOTALES: Debe {t_debe:.2f} Bs. | Haber {t_haber:.2f} Bs.
+                    </div>
+                """, unsafe_allow_html=True)
                 
-                st.markdown("<hr style='margin-top: 0.5rem; margin-bottom: 1.5rem;'>", unsafe_allow_html=True)
-        
-        # Botón para añadir más asientos
-        if st.button("➕ Añadir Nuevo Asiento", type="secondary"):
-            st.session_state.exam_asientos.append(
-                {"fecha": "", "df": pd.DataFrame(columns=["Código", "Cuenta", "Debe (Bs.)", "Haber (Bs.)"], data=[["", "", 0.0, 0.0] for _ in range(4)]), "glosa": ""}
-            )
-            st.rerun()
+                # Si no cuadra, mostramos una advertencia visual discreta
+                if t_debe != t_haber:
+                    st.caption("⚠️ El asiento no está cuadrado.")
+                
+                st.markdown("<br>", unsafe_allow_html=True)
+                
+                # --- GLOSA (APARTE, ABAJO DEL ASIENTO COMO LA IMAGEN) ---
+                with st.container():
+                    st.markdown("**<span style='color: #003366;'>GLOSA / DETALLE DE LA OPERACIÓN</span>**", unsafe_allow_html=True)
+                    nueva_glosa = st.text_area("", value=asiento["glosa"], key=f"glosa_{i}", height=75)
+                    st.session_state.exam_asientos[i]["glosa"] = nueva_glosa
+                
+                st.markdown("<hr style='border: 1px solid #003366; margin-top: 1rem; margin-bottom: 2rem;'>", unsafe_allow_html=True)
+
+        # Botón para añadir más asientos profesionales
+        col_btn, col_esp = st.columns([1, 4])
+        with col_btn:
+            if st.button("➕ AÑADIR LÍNEA (Asiento Nuevo)", type="secondary", use_container_width=True):
+                # Calcular el siguiente número
+                next_num = len(st.session_state.exam_asientos) + 1
+                st.session_state.exam_asientos.append(
+                    {
+                        "numero": next_num,
+                        "fecha": "", 
+                        "df": pd.DataFrame(columns=["CÓDIGO CUENTA", "CUENTA CONTABLE", "DEBE (Bs.)", "HABER (Bs.)"], data=[["", "", 0.0, 0.0] for _ in range(3)]), 
+                        "glosa": "",
+                        "total_debe": 0.0,
+                        "total_haber": 0.0
+                    }
+                )
+                st.rerun()
 
     if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -1542,6 +1599,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
     if st.session_state.get("grade_exam_now", False):
         st.session_state.grade_exam_now = False 
         st.session_state.exam_mode = False 
+        if "exam_asientos" in st.session_state: del st.session_state.exam_asientos 
         
         with st.chat_message("assistant"):
             with st.spinner("👩‍🏫 El Evaluador IA está revisando tu examen minuciosamente..."):
@@ -1557,11 +1615,11 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     
                     for i, asiento in enumerate(lista_asientos):
                         df_f = asiento["df"]
-                        # Filtramos las filas que el alumno dejó vacías
-                        df_filtrado = df_f[(df_f["Cuenta"] != "") | (df_f["Debe (Bs.)"] > 0) | (df_f["Haber (Bs.)"] > 0)]
+                        # Filtramos las filas que el alumno dejó vacías (ajustando a los nuevos nombres de columna)
+                        df_filtrado = df_f[(df_f["CUENTA CONTABLE"] != "") | (df_f["DEBE (Bs.)"] > 0) | (df_f["HABER (Bs.)"] > 0)]
                         
                         if not df_filtrado.empty or asiento["glosa"]:
-                            respuestas_alumno += f"\n**Asiento N° {i+1}** (Fecha: {asiento['fecha']})\n"
+                            respuestas_alumno += f"\n**Asiento N° {asiento['numero']}** (Fecha: {asiento['fecha']})\n"
                             respuestas_alumno += df_filtrado.to_markdown(index=False)
                             respuestas_alumno += f"\n*Glosa:* {asiento['glosa']}\n"
                     
@@ -1764,6 +1822,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
