@@ -885,8 +885,12 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             st.session_state.pending_sound = "audio/swords.mp3" 
                             st.session_state.exam_mode = True
                             st.session_state.exam_title = examen_seleccionado
-                            # --- NUEVA PLANILLA INTERACTIVA ---
-                            st.session_state.exam_df = pd.DataFrame(columns=["Fecha", "Código", "Cuenta", "Debe", "Haber", "Glosa"], data=[["", "", "", 0.0, 0.0, ""] for _ in range(15)])
+                            
+                            # --- NUEVA ESTRUCTURA: ASIENTOS DINÁMICOS (ESTILO SOFTWARE CONTABLE) ---
+                            st.session_state.exam_asientos = [
+                                {"fecha": "", "df": pd.DataFrame(columns=["Código", "Cuenta", "Debe (Bs.)", "Haber (Bs.)"], data=[["", "", 0.0, 0.0] for _ in range(4)]), "glosa": ""}
+                            ]
+                            
                             st.session_state.exam_start_time = datetime.now() # <-- CRONÓMETRO INICIADO
                             
                             datos_examen = mapa_examenes[examen_seleccionado]
@@ -935,7 +939,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     
             if st.button("❌ Abandonar Examen"):
                 st.session_state.exam_mode = False
-                if "exam_df" in st.session_state: del st.session_state.exam_df
+                if "exam_asientos" in st.session_state: del st.session_state.exam_asientos
                 st.session_state.messages.append({"role": "assistant", "content": "Examen abandonado. Se ha borrado tu progreso."})
                 st.rerun()
 
@@ -1371,19 +1375,43 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
     if not st.session_state.get("exam_mode", False):
         prompt = st.chat_input("Escribe tu consulta o transacción aquí...")
         
-    # --- MODO CAJA FUERTE Y PLANILLA ---
+    # --- MODO CAJA FUERTE (SOFTWARE CONTABLE) ---
     if st.session_state.get("exam_mode", False) and not st.session_state.get("grade_exam_now", False):
         st.markdown("---")
-        st.markdown("### 📊 Hoja de Trabajo (Examen en Curso)")
-        st.info("🔒 **Modo Caja Fuerte Activado:** Chat de IA y Búsquedas deshabilitados. Llena tu planilla y presiona 'Calificar Examen' en la barra lateral cuando termines.")
+        st.markdown("### 📊 Libro Diario (Examen en Curso)")
+        st.info("🔒 **Modo Caja Fuerte Activado:** Chat de IA deshabilitado. Llena tus asientos y presiona '✅ Calificar Examen' al terminar.")
         
-        edited_df = st.data_editor(
-            st.session_state.exam_df,
-            num_rows="dynamic",
-            use_container_width=True,
-            key="grid_examen"
-        )
-        st.session_state.exam_df = edited_df
+        # Renderizar cada asiento como un bloque individual
+        for i, asiento in enumerate(st.session_state.exam_asientos):
+            with st.container():
+                st.markdown(f"**📝 Asiento N° {i+1}**")
+                
+                col_fecha, col_espacio = st.columns([1, 4])
+                with col_fecha:
+                    nueva_fecha = st.text_input("Fecha", value=asiento["fecha"], key=f"fecha_{i}")
+                    st.session_state.exam_asientos[i]["fecha"] = nueva_fecha
+                    
+                # La tabla solo para las cuentas
+                edited_df = st.data_editor(
+                    asiento["df"],
+                    num_rows="dynamic",
+                    use_container_width=True,
+                    key=f"grid_{i}"
+                )
+                st.session_state.exam_asientos[i]["df"] = edited_df
+                
+                # La Glosa gigante abajo
+                nueva_glosa = st.text_area("Glosa / Concepto de la Operación", value=asiento["glosa"], key=f"glosa_{i}", height=68)
+                st.session_state.exam_asientos[i]["glosa"] = nueva_glosa
+                
+                st.markdown("<hr style='margin-top: 0.5rem; margin-bottom: 1.5rem;'>", unsafe_allow_html=True)
+        
+        # Botón para añadir más asientos
+        if st.button("➕ Añadir Nuevo Asiento", type="secondary"):
+            st.session_state.exam_asientos.append(
+                {"fecha": "", "df": pd.DataFrame(columns=["Código", "Cuenta", "Debe (Bs.)", "Haber (Bs.)"], data=[["", "", 0.0, 0.0] for _ in range(4)]), "glosa": ""}
+            )
+            st.rerun()
 
     if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -1517,10 +1545,19 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     
                     enunciado_examen = st.session_state.get("exam_questions", "")
                     
-                    # Extraer datos de la planilla y limpiar filas vacías
-                    df_respuestas = st.session_state.get("exam_df", pd.DataFrame())
-                    df_filtrado = df_respuestas[(df_respuestas["Cuenta"] != "") | (df_respuestas["Debe"] > 0) | (df_respuestas["Haber"] > 0)]
-                    respuestas_alumno = "PLANILLA DEL ESTUDIANTE:\n" + df_filtrado.to_markdown(index=False)
+                    # Ensamblar los Asientos para la IA
+                    lista_asientos = st.session_state.get("exam_asientos", [])
+                    respuestas_alumno = "LIBRO DIARIO DEL ESTUDIANTE:\n"
+                    
+                    for i, asiento in enumerate(lista_asientos):
+                        df_f = asiento["df"]
+                        # Filtramos las filas que el alumno dejó vacías
+                        df_filtrado = df_f[(df_f["Cuenta"] != "") | (df_f["Debe (Bs.)"] > 0) | (df_f["Haber (Bs.)"] > 0)]
+                        
+                        if not df_filtrado.empty or asiento["glosa"]:
+                            respuestas_alumno += f"\n**Asiento N° {i+1}** (Fecha: {asiento['fecha']})\n"
+                            respuestas_alumno += df_filtrado.to_markdown(index=False)
+                            respuestas_alumno += f"\n*Glosa:* {asiento['glosa']}\n"
                     
                     rubrica_docente = st.session_state.get("exam_rubric", "")
                     
@@ -1721,6 +1758,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
