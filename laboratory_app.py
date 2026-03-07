@@ -1381,6 +1381,12 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         st.markdown("### 📊 Libro Diario (Examen en Curso)")
         st.info("🔒 **Modo Caja Fuerte Activado:** Chat de IA deshabilitado. Llena tus asientos y presiona '✅ Calificar Examen' al terminar.")
         
+        # --- PARCHE DE SEGURIDAD: SI SE RECARGA LA PÁGINA, CREAR ASIENTO VACÍO ---
+        if "exam_asientos" not in st.session_state:
+            st.session_state.exam_asientos = [
+                {"fecha": "", "df": pd.DataFrame(columns=["Código", "Cuenta", "Debe (Bs.)", "Haber (Bs.)"], data=[["", "", 0.0, 0.0] for _ in range(4)]), "glosa": ""}
+            ]
+        
         # Renderizar cada asiento como un bloque individual
         for i, asiento in enumerate(st.session_state.exam_asientos):
             with st.container():
@@ -1758,6 +1764,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
