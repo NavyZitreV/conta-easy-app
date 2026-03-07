@@ -886,13 +886,16 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             st.session_state.exam_mode = True
                             st.session_state.exam_title = examen_seleccionado
                             
-                            # --- NUEVA ESTRUCTURA DE ASIENTOS PROFESIONALES (TIPO IMAGEN) ---
+                            # --- NUEVA ESTRUCTURA: COMPROBANTE DIARIO COMPUTARIZADO ---
                             st.session_state.exam_asientos = [
                                 {
+                                    "empresa": "",
+                                    "nit": "",
+                                    "tipo_cbte": "EGRESO",
                                     "numero": 1,
                                     "fecha": "", 
-                                    "df": pd.DataFrame(columns=["CÓDIGO CUENTA", "CUENTA CONTABLE", "DEBE (Bs.)", "HABER (Bs.)"], data=[["", "", 0.0, 0.0] for _ in range(3)]), 
                                     "glosa": "",
+                                    "df": pd.DataFrame(columns=["CÓDIGO", "DESCRIPCIÓN", "PARCIALES", "DEBE", "HABER"], data=[["", "", 0.0, 0.0, 0.0] for _ in range(4)]), 
                                     "total_debe": 0.0,
                                     "total_haber": 0.0
                                 }
@@ -1391,91 +1394,93 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         # --- PARCHE DE SEGURIDAD ---
         if "exam_asientos" not in st.session_state:
             st.session_state.exam_asientos = [{
-                "numero": 1, "fecha": "", "df": pd.DataFrame(columns=["CÓDIGO CUENTA", "CUENTA CONTABLE", "DEBE (Bs.)", "HABER (Bs.)"], data=[["", "", 0.0, 0.0] for _ in range(3)]), "glosa": "", "total_debe": 0.0, "total_haber": 0.0
+                "empresa": "", "nit": "", "tipo_cbte": "EGRESO", "numero": 1, "fecha": "", "glosa": "",
+                "df": pd.DataFrame(columns=["CÓDIGO", "DESCRIPCIÓN", "PARCIALES", "DEBE", "HABER"], data=[["", "", 0.0, 0.0, 0.0] for _ in range(4)]), 
+                "total_debe": 0.0, "total_haber": 0.0
             }]
         
-        # Renderizar cada asiento como un bloque profesional (tipo imagen)
+        # Renderizar cada asiento como un COMPROBANTE DIARIO
         for i, asiento in enumerate(st.session_state.exam_asientos):
-            
-            # --- PARCHE ANTICRASH PARA MEMORIA CACHÉ ---
             numero_actual = asiento.get("numero", i + 1)
             
-            # Usamos CSS para enmarcar el asiento como un bloque individual profesional
+            # Contenedor principal con estilo de borde azul contable
             st.markdown(f"""
-                <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
-                    <h4 style="margin-top: 0px; color: #003366;">FORMULARIO DE ASIENTO PROFESIONAL (N° {numero_actual})</h4>
-                </div>
+                <div style="background-color: white; border: 2px solid #003366; border-radius: 5px; padding: 15px; margin-bottom: 30px;">
+                    <h3 style="text-align: center; color: #003366; margin-top: 0; padding-bottom: 10px; border-bottom: 2px solid #003366;">
+                        COMPROBANTE DIARIO
+                    </h3>
             """, unsafe_allow_html=True)
             
             with st.container():
-                # HEADER DEL ASIENTO (Nº y FECHA)
-                col_n, col_f, col_esp = st.columns([1, 1, 3])
-                with col_n:
-                    st.text_input("Nº de Asiento", value=f"{numero_actual:04d}", key=f"num_{i}", disabled=True)
+                # FILA 1: EMPRESA Y CBTE
+                col_emp, col_cbte = st.columns([3, 1])
+                with col_emp:
+                    asiento["empresa"] = st.text_input("EMPRESA:", value=asiento.get("empresa", ""), key=f"emp_{i}")
+                with col_cbte:
+                    st.text_input("CBTE N°:", value=f"{numero_actual}", key=f"num_{i}", disabled=True)
+
+                # FILA 2: NIT Y APROPIACIÓN
+                col_nit, col_tipo = st.columns([3, 1])
+                with col_nit:
+                    asiento["nit"] = st.text_input("NIT:", value=asiento.get("nit", ""), key=f"nit_{i}")
+                with col_tipo:
+                    tipos = ["EGRESO", "INGRESO", "TRASPASO"]
+                    idx_tipo = tipos.index(asiento.get("tipo_cbte", "EGRESO")) if asiento.get("tipo_cbte", "EGRESO") in tipos else 0
+                    asiento["tipo_cbte"] = st.selectbox("APROPIACIÓN DEL CBTE:", tipos, index=idx_tipo, key=f"tipo_{i}")
+
+                # FILA 3: FECHA Y GLOSA (Cabecera)
+                col_f, col_g = st.columns([1, 3])
                 with col_f:
-                    nueva_fecha = st.text_input("Fecha", value=asiento.get("fecha", ""), key=f"fecha_{i}")
-                    st.session_state.exam_asientos[i]["fecha"] = nueva_fecha
+                    asiento["fecha"] = st.text_input("FECHA:", value=asiento.get("fecha", ""), key=f"fecha_{i}")
+                with col_g:
+                    asiento["glosa"] = st.text_area("GLOSA:", value=asiento.get("glosa", ""), key=f"glosa_{i}", height=68)
                 
                 st.markdown("<br>", unsafe_allow_html=True)
                 
-                # GRID DE CUENTAS (Estilo Excel)
-                # Opciones para que el st.data_editor sea idéntico a una grilla profesional
+                # LA GRILLA DE CUENTAS
                 edited_df = st.data_editor(
                     asiento["df"],
                     num_rows="dynamic",
                     use_container_width=True,
                     key=f"grid_{i}",
                     column_config={
-                        "DEBE (Bs.)": st.column_config.NumberColumn("DEBE (Bs.)", format="%.2f", min_value=0.0),
-                        "HABER (Bs.)": st.column_config.NumberColumn("HABER (Bs.)", format="%.2f", min_value=0.0),
+                        "PARCIALES": st.column_config.NumberColumn("PARCIALES", format="%.2f"),
+                        "DEBE": st.column_config.NumberColumn("DEBE", format="%.2f", min_value=0.0),
+                        "HABER": st.column_config.NumberColumn("HABER", format="%.2f", min_value=0.0),
                     }
                 )
                 
-                # --- CÁLCULO AUTOMÁTICO DE TOTALES ---
-                # Esto es genial para el alumno, ve en tiempo real si su asiento cuadra
-                t_debe = edited_df["DEBE (Bs.)"].sum()
-                t_haber = edited_df["HABER (Bs.)"].sum()
+                # TOTALES
+                t_debe = edited_df["DEBE"].sum()
+                t_haber = edited_df["HABER"].sum()
                 
-                # Guardamos los cambios
                 st.session_state.exam_asientos[i]["df"] = edited_df
                 st.session_state.exam_asientos[i]["total_debe"] = t_debe
                 st.session_state.exam_asientos[i]["total_haber"] = t_haber
                 
-                # --- BARRA DE TOTALES ABAJO DE LA GRILLA (COMO LA IMAGEN) ---
+                # BARRA INFERIOR DE TOTALES AZUL (COMO LA IMAGEN)
                 st.markdown(f"""
-                    <div style="background-color: #e9ecef; color: #003366; font-weight: bold; padding: 8px 15px; border-radius: 4px; text-align: right; margin-top: -10px; margin-bottom: 15px;">
-                        TOTALES: Debe {t_debe:.2f} Bs. | Haber {t_haber:.2f} Bs.
+                    <div style="background-color: #003366; color: white; font-weight: bold; padding: 10px; display: flex; justify-content: space-between; border-radius: 3px;">
+                        <span style="margin-left: 20px;">TOTAL</span>
+                        <span style="margin-right: 20px;">DEBE: {t_debe:.2f} &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; HABER: {t_haber:.2f}</span>
                     </div>
                 """, unsafe_allow_html=True)
                 
-                # Si no cuadra, mostramos una advertencia visual discreta
                 if t_debe != t_haber:
-                    st.caption("⚠️ El asiento no está cuadrado.")
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                
-                # --- GLOSA (APARTE, ABAJO DEL ASIENTO COMO LA IMAGEN) ---
-                with st.container():
-                    st.markdown("**<span style='color: #003366;'>GLOSA / DETALLE DE LA OPERACIÓN</span>**", unsafe_allow_html=True)
-                    nueva_glosa = st.text_area("", value=asiento["glosa"], key=f"glosa_{i}", height=75)
-                    st.session_state.exam_asientos[i]["glosa"] = nueva_glosa
-                
-                st.markdown("<hr style='border: 1px solid #003366; margin-top: 1rem; margin-bottom: 2rem;'>", unsafe_allow_html=True)
+                    st.caption("⚠️ El comprobante no está cuadrado.")
+            
+            st.markdown("</div>", unsafe_allow_html=True) # Cierre del recuadro del comprobante
 
-        # Botón para añadir más asientos profesionales
-        col_btn, col_esp = st.columns([1, 4])
+        # Botón para añadir más Comprobantes
+        col_btn, col_esp = st.columns([1, 3])
         with col_btn:
-            if st.button("➕ AÑADIR LÍNEA (Asiento Nuevo)", type="secondary", use_container_width=True):
-                # Calcular el siguiente número
+            if st.button("➕ NUEVO COMPROBANTE", type="secondary", use_container_width=True):
                 next_num = len(st.session_state.exam_asientos) + 1
                 st.session_state.exam_asientos.append(
                     {
-                        "numero": next_num,
-                        "fecha": "", 
-                        "df": pd.DataFrame(columns=["CÓDIGO CUENTA", "CUENTA CONTABLE", "DEBE (Bs.)", "HABER (Bs.)"], data=[["", "", 0.0, 0.0] for _ in range(3)]), 
-                        "glosa": "",
-                        "total_debe": 0.0,
-                        "total_haber": 0.0
+                        "empresa": "", "nit": "", "tipo_cbte": "EGRESO", "numero": next_num, "fecha": "", "glosa": "",
+                        "df": pd.DataFrame(columns=["CÓDIGO", "DESCRIPCIÓN", "PARCIALES", "DEBE", "HABER"], data=[["", "", 0.0, 0.0, 0.0] for _ in range(4)]), 
+                        "total_debe": 0.0, "total_haber": 0.0
                     }
                 )
                 st.rerun()
@@ -1619,13 +1624,14 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     
                     for i, asiento in enumerate(lista_asientos):
                         df_f = asiento["df"]
-                        # Filtramos las filas que el alumno dejó vacías (ajustando a los nuevos nombres de columna)
-                        df_filtrado = df_f[(df_f["CUENTA CONTABLE"] != "") | (df_f["DEBE (Bs.)"] > 0) | (df_f["HABER (Bs.)"] > 0)]
+                        # Filtramos las filas vacías usando las nuevas columnas
+                        df_filtrado = df_f[(df_f["DESCRIPCIÓN"] != "") | (df_f["DEBE"] > 0) | (df_f["HABER"] > 0)]
                         
-                        if not df_filtrado.empty or asiento["glosa"]:
-                            respuestas_alumno += f"\n**Asiento N° {asiento['numero']}** (Fecha: {asiento['fecha']})\n"
-                            respuestas_alumno += df_filtrado.to_markdown(index=False)
-                            respuestas_alumno += f"\n*Glosa:* {asiento['glosa']}\n"
+                        if not df_filtrado.empty or asiento.get("glosa"):
+                            respuestas_alumno += f"\n**COMPROBANTE N° {asiento.get('numero', i+1)}** | Tipo: {asiento.get('tipo_cbte', '')} | Fecha: {asiento.get('fecha', '')}\n"
+                            respuestas_alumno += f"Empresa: {asiento.get('empresa', '')} | NIT: {asiento.get('nit', '')}\n"
+                            respuestas_alumno += f"Glosa: {asiento.get('glosa', '')}\n\n"
+                            respuestas_alumno += df_filtrado.to_markdown(index=False) + "\n"
                     
                     rubrica_docente = st.session_state.get("exam_rubric", "")
                     
@@ -1826,6 +1832,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
