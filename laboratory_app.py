@@ -918,7 +918,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                         2. Cambia los nombres de las empresas, clientes, proveedores y bancos.
                                         3. Cambia las fechas (año 2026).
                                         4. MANTÉN la misma cantidad de transacciones y dificultad contable.
-                                        5. DEVUELVE ÚNICAMENTE el nuevo texto del examen, con saltos de línea por transacción. Nada de introducciones.
+                                        5. DEVUELVE ÚNICAMENTE el nuevo texto del examen. ¡VITAL! SEPARA CADA TRANSACCIÓN CON UNA LÍNEA EN BLANCO (Doble Enter). Nada de introducciones ni saludos.
                                         
                                         Examen Base:
                                         {texto_original}
@@ -930,11 +930,27 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             else:
                                 st.session_state.exam_questions = texto_original
                                 
-                            # --- NUEVO: DIVIDIR ENUNCIADOS EN LISTA ---
-                            # Filtramos las líneas vacías para tener solo las transacciones reales
-                            lineas_enunciado = [linea.strip() for linea in st.session_state.exam_questions.split('\n') if len(linea.strip()) > 5]
-                            st.session_state.exam_questions_list = lineas_enunciado if lineas_enunciado else [st.session_state.exam_questions]
+                            # --- NUEVO: DIVIDIR ENUNCIADOS EN LISTA (PARSER INTELIGENTE) ---
+                            texto_examen = st.session_state.exam_questions
+                            
+                            # 1. Intentar dividir por DOBLE salto de línea (párrafos enteros)
+                            bloques = re.split(r'\n\s*\n', texto_examen)
+                            lineas_enunciado = [b.strip() for b in bloques if len(b.strip()) > 10]
+                            
+                            # 2. Respaldo: Si el docente no dejó líneas en blanco y todo quedó en 1 bloque, 
+                            # el sistema intentará cortar cada vez que vea un número seguido de un punto (Ej: "2. ")
+                            if len(lineas_enunciado) <= 1:
+                                bloques_alt = re.split(r'\n(?=\d+\.)', texto_examen)
+                                lineas_enunciado = [b.strip() for b in bloques_alt if len(b.strip()) > 10]
+                            
+                            st.session_state.exam_questions_list = lineas_enunciado if lineas_enunciado else [texto_examen]
                             st.session_state.current_q_index = 0
+                            
+                            st.session_state.messages.append({
+                                "role": "assistant", 
+                                "content": "🎓 **¡EXAMEN INICIADO!**\n\nEl sistema de seguridad está activo. Dirígete a la pantalla principal para leer los enunciados uno por uno y llenar tus comprobantes."
+                            })
+                            st.rerun()
                             
                             st.session_state.messages.append({
                                 "role": "assistant", 
@@ -1865,6 +1881,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
