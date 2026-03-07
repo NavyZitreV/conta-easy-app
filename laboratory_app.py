@@ -885,7 +885,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             st.session_state.pending_sound = "audio/swords.mp3" 
                             st.session_state.exam_mode = True
                             st.session_state.exam_title = examen_seleccionado
-                            st.session_state.exam_answers = []
+                            # --- NUEVA PLANILLA INTERACTIVA ---
+                            st.session_state.exam_df = pd.DataFrame(columns=["Fecha", "Código", "Cuenta", "Debe", "Haber", "Glosa"], data=[["", "", "", 0.0, 0.0, ""] for _ in range(15)])
                             st.session_state.exam_start_time = datetime.now() # <-- CRONÓMETRO INICIADO
                             
                             datos_examen = mapa_examenes[examen_seleccionado]
@@ -926,19 +927,16 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     st.caption("No hay exámenes o plantillas subidas por el docente en la nube.")
         else:
             st.warning("⏱️ Examen en curso...")
-            st.info(f"Asientos / Respuestas enviadas: {len(st.session_state.get('exam_answers', []))}")
+            st.info("Llena la planilla en la pantalla principal.")
             
             if st.button("✅ Calificar Examen", type="primary"):
-                if len(st.session_state.exam_answers) > 0:
-                    st.session_state.grade_exam_now = True
-                    st.rerun()
-                else:
-                    st.error("Debes enviar al menos una respuesta en el chat antes de calificar.")
+                st.session_state.grade_exam_now = True
+                st.rerun()
                     
             if st.button("❌ Abandonar Examen"):
                 st.session_state.exam_mode = False
-                st.session_state.exam_answers = []
-                st.session_state.messages.append({"role": "assistant", "content": "Examen abandoned. Se ha borrado tu progreso."})
+                if "exam_df" in st.session_state: del st.session_state.exam_df
+                st.session_state.messages.append({"role": "assistant", "content": "Examen abandonado. Se ha borrado tu progreso."})
                 st.rerun()
 
     # --- Lógica para mostrar el Panel de Administración ---
@@ -1368,7 +1366,26 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         return checkbox_state or any(k in prompt.lower() for k in keywords)
 
     # Input
-    if prompt := st.chat_input("Escribe tu consulta o transacción aquí..."):
+    # Input y Candado "Caja Fuerte"
+    prompt = None
+    if not st.session_state.get("exam_mode", False):
+        prompt = st.chat_input("Escribe tu consulta o transacción aquí...")
+        
+    # --- MODO CAJA FUERTE Y PLANILLA ---
+    if st.session_state.get("exam_mode", False) and not st.session_state.get("grade_exam_now", False):
+        st.markdown("---")
+        st.markdown("### 📊 Hoja de Trabajo (Examen en Curso)")
+        st.info("🔒 **Modo Caja Fuerte Activado:** Chat de IA y Búsquedas deshabilitados. Llena tu planilla y presiona 'Calificar Examen' en la barra lateral cuando termines.")
+        
+        edited_df = st.data_editor(
+            st.session_state.exam_df,
+            num_rows="dynamic",
+            use_container_width=True,
+            key="grid_examen"
+        )
+        st.session_state.exam_df = edited_df
+
+    if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
@@ -1499,7 +1516,12 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     model = genai.GenerativeModel('gemini-flash-latest')
                     
                     enunciado_examen = st.session_state.get("exam_questions", "")
-                    respuestas_alumno = "\n".join([f"Asiento/Respuesta {i+1}: {r}" for i, r in enumerate(st.session_state.exam_answers)])
+                    
+                    # Extraer datos de la planilla y limpiar filas vacías
+                    df_respuestas = st.session_state.get("exam_df", pd.DataFrame())
+                    df_filtrado = df_respuestas[(df_respuestas["Cuenta"] != "") | (df_respuestas["Debe"] > 0) | (df_respuestas["Haber"] > 0)]
+                    respuestas_alumno = "PLANILLA DEL ESTUDIANTE:\n" + df_filtrado.to_markdown(index=False)
+                    
                     rubrica_docente = st.session_state.get("exam_rubric", "")
                     
                     texto_rubrica = f"\nINSTRUCCIONES SECRETAS DEL DOCENTE (RÚBRICA DE EVALUACIÓN):\n{rubrica_docente}\nDEBES acatar estas instrucciones estrictamente al momento de calificar.\n" if rubrica_docente else ""
@@ -1699,6 +1721,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
