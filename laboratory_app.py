@@ -766,7 +766,15 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 st.session_state.pending_sound = "audio/swords.mp3" 
                 st.session_state.auditor_mode = True
                 st.session_state.auditor_case = st.session_state.current_active_case
-                st.session_state.messages.append({"role": "assistant", "content": f"⚔️ **¡Reto Aceptado!**\n\nCaso: *{st.session_state.current_active_case}*\n\nEscribe en el chat tu asiento contable propuesto (Cuentas y Montos). Yo actuaré como un Auditor estricto y calificaré tu respuesta."})
+                
+                # --- NUEVO: PREPARAR EL COMPROBANTE VACÍO PARA EL AUDITOR ---
+                st.session_state.auditor_asiento = {
+                    "empresa": "", "nit": "", "tipo_cbte": "EGRESO", "numero": 1, "fecha": "", "glosa": "",
+                    "df": pd.DataFrame(columns=["CÓDIGO", "DESCRIPCIÓN", "PARCIALES", "DEBE", "HABER"], data=[["", "", 0.0, 0.0, 0.0] for _ in range(4)]), 
+                    "total_debe": 0.0, "total_haber": 0.0
+                }
+                
+                st.session_state.messages.append({"role": "assistant", "content": f"⚔️ **¡Reto Aceptado!**\n\n**Caso:** *{st.session_state.current_active_case}*\n\nLlena el Comprobante Oficial en la pantalla central y presiona 'Enviar al Auditor' cuando estés listo."})
                 st.rerun()
                 
         else:
@@ -1403,7 +1411,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
     # Input
     # Input y Candado "Caja Fuerte"
     prompt = None
-    if not st.session_state.get("exam_mode", False):
+    if not st.session_state.get("exam_mode", False) and not st.session_state.get("auditor_mode", False):
         prompt = st.chat_input("Escribe tu consulta o transacción aquí...")
         
     # --- MODO CAJA FUERTE (SOFTWARE CONTABLE TIPO IMAGEN) ---
@@ -1530,7 +1538,79 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     }
                 )
                 st.rerun()
+# --- MODO RETO AUDITOR (INTERFAZ COMPROBANTE) ---
+    if st.session_state.get("auditor_mode", False) and not st.session_state.get("grade_auditor_now", False):
+        st.markdown("---")
+        st.markdown("### ⚔️ Reto Auditor - Resolución")
+        st.info(f"**CASO ACTIVO:** {st.session_state.get('auditor_case', '')}")
+        
+        if "auditor_asiento" not in st.session_state:
+            st.session_state.auditor_asiento = {
+                "empresa": "", "nit": "", "tipo_cbte": "EGRESO", "numero": 1, "fecha": "", "glosa": "",
+                "df": pd.DataFrame(columns=["CÓDIGO", "DESCRIPCIÓN", "PARCIALES", "DEBE", "HABER"], data=[["", "", 0.0, 0.0, 0.0] for _ in range(4)]), 
+                "total_debe": 0.0, "total_haber": 0.0
+            }
+            
+        asiento_aud = st.session_state.auditor_asiento
+        
+        st.markdown(f"""
+            <div style="background-color: white; border: 2px solid #003366; border-radius: 5px; padding: 15px; margin-bottom: 20px;">
+                <h3 style="text-align: center; color: #003366; margin-top: 0; padding-bottom: 10px; border-bottom: 2px solid #003366;">
+                    COMPROBANTE DIARIO
+                </h3>
+        """, unsafe_allow_html=True)
+        
+        with st.container():
+            col_emp, col_cbte = st.columns([3, 1])
+            with col_emp: asiento_aud["empresa"] = st.text_input("EMPRESA:", value=asiento_aud.get("empresa", ""), key="aud_emp")
+            with col_cbte: st.text_input("CBTE N°:", value="1", disabled=True, key="aud_num")
 
+            col_nit, col_tipo = st.columns([3, 1])
+            with col_nit: asiento_aud["nit"] = st.text_input("NIT:", value=asiento_aud.get("nit", ""), key="aud_nit")
+            with col_tipo:
+                tipos = ["EGRESO", "INGRESO", "TRASPASO"]
+                idx_tipo = tipos.index(asiento_aud.get("tipo_cbte", "EGRESO")) if asiento_aud.get("tipo_cbte", "EGRESO") in tipos else 0
+                asiento_aud["tipo_cbte"] = st.selectbox("APROPIACIÓN:", tipos, index=idx_tipo, key="aud_tipo")
+
+            col_f, col_g = st.columns([1, 3])
+            with col_f: asiento_aud["fecha"] = st.text_input("FECHA:", value=asiento_aud.get("fecha", ""), key="aud_fecha")
+            with col_g: asiento_aud["glosa"] = st.text_area("GLOSA:", value=asiento_aud.get("glosa", ""), key="aud_glosa", height=68)
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            edited_df_aud = st.data_editor(
+                asiento_aud["df"], num_rows="dynamic", use_container_width=True, key="aud_grid",
+                column_config={
+                    "CÓDIGO": st.column_config.TextColumn("CÓDIGO", width="small"),
+                    "DESCRIPCIÓN": st.column_config.TextColumn("DESCRIPCIÓN", width="large"),
+                    "PARCIALES": st.column_config.NumberColumn("PARCIALES", format="%.2f", width="small"),
+                    "DEBE": st.column_config.NumberColumn("DEBE", format="%.2f", min_value=0.0, width="small"),
+                    "HABER": st.column_config.NumberColumn("HABER", format="%.2f", min_value=0.0, width="small"),
+                }
+            )
+            
+            t_debe, t_haber = edited_df_aud["DEBE"].sum(), edited_df_aud["HABER"].sum()
+            st.session_state.auditor_asiento["df"], st.session_state.auditor_asiento["total_debe"], st.session_state.auditor_asiento["total_haber"] = edited_df_aud, t_debe, t_haber
+            
+            st.markdown(f"""
+                <div style="background-color: #003366; color: white; font-weight: bold; padding: 10px; display: flex; justify-content: space-between; border-radius: 3px;">
+                    <span style="margin-left: 20px;">TOTAL</span>
+                    <span style="margin-right: 20px;">DEBE: {t_debe:.2f} &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; HABER: {t_haber:.2f}</span>
+                </div>
+            """, unsafe_allow_html=True)
+            if t_debe != t_haber: st.caption("⚠️ El comprobante no está cuadrado.")
+        
+        st.markdown("</div>", unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        if col1.button("✅ Enviar al Auditor", type="primary", use_container_width=True):
+            st.session_state.grade_auditor_now = True
+            st.rerun()
+        if col2.button("❌ Cancelar Reto", use_container_width=True):
+            st.session_state.auditor_mode = False
+            if "auditor_asiento" in st.session_state: del st.session_state.auditor_asiento
+            st.session_state.messages.append({"role": "assistant", "content": "Reto Auditor cancelado."})
+            st.rerun()
     if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
@@ -1570,40 +1650,69 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 response_container.markdown(full_response)
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
 
-            # 3. --- CHALLENGE MODE INTERCEPTION (RETO AUDITOR) ---
-            elif st.session_state.get("auditor_mode", False):
-                 with st.spinner("🧐 El Auditor está revisando tu asiento..."):
-                    try:
-                        genai.configure(api_key=api_key)
-                        model = genai.GenerativeModel('gemini-flash-latest')
-                        
-                        reglas_actuales = load_tax_rules()
-                        case_ref = st.session_state.get("auditor_case", "Caso desconocido")
-                        
-                        prompt_audit = f"""Eres un Auditor Contable y Docente Universitario. Evalúas a un estudiante. Tu tono es ESTRICTAMENTE PROFESIONAL, OBJETIVO y TÉCNICO.
-                        {reglas_actuales}
-                        Genera este título exacto: # 1. CALIFICACIÓN: X/100
-                        Luego detalla observaciones y errores. Luego muestra la solución correcta en tabla Markdown.
-                        El caso es: "{case_ref}". Su respuesta fue: "{prompt}"."""
-                        
-                        response = model.generate_content(prompt_audit)
-                        full_response = response.text.strip()
-                        
-                        match = re.search(r'CALIFICACIÓN:\s*(\d+)/100', full_response, re.IGNORECASE)
-                        if match:
-                            score = int(match.group(1))
-                            st.session_state.user_xp += score 
-                            if db is not None:
-                                try:
-                                    db.collection('usuarios').document(st.session_state.user_id).update({"xp": st.session_state.user_xp})
-                                except: pass
+    # =======================================================
+    # --- PROCESS AUDITOR GRADING ---
+    # =======================================================
+    if st.session_state.get("grade_auditor_now", False):
+        st.session_state.grade_auditor_now = False 
+        
+        # Extraer y dar formato a la respuesta
+        asiento = st.session_state.auditor_asiento
+        df_f = asiento["df"]
+        df_filtrado = df_f[(df_f["DESCRIPCIÓN"] != "") | (df_f["DEBE"] > 0) | (df_f["HABER"] > 0)]
+        respuesta_formateada = f"COMPROBANTE | Tipo: {asiento.get('tipo_cbte', '')} | Fecha: {asiento.get('fecha', '')}\n"
+        respuesta_formateada += f"Empresa: {asiento.get('empresa', '')} | NIT: {asiento.get('nit', '')}\n"
+        respuesta_formateada += f"Glosa: {asiento.get('glosa', '')}\n\n"
+        respuesta_formateada += df_filtrado.to_markdown(index=False)
+        
+        # Mostrar lo que el alumno envió en el chat
+        mensaje_usuario = "Envié este comprobante para revisión:\n\n" + respuesta_formateada
+        st.session_state.messages.append({"role": "user", "content": mensaje_usuario})
+        
+        with st.chat_message("user"):
+            st.markdown(mensaje_usuario)
+            
+        with st.chat_message("assistant"):
+            with st.spinner("🧐 El Auditor está revisando tu comprobante minuciosamente..."):
+                try:
+                    genai.configure(api_key=api_key)
+                    model = genai.GenerativeModel('gemini-flash-latest')
+                    
+                    reglas_actuales = load_tax_rules() if 'load_tax_rules' in globals() else "Aplica normativa boliviana."
+                    case_ref = st.session_state.get("auditor_case", "Caso desconocido")
+                    
+                    prompt_audit = f"""Eres un Auditor Contable y Docente Universitario. Evalúas a un estudiante. Tu tono es ESTRICTAMENTE PROFESIONAL, OBJETIVO y TÉCNICO.
+                    {reglas_actuales}
+                    Genera este título exacto: # 1. CALIFICACIÓN: X/100
+                    Luego detalla observaciones y errores. Luego muestra la solución correcta en tabla Markdown.
+                    El caso es: "{case_ref}". 
+                    La respuesta del alumno fue: "{respuesta_formateada}"."""
+                    
+                    response = model.generate_content(prompt_audit)
+                    full_response = response.text.strip()
+                    
+                    match = re.search(r'CALIFICACIÓN:\s*(\d+)/100', full_response, re.IGNORECASE)
+                    if match:
+                        score = int(match.group(1))
+                        st.session_state.user_xp += score 
+                        if db is not None:
+                            try:
+                                db.collection('usuarios').document(st.session_state.user_id).update({"xp": st.session_state.user_xp})
+                            except: pass
 
-                        st.session_state.auditor_mode = False 
-                        st.session_state.last_auditor_response = full_response
-                        st.success("Evaluación Completada.")
-                    except Exception as e:
-                        full_response = f"Error del Auditor: {e}"
-                        st.session_state.auditor_mode = False
+                    st.session_state.auditor_mode = False 
+                    if "auditor_asiento" in st.session_state: del st.session_state.auditor_asiento
+                    
+                    st.session_state.last_auditor_response = full_response
+                    st.markdown(full_response)
+                    st.session_state.messages.append({"role": "assistant", "content": full_response})
+                    
+                    pdf_bytes = generar_pdf(full_response)
+                    st.download_button(label="📄 Descargar Evaluación", data=pdf_bytes, file_name="Evaluacion_Auditor.pdf", mime="application/pdf", key=f"pdf_aud_gen_final_{len(st.session_state.messages)}")
+                    
+                except Exception as e:
+                    st.error(f"Error del Auditor: {e}")
+                    st.session_state.auditor_mode = False
 
             # 4. --- TUTOR IA / BÚSQUEDA (MODO NORMAL) ---
             else:
@@ -1880,6 +1989,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
