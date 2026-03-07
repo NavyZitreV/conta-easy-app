@@ -182,14 +182,10 @@ def generar_pdf(markdown_content):
     html_text = re.sub(r'<table[^>]*>', '<br><table border="1" width="100%">', html_text)
     html_text = html_text.replace('</table>', '</table><br>')
 
-    # --- MEJORAS VISUALES PARA QUE EL PDF SEA IGUAL A LA PANTALLA ---
-    # 1. Asignar proporciones exactas a las columnas
-    html_text = re.sub(r'<th[^>]*>Código</th>', '<th width="15%" align="left">Código</th>', html_text, flags=re.IGNORECASE)
-    html_text = re.sub(r'<th[^>]*>Cuenta</th>', '<th width="45%" align="left">Cuenta</th>', html_text, flags=re.IGNORECASE)
-    html_text = re.sub(r'<th[^>]*>Debe \(Bs\.\)</th>', '<th width="20%" align="right">Debe (Bs.)</th>', html_text, flags=re.IGNORECASE)
-    html_text = re.sub(r'<th[^>]*>Haber \(Bs\.\)</th>', '<th width="20%" align="right">Haber (Bs.)</th>', html_text, flags=re.IGNORECASE)
+    # --- MEJORAS VISUALES PARA TABLAS ---
+    # Dejamos que la librería calcule el ancho automático (ideal para 4 o 5 columnas)
     
-    # 2. Borrar los guiones invisibles de la IA
+    # Borrar los guiones invisibles de la IA
     html_text = re.sub(r'<td([^>]*)>\s*-\s*</td>', r'<td\1></td>', html_text)
 
     # 3. Alineaciones y colores de títulos
@@ -1969,3 +1965,4 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
