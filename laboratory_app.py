@@ -918,7 +918,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                                         2. Cambia los nombres de las empresas, clientes, proveedores y bancos.
                                         3. Cambia las fechas (año 2026).
                                         4. MANTÉN la misma cantidad de transacciones y dificultad contable.
-                                        5. DEVUELVE ÚNICAMENTE el nuevo texto del examen. ¡VITAL! SEPARA CADA TRANSACCIÓN CON UNA LÍNEA EN BLANCO (Doble Enter). Nada de introducciones ni saludos.
+                                        5. DEVUELVE ÚNICAMENTE el nuevo texto del examen. Nada de introducciones ni saludos.
+                                        6. ¡VITAL! SEPARA CADA TRANSACCIÓN DE LA SIGUIENTE USANDO EXACTAMENTE ESTE DELIMITADOR: |||
                                         
                                         Examen Base:
                                         {texto_original}
@@ -930,27 +931,25 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             else:
                                 st.session_state.exam_questions = texto_original
                                 
-                            # --- NUEVO: DIVIDIR ENUNCIADOS EN LISTA (PARSER INTELIGENTE) ---
+                            # --- NUEVO: DIVIDIR ENUNCIADOS EN LISTA (PARSER BLINDADO) ---
                             texto_examen = st.session_state.exam_questions
                             
-                            # 1. Intentar dividir por DOBLE salto de línea (párrafos enteros)
-                            bloques = re.split(r'\n\s*\n', texto_examen)
+                            if "|||" in texto_examen:
+                                # 1. Si la IA usó el delimitador estricto
+                                bloques = texto_examen.split("|||")
+                            else:
+                                # 2. Respaldo inteligente para texto del docente:
+                                # Corta automáticamente antes de un número de lista (Ej: "1.", "2)", "3-")
+                                patron = r'(?m)(?=^\s*(?:\[.*?\]\s*)?\d+[\.\-\)])'
+                                bloques = re.split(patron, texto_examen)
+                                
+                                # 3. Si el docente escribió todo como un bloque sin números, cortamos por doble salto de línea
+                                if len(bloques) <= 1:
+                                    bloques = re.split(r'\n\s*\n', texto_examen)
+                                    
                             lineas_enunciado = [b.strip() for b in bloques if len(b.strip()) > 10]
-                            
-                            # 2. Respaldo: Si el docente no dejó líneas en blanco y todo quedó en 1 bloque, 
-                            # el sistema intentará cortar cada vez que vea un número seguido de un punto (Ej: "2. ")
-                            if len(lineas_enunciado) <= 1:
-                                bloques_alt = re.split(r'\n(?=\d+\.)', texto_examen)
-                                lineas_enunciado = [b.strip() for b in bloques_alt if len(b.strip()) > 10]
-                            
                             st.session_state.exam_questions_list = lineas_enunciado if lineas_enunciado else [texto_examen]
                             st.session_state.current_q_index = 0
-                            
-                            st.session_state.messages.append({
-                                "role": "assistant", 
-                                "content": "🎓 **¡EXAMEN INICIADO!**\n\nEl sistema de seguridad está activo. Dirígete a la pantalla principal para leer los enunciados uno por uno y llenar tus comprobantes."
-                            })
-                            st.rerun()
                             
                             st.session_state.messages.append({
                                 "role": "assistant", 
@@ -1881,6 +1880,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
