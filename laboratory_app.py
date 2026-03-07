@@ -1396,10 +1396,14 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         
         # Renderizar cada asiento como un bloque profesional (tipo imagen)
         for i, asiento in enumerate(st.session_state.exam_asientos):
+            
+            # --- PARCHE ANTICRASH PARA MEMORIA CACHÉ ---
+            numero_actual = asiento.get("numero", i + 1)
+            
             # Usamos CSS para enmarcar el asiento como un bloque individual profesional
             st.markdown(f"""
                 <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
-                    <h4 style="margin-top: 0px; color: #003366;">FORMULARIO DE ASIENTO PROFESIONAL (N° {asiento['numero']})</h4>
+                    <h4 style="margin-top: 0px; color: #003366;">FORMULARIO DE ASIENTO PROFESIONAL (N° {numero_actual})</h4>
                 </div>
             """, unsafe_allow_html=True)
             
@@ -1407,9 +1411,9 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 # HEADER DEL ASIENTO (Nº y FECHA)
                 col_n, col_f, col_esp = st.columns([1, 1, 3])
                 with col_n:
-                    st.text_input("Nº de Asiento", value=f"{asiento['numero']:04d}", key=f"num_{i}", disabled=True)
+                    st.text_input("Nº de Asiento", value=f"{numero_actual:04d}", key=f"num_{i}", disabled=True)
                 with col_f:
-                    nueva_fecha = st.text_input("Fecha", value=asiento["fecha"], key=f"fecha_{i}")
+                    nueva_fecha = st.text_input("Fecha", value=asiento.get("fecha", ""), key=f"fecha_{i}")
                     st.session_state.exam_asientos[i]["fecha"] = nueva_fecha
                 
                 st.markdown("<br>", unsafe_allow_html=True)
@@ -1822,6 +1826,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
