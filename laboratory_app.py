@@ -498,13 +498,12 @@ def mostrar_login():
                             st.error("🚫 Tu cuenta ha sido suspendida. Comunícate con Coordinación.")
                         elif user_data.get("password") == password:
                             st.session_state.user_id = user_doc.id
-                            st.session_state.user_nombre = user_data.get("nombre", "Usuario") # <-- NUEVO: Guardar nombre
+                            st.session_state.user_nombre = user_data.get("nombre", "Usuario") 
                             st.session_state.user_xp = user_data.get("xp", 0)
                             st.session_state.user_streak = user_data.get("racha", 0)
                             st.session_state.user_rol = user_data.get("rol", "estudiante")
                             st.session_state.user_institucion = user_data.get("institucion", "UNICEN") 
                             
-                            # --- NUEVO: RECUPERAR EL CÓDIGO DE CLASE AL ENTRAR ---
                             st.session_state.user_codigo_clase = user_data.get("codigo_clase", "GENERAL")
                             
                             st.success("¡Sesión iniciada exitosamente!")
@@ -517,15 +516,13 @@ def mostrar_login():
             nombre_reg = st.text_input("Nombre Completo", key="reg_nombre")
             carrera_reg = st.selectbox("Carrera", ["Contaduría Pública", "Ingeniería Financiera", "Administración de Empresas", "Otra"], key="reg_carrera")
             
-            # --- MODIFICACIÓN SAAS: Institución Fija y Bloqueada ---
             try:
                 institucion_fija = st.secrets["general"]["NOMBRE_INSTITUCION"]
             except:
-                institucion_fija = "UNICEN" # Valor por defecto
+                institucion_fija = "UNICEN" 
                 
             institucion_reg = st.text_input("Institución (Asignada automáticamente)", value=institucion_fija, disabled=True, key="reg_inst")
             
-            # --- NUEVO: CAMPO DE CÓDIGO DE CLASE ---
             codigo_clase_reg = st.text_input("Código de Clase (Pídeselo a tu docente)", help="Ejemplo: VERTIZ-101. Si eres docente independiente, inventa uno.", key="reg_codigo")
             
             nuevo_password = st.text_input("Contraseña", type="password", key="reg_pass")
@@ -541,13 +538,13 @@ def mostrar_login():
                     if len(query) > 0:
                         st.error("Ese correo ya está registrado.")
                     else:
-                        codigo_limpio = codigo_clase_reg.strip().upper() # Lo forzamos a mayúsculas para evitar errores
+                        codigo_limpio = codigo_clase_reg.strip().upper() 
                         nuevo_usuario = {
                             "correo": nuevo_correo,
                             "nombre": nombre_reg,
                             "carrera": carrera_reg,
                             "institucion": institucion_fija,
-                            "codigo_clase": codigo_limpio, # <-- GUARDAMOS EL CÓDIGO EN FIREBASE
+                            "codigo_clase": codigo_limpio, 
                             "password": nuevo_password,
                             "xp": 0,
                             "racha": 0,
@@ -556,12 +553,12 @@ def mostrar_login():
                         }
                         _, doc_ref = usuarios_ref.add(nuevo_usuario)
                         st.session_state.user_id = doc_ref.id
-                        st.session_state.user_nombre = nombre_reg # <-- NUEVO: Guardar nombre
+                        st.session_state.user_nombre = nombre_reg 
                         st.session_state.user_xp = 0
                         st.session_state.user_streak = 0
                         st.session_state.user_rol = "estudiante"
                         st.session_state.user_institucion = institucion_fija
-                        st.session_state.user_codigo_clase = codigo_limpio # <-- LO GUARDAMOS EN LA SESIÓN
+                        st.session_state.user_codigo_clase = codigo_limpio 
                         st.success("Cuenta creada exitosamente. ¡Bienvenido!")
                         st.rerun()
 
@@ -578,7 +575,6 @@ def main():
         del st.session_state.pending_sound
 
     with st.sidebar:
-        # --- NUEVO: SALUDO DE BIENVENIDA PERSONALIZADO ---
         nombre_completo = st.session_state.get("user_nombre", "Usuario")
         primer_nombre = nombre_completo.split()[0] if nombre_completo else "Usuario"
         st.markdown(f"### 👋 ¡Bienvenid@, {primer_nombre}!")
@@ -1408,7 +1404,6 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
         keywords = ['en la web', 'en internet', 'según impuestos', 'en notebooklm', 'busca en todas']
         return checkbox_state or any(k in prompt.lower() for k in keywords)
 
-    # Input
     # Input y Candado "Caja Fuerte"
     prompt = None
     if not st.session_state.get("exam_mode", False) and not st.session_state.get("auditor_mode", False):
@@ -1497,8 +1492,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     key=f"grid_{i}",
                     column_config={
                         "CÓDIGO": st.column_config.TextColumn("CÓDIGO", width="small"),
-                        "DESCRIPCIÓN": st.column_config.TextColumn("DESCRIPCIÓN", width="large"), # <--- Columna ancha
-                        "PARCIALES": st.column_config.NumberColumn("PARCIALES", format="%.2f", width="small"), # <--- Columna corta
+                        "DESCRIPCIÓN": st.column_config.TextColumn("DESCRIPCIÓN", width="large"), 
+                        "PARCIALES": st.column_config.NumberColumn("PARCIALES", format="%.2f", width="small"), 
                         "DEBE": st.column_config.NumberColumn("DEBE", format="%.2f", min_value=0.0, width="small"),
                         "HABER": st.column_config.NumberColumn("HABER", format="%.2f", min_value=0.0, width="small"),
                     }
@@ -1538,7 +1533,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     }
                 )
                 st.rerun()
-# --- MODO RETO AUDITOR (INTERFAZ COMPROBANTE) ---
+
+    # --- MODO RETO AUDITOR (INTERFAZ COMPROBANTE) ---
     if st.session_state.get("auditor_mode", False) and not st.session_state.get("grade_auditor_now", False):
         st.markdown("---")
         st.markdown("### ⚔️ Reto Auditor - Resolución")
@@ -1611,6 +1607,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             if "auditor_asiento" in st.session_state: del st.session_state.auditor_asiento
             st.session_state.messages.append({"role": "assistant", "content": "Reto Auditor cancelado."})
             st.rerun()
+
+    # --- PROCESAMIENTO DEL CHAT ---
     if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
@@ -1621,13 +1619,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             try:
                 user_ref = db.collection('usuarios').document(st.session_state.user_id)
                 user_data = user_ref.get().to_dict()
-                
-                es_auditor = st.session_state.get("auditor_mode", False) 
-                
-                if es_auditor:
-                    user_ref.update({"uso_auditor": user_data.get("uso_auditor", 0) + 1})
-                else:
-                    user_ref.update({"uso_tutor": user_data.get("uso_tutor", 0) + 1})
+                user_ref.update({"uso_tutor": user_data.get("uso_tutor", 0) + 1})
             except Exception as e:
                 pass
         # ----------------------------------------
@@ -1640,81 +1632,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             if st.session_state.get("project_mode", False) and not st.session_state.get("generate_project_balance", False):
                 st.session_state.project_transactions.append(prompt)
                 full_response = f"✅ Transacción #{len(st.session_state.project_transactions)} guardada. Escribe la siguiente o presiona **'Generar EEFF'** en la barra lateral."
-                response_container.markdown(full_response)
-                st.session_state.messages.append({"role": "assistant", "content": full_response})
-            
-            # --- 2. EXAM MODE INTERCEPTION (SILENCIOSO) ---
-            elif st.session_state.get("exam_mode", False) and not st.session_state.get("grade_exam_now", False):
-                st.session_state.exam_answers.append(prompt)
-                full_response = f"✅ Asiento registrado (Respuesta #{len(st.session_state.exam_answers)}). Ingresa el siguiente asiento, o si ya terminaste presiona **'✅ Calificar Examen'** en la barra lateral."
-                response_container.markdown(full_response)
-                st.session_state.messages.append({"role": "assistant", "content": full_response})
-
-    # =======================================================
-    # --- PROCESS AUDITOR GRADING ---
-    # =======================================================
-    if st.session_state.get("grade_auditor_now", False):
-        st.session_state.grade_auditor_now = False 
-        
-        # Extraer y dar formato a la respuesta
-        asiento = st.session_state.auditor_asiento
-        df_f = asiento["df"]
-        df_filtrado = df_f[(df_f["DESCRIPCIÓN"] != "") | (df_f["DEBE"] > 0) | (df_f["HABER"] > 0)]
-        respuesta_formateada = f"COMPROBANTE | Tipo: {asiento.get('tipo_cbte', '')} | Fecha: {asiento.get('fecha', '')}\n"
-        respuesta_formateada += f"Empresa: {asiento.get('empresa', '')} | NIT: {asiento.get('nit', '')}\n"
-        respuesta_formateada += f"Glosa: {asiento.get('glosa', '')}\n\n"
-        respuesta_formateada += df_filtrado.to_markdown(index=False)
-        
-        # Mostrar lo que el alumno envió en el chat
-        mensaje_usuario = "Envié este comprobante para revisión:\n\n" + respuesta_formateada
-        st.session_state.messages.append({"role": "user", "content": mensaje_usuario})
-        
-        with st.chat_message("user"):
-            st.markdown(mensaje_usuario)
-            
-        with st.chat_message("assistant"):
-            with st.spinner("🧐 El Auditor está revisando tu comprobante minuciosamente..."):
-                try:
-                    genai.configure(api_key=api_key)
-                    model = genai.GenerativeModel('gemini-flash-latest')
-                    
-                    reglas_actuales = load_tax_rules() if 'load_tax_rules' in globals() else "Aplica normativa boliviana."
-                    case_ref = st.session_state.get("auditor_case", "Caso desconocido")
-                    
-                    prompt_audit = f"""Eres un Auditor Contable y Docente Universitario. Evalúas a un estudiante. Tu tono es ESTRICTAMENTE PROFESIONAL, OBJETIVO y TÉCNICO.
-                    {reglas_actuales}
-                    Genera este título exacto: # 1. CALIFICACIÓN: X/100
-                    Luego detalla observaciones y errores. Luego muestra la solución correcta en tabla Markdown.
-                    El caso es: "{case_ref}". 
-                    La respuesta del alumno fue: "{respuesta_formateada}"."""
-                    
-                    response = model.generate_content(prompt_audit)
-                    full_response = response.text.strip()
-                    
-                    match = re.search(r'CALIFICACIÓN:\s*(\d+)/100', full_response, re.IGNORECASE)
-                    if match:
-                        score = int(match.group(1))
-                        st.session_state.user_xp += score 
-                        if db is not None:
-                            try:
-                                db.collection('usuarios').document(st.session_state.user_id).update({"xp": st.session_state.user_xp})
-                            except: pass
-
-                    st.session_state.auditor_mode = False 
-                    if "auditor_asiento" in st.session_state: del st.session_state.auditor_asiento
-                    
-                    st.session_state.last_auditor_response = full_response
-                    st.markdown(full_response)
-                    st.session_state.messages.append({"role": "assistant", "content": full_response})
-                    
-                    pdf_bytes = generar_pdf(full_response)
-                    st.download_button(label="📄 Descargar Evaluación", data=pdf_bytes, file_name="Evaluacion_Auditor.pdf", mime="application/pdf", key=f"pdf_aud_gen_final_{len(st.session_state.messages)}")
-                    
-                except Exception as e:
-                    st.error(f"Error del Auditor: {e}")
-                    st.session_state.auditor_mode = False
-
-            # 4. --- TUTOR IA / BÚSQUEDA (MODO NORMAL) ---
+                
+            # --- 2. TUTOR IA / BÚSQUEDA (MODO NORMAL) ---
             else:
                 is_deep_search = should_run_deep_search(prompt, deep_search_active)
                 
@@ -1739,15 +1658,12 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                         except Exception as e:
                             full_response = f"❌ Error: {e}"
             
-            # --- IMPRIMIR LA RESPUESTA DE CUALQUIERA DE LOS 4 MODOS ---
+            # --- IMPRIMIR LA RESPUESTA ---
             response_container.markdown(full_response)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
 
-            # --- BOTONES DE DESCARGA PDF SI CORRESPONDE ---
-            if st.session_state.get("last_auditor_response") == full_response:
-                pdf_bytes = generar_pdf(full_response)
-                st.download_button(label="📄 Descargar Evaluación", data=pdf_bytes, file_name="Evaluacion.pdf", mime="application/pdf", key=f"pdf_aud_gen_{len(st.session_state.messages)}")
-            elif "**👨‍🏫 Tutor UNICEN (Resolución Libre):**" in full_response:
+            # --- BOTONES DE DESCARGA PDF ---
+            if "**👨‍🏫 Tutor UNICEN (Resolución Libre):**" in full_response:
                 pdf_bytes = generar_pdf(full_response)
                 st.download_button(
                     label="📄 Descargar Resolución en PDF",
@@ -1757,7 +1673,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                     key=f"pdf_chat_gen_{len(st.session_state.messages)}"
                 )
 
-# =======================================================
+    # =======================================================
     # --- PROCESS EXAM GRADING (EL CALIFICADOR FINAL) ---
     # =======================================================
     if st.session_state.get("grade_exam_now", False):
@@ -1987,20 +1903,69 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                 except Exception as e:
                     st.error(f"Error al generar el balance: {e}")
 
+    # =======================================================
+    # --- PROCESS AUDITOR GRADING ---
+    # =======================================================
+    if st.session_state.get("grade_auditor_now", False):
+        st.session_state.grade_auditor_now = False 
+        
+        # Extraer y dar formato a la respuesta
+        asiento = st.session_state.auditor_asiento
+        df_f = asiento["df"]
+        df_filtrado = df_f[(df_f["DESCRIPCIÓN"] != "") | (df_f["DEBE"] > 0) | (df_f["HABER"] > 0)]
+        respuesta_formateada = f"COMPROBANTE | Tipo: {asiento.get('tipo_cbte', '')} | Fecha: {asiento.get('fecha', '')}\n"
+        respuesta_formateada += f"Empresa: {asiento.get('empresa', '')} | NIT: {asiento.get('nit', '')}\n"
+        respuesta_formateada += f"Glosa: {asiento.get('glosa', '')}\n\n"
+        respuesta_formateada += df_filtrado.to_markdown(index=False)
+        
+        # Mostrar lo que el alumno envió en el chat
+        mensaje_usuario = "Envié este comprobante para revisión:\n\n" + respuesta_formateada
+        st.session_state.messages.append({"role": "user", "content": mensaje_usuario})
+        
+        with st.chat_message("user"):
+            st.markdown(mensaje_usuario)
+            
+        with st.chat_message("assistant"):
+            with st.spinner("🧐 El Auditor está revisando tu comprobante minuciosamente..."):
+                try:
+                    genai.configure(api_key=api_key)
+                    model = genai.GenerativeModel('gemini-flash-latest')
+                    
+                    reglas_actuales = load_tax_rules() if 'load_tax_rules' in globals() else "Aplica normativa boliviana."
+                    case_ref = st.session_state.get("auditor_case", "Caso desconocido")
+                    
+                    prompt_audit = f"""Eres un Auditor Contable y Docente Universitario. Evalúas a un estudiante. Tu tono es ESTRICTAMENTE PROFESIONAL, OBJETIVO y TÉCNICO.
+                    {reglas_actuales}
+                    Genera este título exacto: # 1. CALIFICACIÓN: X/100
+                    Luego detalla observaciones y errores. Luego muestra la solución correcta en tabla Markdown.
+                    El caso es: "{case_ref}". 
+                    La respuesta del alumno fue: "{respuesta_formateada}"."""
+                    
+                    response = model.generate_content(prompt_audit)
+                    full_response = response.text.strip()
+                    
+                    match = re.search(r'CALIFICACIÓN:\s*(\d+)/100', full_response, re.IGNORECASE)
+                    if match:
+                        score = int(match.group(1))
+                        st.session_state.user_xp += score 
+                        if db is not None:
+                            try:
+                                db.collection('usuarios').document(st.session_state.user_id).update({"xp": st.session_state.user_xp})
+                            except: pass
+
+                    st.session_state.auditor_mode = False 
+                    if "auditor_asiento" in st.session_state: del st.session_state.auditor_asiento
+                    
+                    st.session_state.last_auditor_response = full_response
+                    st.markdown(full_response)
+                    st.session_state.messages.append({"role": "assistant", "content": full_response})
+                    
+                    pdf_bytes = generar_pdf(full_response)
+                    st.download_button(label="📄 Descargar Evaluación", data=pdf_bytes, file_name="Evaluacion_Auditor.pdf", mime="application/pdf", key=f"pdf_aud_gen_final_{len(st.session_state.messages)}")
+                    
+                except Exception as e:
+                    st.error(f"Error del Auditor: {e}")
+                    st.session_state.auditor_mode = False
+
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
