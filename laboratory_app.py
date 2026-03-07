@@ -930,11 +930,15 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
                             else:
                                 st.session_state.exam_questions = texto_original
                                 
-                            preguntas_formateadas = "* " + st.session_state.exam_questions.replace('\n', '\n\n* ')
+                            # --- NUEVO: DIVIDIR ENUNCIADOS EN LISTA ---
+                            # Filtramos las líneas vacías para tener solo las transacciones reales
+                            lineas_enunciado = [linea.strip() for linea in st.session_state.exam_questions.split('\n') if len(linea.strip()) > 5]
+                            st.session_state.exam_questions_list = lineas_enunciado if lineas_enunciado else [st.session_state.exam_questions]
+                            st.session_state.current_q_index = 0
                             
                             st.session_state.messages.append({
                                 "role": "assistant", 
-                                "content": f"🎓 **¡EXAMEN INICIADO!**\n\n**ENUNCIADO:**\n{preguntas_formateadas}\n\n---\n**INSTRUCCIONES:**\nEscribe en la barra de chat tus respuestas. Cuando termines de registrar TODO, presiona **'✅ Calificar Examen'** en la barra lateral."
+                                "content": "🎓 **¡EXAMEN INICIADO!**\n\nEl sistema de seguridad está activo. Dirígete a la pantalla principal para leer los enunciados uno por uno y llenar tus comprobantes."
                             })
                             st.rerun()
                 else:
@@ -950,6 +954,8 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
             if st.button("❌ Abandonar Examen"):
                 st.session_state.exam_mode = False
                 if "exam_asientos" in st.session_state: del st.session_state.exam_asientos
+                if "exam_questions_list" in st.session_state: del st.session_state.exam_questions_list
+                if "current_q_index" in st.session_state: del st.session_state.current_q_index
                 st.session_state.messages.append({"role": "assistant", "content": "Examen abandonado. Se ha borrado tu progreso."})
                 st.rerun()
 
@@ -1389,8 +1395,31 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
     if st.session_state.get("exam_mode", False) and not st.session_state.get("grade_exam_now", False):
         st.markdown("---")
         st.markdown("### 📚 Libro Diario - Examen en Curso")
-        st.info("🔒 **Modo Caja Fuerte Activado:** Chat de IA deshabilitado. Llena tus asientos tal como se muestra en el formulario profesional.")
+        st.info("🔒 **Modo Caja Fuerte Activado:** Chat de IA deshabilitado. Lee el enunciado y registra tu comprobante abajo.")
         
+        # --- NUEVO: PAGINADOR DE ENUNCIADOS ANTI-COPIA ---
+        preguntas = st.session_state.get("exam_questions_list", ["No hay enunciados disponibles."])
+        idx = st.session_state.get("current_q_index", 0)
+        
+        st.markdown(f"""
+            <div style="background-color: #f8f9fa; border-left: 5px solid #003366; padding: 15px; border-radius: 5px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h5 style="margin-top: 0; color: #003366; font-size: 1rem;">📄 TRANSACCIÓN {idx + 1} DE {len(preguntas)}</h5>
+                <p style="font-size: 1.1rem; margin-bottom: 0; color: #333;">{preguntas[idx]}</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        col_btn_prev, col_btn_next, _ = st.columns([1, 1, 4])
+        with col_btn_prev:
+            if st.button("⬅️ Anterior", use_container_width=True, disabled=(idx == 0)):
+                st.session_state.current_q_index -= 1
+                st.rerun()
+        with col_btn_next:
+            if st.button("Siguiente ➡️", use_container_width=True, disabled=(idx == len(preguntas) - 1)):
+                st.session_state.current_q_index += 1
+                st.rerun()
+        
+        st.markdown("<hr style='border: 1px dashed #ccc; margin-top: 15px; margin-bottom: 25px;'>", unsafe_allow_html=True)
+
         # --- PARCHE DE SEGURIDAD ---
         if "exam_asientos" not in st.session_state:
             st.session_state.exam_asientos = [{
@@ -1610,7 +1639,9 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
     if st.session_state.get("grade_exam_now", False):
         st.session_state.grade_exam_now = False 
         st.session_state.exam_mode = False 
-        if "exam_asientos" in st.session_state: del st.session_state.exam_asientos 
+        if "exam_asientos" in st.session_state: del st.session_state.exam_asientos
+        if "exam_questions_list" in st.session_state: del st.session_state.exam_questions_list
+        if "current_q_index" in st.session_state: del st.session_state.current_q_index 
         
         with st.chat_message("assistant"):
             with st.spinner("👩‍🏫 El Evaluador IA está revisando tu examen minuciosamente..."):
@@ -1834,6 +1865,7 @@ REGLA DE ORO DE FORMATO: TODAS las filas de TODAS las tablas DEBEN empezar oblig
 
 if __name__ == "__main__":
     main()
+
 
 
 
